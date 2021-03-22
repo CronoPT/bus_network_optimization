@@ -32,3 +32,8 @@
 *.app
 
 .vscode/
+
+lib/
+include/
+bin/
+build/
