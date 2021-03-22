@@ -1,5 +1,5 @@
-#ifndef __GENETIC_SOLUTION_HPP__
-#define __GENETIC_SOLUTION_HPP__ 
+#ifndef __SOLUTION_HPP__
+#define __SOLUTION_HPP__ 
 
 #include <vector>
 #include <iostream>
@@ -7,7 +7,7 @@
 namespace genetic {
 	
 	template<typename T>
-	class genetic_solution {
+	class solution {
 
 		private:
 			float _total_cost;
@@ -16,7 +16,7 @@ namespace genetic {
 			T _item;
 
 		public:
-			genetic_solution(const T item);
+			solution(const T item);
 
 			//getters
 			float total_cost() const;
@@ -30,12 +30,13 @@ namespace genetic {
 			void costs(const std::vector<float>& new_costs);
 			void item(const T& new_item);
 
+			bool operator<(const solution<T>& other) const; 
 			virtual void dump_to(std::ostream& os) const = 0;
 		
 	};
 
 	template<typename T>
-	std::ostream& operator<<(std::ostream& os, const genetic_solution<T>& a); 
+	std::ostream& operator<<(std::ostream& os, const solution<T>& a); 
 
 } // namespace genetic
 
