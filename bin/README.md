@@ -1,0 +1,1 @@
+`./bin`: after buidlding, this will have the project executables
