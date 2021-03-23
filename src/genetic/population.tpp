@@ -5,16 +5,14 @@ namespace genetic {
 
 	template<typename T>
 	population<T>::population():
-	 _solutions(){
+	 _solutions() {
 
 	}
 
 	template<typename T>
 	population<T>::population(std::vector<solution<T>>& sols):
-	_solutions(){
-		for(auto sol : sols) {
-			_solutions.insert(sol);
-		}
+	 _solutions(sols.begin(), sols.end()) {
+
 	}
 
 	template<typename T>
