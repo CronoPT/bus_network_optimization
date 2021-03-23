@@ -1,4 +1,5 @@
 #include <solution.hpp>
+#include <problem.hpp>
 #include <iostream>
 
 int main() {
