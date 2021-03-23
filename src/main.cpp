@@ -1,4 +1,4 @@
-#include <genetic_solution.hpp>
+#include <solution.hpp>
 #include <iostream>
 
 int main() {

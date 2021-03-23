@@ -30,8 +30,10 @@ namespace genetic {
 			void costs(const std::vector<float>& new_costs);
 			void item(const T& new_item);
 
-			bool operator<(const solution<T>& other) const; 
-			virtual void dump_to(std::ostream& os) const = 0;
+			bool operator<(const solution<T>& other) const;
+			bool operator>(const solution<T>& other) const;
+			bool operator==(const solution<T>& other) const;
+			void dump_to(std::ostream& os) const;
 		
 	};
 
@@ -39,5 +41,7 @@ namespace genetic {
 	std::ostream& operator<<(std::ostream& os, const solution<T>& a); 
 
 } // namespace genetic
+
+#include "solution.tpp"
 
 #endif
