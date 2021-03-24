@@ -123,7 +123,7 @@ class cones_problem: genetic::problem<cone> {
 
 		}
 
-		std::vector<genetic::solution<cone>> initialize_population() const override {
+		std::vector<genetic::solution<cone>> initialize_population() override {
 			auto pop = std::vector<genetic::solution<cone>>();
 			pop.push_back(genetic::solution<cone>(cone(1, 2)));
 			pop.push_back(genetic::solution<cone>(cone(2, 1)));
@@ -136,7 +136,7 @@ class cones_problem: genetic::problem<cone> {
 			return pop;
 		}
 
-		std::pair<cone, cone> crossover(cone& i1, cone& i2) const override {
+		std::pair<cone, cone> crossover(cone& i1, cone& i2) override {
 			cone cone1 = cone(i1.radius(), i2.height());
 			cone cone2 = cone(i2.radius(), i1.height());
 			return std::pair<cone, cone>(cone1, cone2);
@@ -181,7 +181,7 @@ int main() {
 
 	auto GA = new genetic::classic_ga<cone>((genetic::problem<cone>*) problem);
 
-	auto solution = GA->execute(100, 0.1);
+	auto solution = GA->execute(100, 0.001);
 	auto item = solution.item();
 
 	std::cout << "Best cone: \n\tradius: "

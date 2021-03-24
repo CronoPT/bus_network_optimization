@@ -22,8 +22,8 @@ namespace genetic {
 			//getters
 			float total_cost() const;
 			float fitness() const;
-			const std::vector<float>& costs() const;
-			const T& item() const;
+			std::vector<float>& costs();
+			T& item();
 
 			//setters
 			void total_cost(float new_total);
@@ -31,15 +31,20 @@ namespace genetic {
 			void costs(const std::vector<float>& new_costs);
 			void item(const T& new_item);
 
-			bool operator<(const solution<T>& other) const;
-			bool operator>(const solution<T>& other) const;
-			bool operator==(const solution<T>& other) const;
-			void dump_to(std::ostream& os) const;
-		
-	};
+		template<typename C>
+		friend bool operator<(const solution<C>& s1, const solution<C>& s2);
 
-	template<typename T>
-	std::ostream& operator<<(std::ostream& os, const solution<T>& a); 
+		template<typename C>
+		friend bool operator>(const solution<C>& s1, const solution<C>& s2);
+
+		template<typename C>
+		friend bool operator==(const solution<C>& s1, const solution<C>& s2);
+
+		template<typename C>
+		friend std::ostream& operator<<(std::ostream& os, const solution<C>& a); 
+	};
+	
+
 
 } // namespace genetic
 

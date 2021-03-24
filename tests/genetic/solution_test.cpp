@@ -31,7 +31,9 @@ TEST_F(solution_test, solution_comparison_test) {
 	genetic::solution<int> other_solution = genetic::solution<int>(20);
 	
 	_solution.fitness(0.5);
+	_solution.total_cost(0.5);
 	other_solution.fitness(0.7);
+	other_solution.total_cost(0.7);
 
 	ASSERT_TRUE(_solution < other_solution);
 }

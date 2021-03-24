@@ -17,9 +17,9 @@ namespace genetic {
 			float _crossover_prob;
 			float _mutation_prob;
 
-			bool crossover() const;
-			bool mutate() const;
-			int  select_solution() const;
+			bool do_crossover();
+			bool do_mutate();
+			int  select_solution();
 
 		public:
 			algorithm(problem<T>* problem);

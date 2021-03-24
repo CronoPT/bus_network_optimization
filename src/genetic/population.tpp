@@ -10,38 +10,38 @@ namespace genetic {
 	}
 
 	template<typename T>
-	population<T>::population(const solution_set<T>& sols):
+	population<T>::population(std::vector<solution<T>>  sols):
 	 _solutions(sols) {
-		 std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		 std::sort(_solutions.begin(), _solutions.end());
 	}
 
 	template<typename T>
-	void population<T>::add_solution(const solution<T>& sol) {
+	void population<T>::add_solution(solution<T>& sol) {
 	 	_solutions.push_back(sol);
-		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		std::sort(_solutions.begin(), _solutions.end());
 	}
 
 	template<typename T>
-	void population<T>::add_solution(const T& sol) {
+	void population<T>::add_solution(T& sol) {
 		_solutions.push_back(solution<T>(sol));
-		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		std::sort(_solutions.begin(), _solutions.end());
 	}
 
 	template<typename T>
 	void population<T>::clip() {
-		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		std::sort(_solutions.begin(), _solutions.end());
 		int new_size = std::ceil((float)_solutions.size()/2);
 		_solutions.resize(new_size);
 	}
 
 	template<typename T>
 	solution<T>& population<T>::nth_best(int n) {
-		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
-		return _solutions.at(0);
+		std::sort(_solutions.begin(), _solutions.end());
+		return _solutions.at(n);
 	}
 
 	template<typename T>
-	solution_set<T>& population<T>::solutions() {
+	std::vector<solution<T>>& population<T>::solutions() {
 		return _solutions;
 	}
 

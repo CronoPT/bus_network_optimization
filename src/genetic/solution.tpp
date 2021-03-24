@@ -28,12 +28,12 @@ namespace genetic {
 	}
 
 	template<typename T>
-	const std::vector<float>& solution<T>::costs() const {
+	std::vector<float>& solution<T>::costs() {
 		return _costs;
 	}
 
 	template<typename T>
-	const T& solution<T>::item() const {
+	T& solution<T>::item() {
 		return _item;
 	}
 
@@ -58,30 +58,25 @@ namespace genetic {
 	}
 
 	template<typename T>
-	bool solution<T>::operator<(const solution<T>& other) const {
-		return _total_cost < other.total_cost();
+	bool operator<(const solution<T>& s1, const solution<T>& s2) {
+		return s1._total_cost < s2._total_cost;
 	}
 
 	template<typename T>
-	bool solution<T>::operator>(const solution<T>& other) const {
-		return _total_cost > other.total_cost();
+	bool operator>(const solution<T>& s1, const solution<T>& s2) {
+		return s1._total_cost > s2._total_cost;
 	}
 
 	template<typename T>
-	bool solution<T>::operator==(const solution<T>& other) const {
-		return _item == other.item();
+	bool operator==(const solution<T>& s1, const solution<T>& s2) {
+		return s1._item == s2._item;
 	}
 
 	template<typename T>
-	void solution<T>::dump_to(std::ostream& os) const {
-		os << "Solution: \n\titem: " << item()
-		   << "\n\tcost: " << total_cost()
-		   << "\n\tfitness: " << fitness();
-	}
-
-	template<typename T>
-	std::ostream& operator<<(std::ostream& os, const genetic::solution<T>& s) {
-		s.dump_to(os);
+	std::ostream& operator<<(std::ostream& os, const solution<T>& s) {
+		os << "Solution: \n\titem: " << s._item
+		   << "\n\tcost: " << s._total_cost
+		   << "\n\tfitness: " << s._fitness;
 		return os;
 	}
 
