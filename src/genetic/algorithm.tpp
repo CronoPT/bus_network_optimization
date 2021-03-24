@@ -24,6 +24,8 @@ namespace genetic {
 			sum += _population.solutions().at(i).fitness();
 			if (sum >= rand_nu) { return i; }
 		}
+
+		return 0;
 	}
 
 	template<typename T>
@@ -44,7 +46,7 @@ namespace genetic {
 	template<typename T>
 	void algorithm<T>::compute_costs() {
 		for (auto solution: _population.solutions()) {
-			auto report = _problem->compute_cost(solution);
+			auto report = _problem->compute_cost(solution.item());
 			auto costs  = report.first;
 			auto trans  = report.second;
 
@@ -53,10 +55,12 @@ namespace genetic {
 				total_cost += cost;
 				
 			for (auto tra: trans)
-				total_cost += trans;
+				total_cost += tra;
 
 			solution.costs(costs);
 			solution.total_cost(total_cost);
+
+			std::cout << solution << std::endl;
 		}
 	}
 
@@ -98,11 +102,11 @@ namespace genetic {
 	}
 
 	template<typename T>
-	std::pair<T, T> algorithm<T>::crossover(T& i1, T& i2) {
+	std::pair<T, T> algorithm<T>::crossover(T i1, T i2) {
 		if (crossover()) {
 			return _problem->crossover(i1, i2);
 		} else {
-			return std::pair<int, int>(i1, i2);
+			return std::pair<T, T>(i1, i2);
 		}
 	}
 
@@ -111,6 +115,18 @@ namespace genetic {
 		for (auto solution: _population.solutions()) {
 			if (mutate())
 				_problem->mutate(solution.item());
+		}
+	}
+
+	template<typename T>
+	solution<T> algorithm<T>::best_solution() {
+		return _population.nth_best(0);
+	}
+
+	template<typename T>
+	void algorithm<T>::print_population() {
+		for (auto solution: _population.solutions()) {
+			std::cout << solution << std::endl;
 		}
 	}
 

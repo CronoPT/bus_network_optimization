@@ -59,12 +59,12 @@ namespace genetic {
 
 	template<typename T>
 	bool solution<T>::operator<(const solution<T>& other) const {
-		return _fitness < other.fitness();
+		return _total_cost < other.total_cost();
 	}
 
 	template<typename T>
 	bool solution<T>::operator>(const solution<T>& other) const {
-		return _fitness > other.fitness();
+		return _total_cost > other.total_cost();
 	}
 
 	template<typename T>
@@ -74,7 +74,9 @@ namespace genetic {
 
 	template<typename T>
 	void solution<T>::dump_to(std::ostream& os) const {
-		os << "Solution: " << item();
+		os << "Solution: \n\titem: " << item()
+		   << "\n\tcost: " << total_cost()
+		   << "\n\tfitness: " << fitness();
 	}
 
 	template<typename T>

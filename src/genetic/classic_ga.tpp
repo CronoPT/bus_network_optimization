@@ -5,7 +5,7 @@ namespace genetic {
 
 	template<typename T>
 	classic_ga<T>::classic_ga(problem<T>* problem):
-	 algorithm(problem) {
+	 algorithm<T>(problem) {
 
 	}
 
@@ -14,32 +14,37 @@ namespace genetic {
 		int max_iterations, 
 		float min_improv
 	) {
-		initialize_population();
+		this->initialize_population();
 
 		int iteration = 0;
 		float cost_diff = min_improv+0.1;
 
 		while (iteration<max_iterations && cost_diff>min_improv) {
-			float best_cost = _population.nth_best(0).total_cost();
+			float best_cost = this->best_solution().total_cost();
 
-			assign_fitness();
-			reproduce();
+			this->print_population();
 
-			float new_best = _population.nth_best(0).total_cost();
+			this->assign_fitness();
+			this->reproduce();
+
+			this->print_population();
+
+			float new_best = this->best_solution().total_cost();
 			cost_diff = (best_cost-new_best)/best_cost;
-			iterations += 1;
+			iteration += 1;
 		}
 
-		return _population.nth_best(0);
+		std::cout << iteration << std::endl;
+		std::cout << cost_diff << std::endl;
+
+		return this->best_solution();
 	}
 
 	template<typename T>
-	void classic_ga<T>::iteration() {
+	void classic_ga<T>::iteration() const {
 		//TODO: reflect on the usefulness of this abstraction
 	}
 
 } // namespace genetic
-
-#include "classic_ga.tpp"
 
 #endif

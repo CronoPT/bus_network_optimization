@@ -14,11 +14,13 @@ namespace genetic {
 			solution<T> execute(
 				int max_iterations, 
 				float min_improv
-			);
-			void iteration();
+			) override;
+			void iteration() const override;
 
 	};
 
 } // namespace genetic
+
+#include "classic_ga.tpp"
 
 #endif

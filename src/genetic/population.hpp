@@ -20,13 +20,13 @@ namespace genetic {
 
 		public:
 			population();
-			population(solution_set<T>& sols);
+			population(const solution_set<T>& sols);
 
 			void add_solution(const solution<T>& sol);
 			void add_solution(const T& sol);
 			void clip();
-			solution<T> nth_best(int n)  const;
-			solution_set<T> solutions() const;
+			solution<T>& nth_best(int n);
+			solution_set<T>& solutions();
 			
 	};
 

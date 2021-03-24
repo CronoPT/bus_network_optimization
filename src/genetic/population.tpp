@@ -10,7 +10,7 @@ namespace genetic {
 	}
 
 	template<typename T>
-	population<T>::population(solution_set<T>& sols):
+	population<T>::population(const solution_set<T>& sols):
 	 _solutions(sols) {
 		 std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
 	}
@@ -35,18 +35,13 @@ namespace genetic {
 	}
 
 	template<typename T>
-	solution<T> population<T>::nth_best(int n) const {
-		if (_solutions.size() < n) {
-			throw "Population does not have that many elements";
-		}
-
-		auto it = _solutions.begin();
-		std::advance(it, n);
-		return *it;
+	solution<T>& population<T>::nth_best(int n) {
+		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		return _solutions.at(0);
 	}
 
 	template<typename T>
-	solution_set<T> population<T>::solutions() const {
+	solution_set<T>& population<T>::solutions() {
 		return _solutions;
 	}
 

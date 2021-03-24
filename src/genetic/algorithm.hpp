@@ -26,14 +26,17 @@ namespace genetic {
 			virtual solution<T> execute(
 				int max_iterations, 
 				float min_improv
-			) const = 0;
+			) = 0;
 			void initialize_population();
 			virtual void iteration() const = 0;
 			void compute_costs();
 			void assign_fitness();
 			void reproduce();
-			std::pair<T, T> crossover(T& i1, T& i2);
-			void mutate(); 
+			std::pair<T, T> crossover(T i1, T i2);
+			void mutate();
+
+			solution<T> best_solution(); 
+			void print_population();
 		
 	};
 
