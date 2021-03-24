@@ -16,7 +16,8 @@ namespace genetic {
 			T _item;
 
 		public:
-			solution(const T item);
+			solution(const T& item);
+			solution();
 
 			//getters
 			float total_cost() const;

@@ -6,7 +6,9 @@ target_sources(genetic INTERFACE
     population.hpp
     constraint.hpp
     cost_function.hpp
-    problem.hpp)
+    problem.hpp
+    algorithm.hpp
+    classic_ga.hpp)
 
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 

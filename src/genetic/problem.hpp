@@ -15,6 +15,9 @@ namespace genetic {
 	using cost_function_set = std::vector<std::shared_ptr<cost_function<T>>>; 
 
 	template<typename T>
+	using evaluation_report = std::pair<std::vector<float>, std::vector<float>>; 
+
+	template<typename T>
 	class problem {
 
 		private:
@@ -23,7 +26,10 @@ namespace genetic {
 
 		public:
 			problem(constraint_set<T> constraints, cost_function_set<T> cost_functions);
-			std::vector<float>& compute_cost(const T& item);
+			evaluation_report<T> compute_cost(const T& item);
+			virtual std::vector<solution<T>> initialize_population() const = 0;
+			virtual std::pair<T, T> crossover(T& i1, T& i2) const = 0;
+			virtual void mutate(T& item) const = 0;
 
 	};
 

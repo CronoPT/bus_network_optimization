@@ -10,24 +10,28 @@ namespace genetic {
 	}
 
 	template<typename T>
-	population<T>::population(std::vector<solution<T>>& sols):
-	 _solutions(sols.begin(), sols.end()) {
-
-	}
-
-	template<typename T>
-	void population<T>::compute_costs() {
-		//TODO: Implement this function
-	}
-
-	template<typename T>
-	void population<T>::assign_fitness() {
-		//TODO: Implement this function
+	population<T>::population(solution_set<T>& sols):
+	 _solutions(sols) {
+		 std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
 	}
 
 	template<typename T>
 	void population<T>::add_solution(const solution<T>& sol) {
-		_solutions.insert(sol);
+	 	_solutions.push_back(sol);
+		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+	}
+
+	template<typename T>
+	void population<T>::add_solution(const T& sol) {
+		_solutions.push_back(solution<T>(sol));
+		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+	}
+
+	template<typename T>
+	void population<T>::clip() {
+		std::sort(_solutions.begin(), _solutions.end(), std::greater<solution<T>>());
+		int new_size = std::ceil((float)_solutions.size()/2);
+		_solutions.resize(new_size);
 	}
 
 	template<typename T>
@@ -39,7 +43,12 @@ namespace genetic {
 		auto it = _solutions.begin();
 		std::advance(it, n);
 		return *it;
-	}	
+	}
+
+	template<typename T>
+	solution_set<T> population<T>::solutions() const {
+		return _solutions;
+	}
 
 } // namespace genetic
 

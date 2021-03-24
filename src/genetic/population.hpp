@@ -3,27 +3,30 @@
 
 #include <set>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 #include "solution.hpp"
 
 namespace genetic {
 
 	template<typename T>
+	using solution_set = std::vector<solution<T>>; 
+
+	template<typename T>
 	class population {
 
 		private:
-			std::set<
-				solution<T>, 
-				std::greater<solution<T>>
-			> _solutions;
+			solution_set<T> _solutions;
 
 		public:
 			population();
-			population(std::vector<solution<T>>& sols);
+			population(solution_set<T>& sols);
 
-			void compute_costs();
-			void assign_fitness();
 			void add_solution(const solution<T>& sol);
-			solution<T> nth_best(int n) const;
+			void add_solution(const T& sol);
+			void clip();
+			solution<T> nth_best(int n)  const;
+			solution_set<T> solutions() const;
 			
 	};
 

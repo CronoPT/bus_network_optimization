@@ -10,7 +10,7 @@ namespace genetic {
 	}
 
 	template<typename T>
-	std::vector<float>& problem<T>::compute_cost(const T& item) {
+	evaluation_report<T> problem<T>::compute_cost(const T& item) {
 		auto costs = std::vector<float>();
 		auto trans = std::vector<float>();
 
@@ -22,7 +22,7 @@ namespace genetic {
 			costs.push_back( cost_function->compute(item) );
 		}
 
-		return costs;
+		return evaluation_report<T>(costs, trans);
 	}
 
 } // namespace genetic

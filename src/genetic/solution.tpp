@@ -5,10 +5,17 @@
 namespace genetic {
 
 	template<typename T>
-	solution<T>::solution(const T item):
-	_total_cost(-1), _fitness(-1), _costs(0, 0), _item(item) {
+	solution<T>::solution(const T& item):
+	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(item) {
 
 	}
+
+	template<typename T>
+	solution<T>::solution():
+	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item() {
+
+	}
+
 
 	template<typename T>
 	float solution<T>::total_cost() const {
