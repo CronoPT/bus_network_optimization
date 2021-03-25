@@ -38,3 +38,18 @@ TEST_F(solution_test, solution_comparison_test) {
 	ASSERT_TRUE(_solution < other_solution);
 }
 
+TEST_F(solution_test, solution_dominance_test) {
+	auto solution_2 = genetic::solution<int>(20);
+	auto solution_3 = genetic::solution<int>(30);
+
+	_solution.costs({1, 1, 1});
+	solution_2.costs({1, 2, 1});
+	solution_3.costs({1, 1, 0.5});
+
+	ASSERT_TRUE(_solution.dominates(solution_2));
+	ASSERT_FALSE(_solution.dominates(solution_3));
+	ASSERT_FALSE(solution_2.dominates(_solution));
+	ASSERT_FALSE(solution_2.dominates(solution_3));
+	ASSERT_TRUE(solution_3.dominates(_solution));
+	ASSERT_TRUE(solution_3.dominates(solution_2));
+}

@@ -6,16 +6,17 @@ namespace genetic {
 
 	template<typename T>
 	solution<T>::solution(const T& item):
-	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(item) {
+	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(item)
+	 _rank(-1), _domination_count(0), _dominates() {
 
 	}
 
 	template<typename T>
 	solution<T>::solution():
-	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item() {
+	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(),
+	 _rank(-1), _domination_count(0), _dominates() {
 
 	}
-
 
 	template<typename T>
 	float solution<T>::total_cost() const {
@@ -38,6 +39,21 @@ namespace genetic {
 	}
 
 	template<typename T>
+	int solution<T>::rank() const {
+		return _rank;
+	}
+
+	template<typename T>
+	int solution<T>::domination_count() const {
+		return _domination_count;
+	}
+	
+	template<typename T>
+	std::vector<int>& solution<T>::dominates() {
+		return _dominates;
+	}
+
+	template<typename T>
 	void solution<T>::total_cost(float new_total) {
 		_total_cost = new_total;
 	}
@@ -55,6 +71,34 @@ namespace genetic {
 	template<typename T>
 	void solution<T>::item(const T& new_item) {
 		_item = new_item;
+	}
+
+	template<typename T>
+	void solution<T>::rank(int new_rank) {
+		_rank = new_rank;
+	}
+
+	template<typename T>
+	void solution<T>::domination_count(int new_count) {
+		_domination_count = new_count;
+	}
+
+	template<typename T>
+	void solution<T>::dominates(std::vector<int>& new_dominates) {
+		_dominates = new_dominates;
+	}
+
+	template<typename T>
+	bool solution<T>::dominates(solution<T>& other) {
+		bool least_as_good = true;
+		bool better_in_one = false;
+
+		for (int i=0; i<_costs.size(); i++) {
+			least_as_good &= _costs.at(i) <= other.costs().at(i);
+			better_in_one |= _costs.at(i) <  other.costs().at(i);
+		}
+
+		return least_as_good && better_in_one;
 	}
 
 	template<typename T>
