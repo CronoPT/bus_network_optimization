@@ -25,7 +25,8 @@ namespace genetic {
 			algorithm(problem<T>* problem);
 			virtual solution<T> execute(
 				int max_iterations, 
-				float min_improv
+				float min_improv,
+				int max_stalled
 			) = 0;
 			void initialize_population();
 			virtual void iteration() const = 0;
@@ -34,6 +35,7 @@ namespace genetic {
 			void reproduce();
 			std::pair<T, T> crossover(T i1, T i2);
 			void mutate();
+			void clip_population();
 
 			solution<T> best_solution(); 
 			void print_population();

@@ -6,13 +6,13 @@ namespace genetic {
 	template<typename T>
 	bool algorithm<T>::do_crossover() {
 		float rand_nu = ((float) std::rand() / RAND_MAX);
-		return rand_nu > _crossover_prob;
+		return _crossover_prob >= rand_nu;
 	}
 
 	template<typename T>
 	bool algorithm<T>::do_mutate() {
 		float rand_nu = ((float) std::rand() / RAND_MAX);
-		return rand_nu > _mutation_prob;
+		return _mutation_prob >= rand_nu;
 	}
 
 	template<typename T>
@@ -31,7 +31,7 @@ namespace genetic {
 	template<typename T>
 	algorithm<T>::algorithm(problem<T>* problem):
 	 _population(), _problem(problem), 
-	 _crossover_prob(1), _mutation_prob(1) {
+	 _crossover_prob(0.8), _mutation_prob(0.8) {
 
 	}
 
@@ -59,8 +59,6 @@ namespace genetic {
 
 			solution.costs(costs);
 			solution.total_cost(total_cost);
-
-			std::cout << solution << std::endl;
 		}
 	}
 
@@ -70,10 +68,20 @@ namespace genetic {
 		for (auto& solution: _population.solutions())
 			total_cost += solution.total_cost();
 
-		for (auto& solution: _population.solutions())
+		float total_fitness = 0;
+		for (auto& solution: _population.solutions()) {
 			solution.fitness(
-				solution.total_cost() / total_cost
+				1-solution.total_cost()/total_cost
 			);
+
+			total_fitness += solution.fitness();
+		}
+
+		for (auto& solution: _population.solutions()) {
+			solution.fitness(
+				solution.fitness()/total_fitness
+			);
+		}
 	}
 
 	template<typename T>
@@ -94,23 +102,6 @@ namespace genetic {
 			_population.add_solution(new_pair.second);
 		}
 
-		for (auto solution: _population.solutions()) {
-			auto report = _problem->compute_cost(solution.item());
-			auto costs  = report.first;
-			auto trans  = report.second;
-
-			float total_cost = 0.0;
-			for (auto cost: costs)
-				total_cost += cost;
-				
-			for (auto tra: trans)
-				total_cost += tra;
-
-			solution.costs(costs);
-			solution.total_cost(total_cost);
-		}
-
-		_population.clip();
 	}
 
 	template<typename T>
@@ -124,10 +115,15 @@ namespace genetic {
 
 	template<typename T>
 	void algorithm<T>::mutate() {
-		for (auto solution: _population.solutions()) {
+		for (auto& solution: _population.solutions()) {
 			if (do_mutate())
 				_problem->mutate(solution.item());
 		}
+	}
+
+	template<typename T>
+	void algorithm<T>::clip_population() {
+		_population.clip();
 	}
 
 	template<typename T>

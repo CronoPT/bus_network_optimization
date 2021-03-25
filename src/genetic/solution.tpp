@@ -76,7 +76,11 @@ namespace genetic {
 	std::ostream& operator<<(std::ostream& os, const solution<T>& s) {
 		os << "Solution: \n\titem: " << s._item
 		   << "\n\tcost: " << s._total_cost
-		   << "\n\tfitness: " << s._fitness;
+		   << "\n\tfitness: " << s._fitness << "\n\tcosts: ";
+		
+		for (auto cost: s._costs)
+			os << cost << " ";
+
 		return os;
 	}
 

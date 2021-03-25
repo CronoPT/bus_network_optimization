@@ -13,7 +13,8 @@ namespace genetic {
 
 			solution<T> execute(
 				int max_iterations, 
-				float min_improv
+				float min_improv,
+				int max_stalled
 			) override;
 			void iteration() const override;
 

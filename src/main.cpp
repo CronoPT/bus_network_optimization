@@ -31,38 +31,51 @@ class cone {
 		void radius(float radius) { _radius = radius; }
 		void height(float height) { _height = height; }
 
+		float volume() const {
+			return (3.14/3) * std::pow(_radius, 2) * _height;
+		}
+
+		float lateral_area() const {
+			float lateral_height = std::sqrt(
+				std::pow(_radius, 2) +
+				std::pow(_height, 2)
+			);
+			float lateral =  3.14 * _radius * lateral_height;
+
+			return lateral;
+		}
+
+		float base_area() const {
+			float base = 3.14 * std::pow(_radius, 2); 
+
+			return base;
+		}
+
+		float total_area() const {
+			return base_area() + lateral_area();
+		}
+
 };
 
 std::ostream& operator<<(std::ostream& os, const cone& c) {
 	os << "{radius: " << c.radius() << ", height: "
-	   << c.height() << "}";
+	   << c.height() << ", volume: " << c.volume() 
+	   << ", lateral_area: " << c.lateral_area() 
+	   << ", total_area: " << c.total_area() << "}";
 	return os;
 }
 
 class min_total_surface: public genetic::cost_function<cone> {
 	public:
 		float compute(const cone& sol) const {
-			float base = 3.14 * std::pow(sol.radius(), 2); 
-			float lateral_height = std::sqrt(
-				std::pow(sol.radius(), 2) +
-				std::pow(sol.height(), 2)
-			);
-			float lateral =  3.14 * sol.radius() * lateral_height;
-
-			return base + lateral;
+			return sol.total_area();
 		}
 };
 
 class min_latetal_surface: public genetic::cost_function<cone> {
 	public:
 		float compute(const cone& sol) const {
-			float lateral_height = std::sqrt(
-				std::pow(sol.radius(), 2) +
-				std::pow(sol.height(), 2)
-			);
-			float lateral =  3.14 * sol.radius() * lateral_height;
-
-			return lateral;
+			return sol.lateral_area();
 		}
 };
 
@@ -70,17 +83,14 @@ class min_latetal_surface: public genetic::cost_function<cone> {
 class volume_constraint: public genetic::constraint<cone> {
 	public:
 		bool satisfied(const cone& sol) const {
-			float volume = (3.14/3) * std::pow(sol.radius(), 2) * sol.height();
-			return volume > 200;
+			return sol.volume() > 200;
 		}
 
 		float transgression(const cone& sol) const {
-			float volume = (3.14/3) * std::pow(sol.radius(), 2) * sol.height();
-
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {
-				return 200 - volume;
+				return std::pow((200 - sol.volume())+10, 2);
 			}
 		}
 };
@@ -95,7 +105,7 @@ class radius_constraint: public genetic::constraint<cone> {
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {
-				return sol.radius() - 10;
+				return std::pow((sol.radius() - 10)+2, 2);
 			}
 		}
 };
@@ -110,7 +120,7 @@ class height_constraint: public genetic::constraint<cone> {
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {
-				return sol.height() - 20;
+				return std::pow((sol.height() - 20)+2, 2);
 			}
 		}
 };
@@ -133,6 +143,10 @@ class cones_problem: genetic::problem<cone> {
 			pop.push_back(genetic::solution<cone>(cone(9, 8)));
 			pop.push_back(genetic::solution<cone>(cone(6, 4)));
 			pop.push_back(genetic::solution<cone>(cone(8, 3)));
+			pop.push_back(genetic::solution<cone>(cone(8, 15)));
+			pop.push_back(genetic::solution<cone>(cone(7, 18)));
+			pop.push_back(genetic::solution<cone>(cone(1, 19)));
+			pop.push_back(genetic::solution<cone>(cone(9.9, 19.9)));
 			return pop;
 		}
 
@@ -149,19 +163,19 @@ class cones_problem: genetic::problem<cone> {
 			
 			if (mutate_radius) {
 				bool subtract = ((float) std::rand() / RAND_MAX) > 0.5;
-				if (subtract && item.radius()>1) {
-					item.radius(item.radius()-1);
+				if (subtract && item.radius()>0.1) {
+					item.radius(item.radius()-0.1);
 				} else {
-					item.radius(item.radius()+1);
+					item.radius(item.radius()+0.1);
 				}
 			}
 
 			if (mutate_height) {
 				bool subtract = ((float) std::rand() / RAND_MAX) > 0.5;
-				if (subtract && item.height()>1) {
-					item.height(item.height()-1);
+				if (subtract && item.height()>0.1) {
+					item.height(item.height()-0.1);
 				} else {
-					item.height(item.height()+1);
+					item.height(item.height()+0.1);
 				}
 			}
 		}
@@ -181,12 +195,11 @@ int main() {
 
 	auto GA = new genetic::classic_ga<cone>((genetic::problem<cone>*) problem);
 
-	auto solution = GA->execute(100, 0.001);
+	auto solution = GA->execute(1000, 0.0001, 30);
 	auto item = solution.item();
 
-	std::cout << "Best cone: \n\tradius: "
-		<< item.radius() << "\n\theight: " 
-		<< item.height() << std::endl;
+	std::cout << "Best cone: " << item 
+	          << "\tcost: " << solution.total_cost() << std::endl;
 
 	delete GA;
 	delete problem;
