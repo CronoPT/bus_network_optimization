@@ -1,15 +1,18 @@
-#ifndef __CLASSIC_GA_HPP__
-#define __CLASSIC_GA_HPP__
+#ifndef __NSGA_HPP__
+#define __NSGA_HPP__
 
 #include "algorithm.hpp"
+#include "cost_function.hpp"
+#include <limits>
+#include <algorithm>
 
 namespace genetic {
 
 	template<typename T>
-	class classic_ga: public algorithm<T> {
+	class nsga: public algorithm<T> {
 
 		public:
-			classic_ga(problem<T>* problem);
+			nsga(problem<T>* problem);
 
 			std::vector<solution<T>> execute(
 				int max_iterations, 
@@ -19,11 +22,13 @@ namespace genetic {
 			void iteration()      override;
 			void compute_costs()  override;
 			void assign_fitness() override;
-
+			void nondominated_sorting();
+			void crowding_distance_sorting();
+			
 	};
 
 } // namespace genetic
 
-#include "classic_ga.tpp"
+#include "nsga.tpp"
 
 #endif

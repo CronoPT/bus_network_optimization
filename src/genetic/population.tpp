@@ -29,7 +29,7 @@ namespace genetic {
 
 	template<typename T>
 	void population<T>::clip() {
-		std::sort(_solutions.begin(), _solutions.end());
+		// std::sort(_solutions.begin(), _solutions.end());
 		int new_size = std::ceil((float)_solutions.size()/2);
 		_solutions.resize(new_size);
 	}
@@ -43,6 +43,25 @@ namespace genetic {
 	template<typename T>
 	std::vector<solution<T>>& population<T>::solutions() {
 		return _solutions;
+	}
+
+	template<typename T>
+	void population<T>::reset_ranks() {
+		for (auto& solution: _solutions) {
+			solution.reset_rank();
+		}
+	}
+
+	template<typename T>
+	int population<T>::size() {
+		return _solutions.size();
+	}
+
+	template<typename T>
+	void population<T>::reset_crowding_distance() {
+		for (auto& solution: _solutions) {
+			solution.reset_crowding_distance();
+		}
 	}
 
 } // namespace genetic

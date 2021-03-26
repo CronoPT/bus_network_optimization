@@ -3,6 +3,7 @@
 #include <classic_ga.hpp>
 #include <constraint.hpp>
 #include <cost_function.hpp>
+#include <nsga.hpp>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -193,13 +194,20 @@ int main() {
 
 	auto problem = new cones_problem(constraints, cost_functs);
 
-	auto GA = new genetic::classic_ga<cone>((genetic::problem<cone>*) problem);
+	auto GA = new genetic::nsga<cone>((genetic::problem<cone>*) problem);
 
-	auto solution = GA->execute(1000, 0.0001, 30);
-	auto item = solution.item();
-
-	std::cout << "Best cone: " << item 
-	          << "\tcost: " << solution.total_cost() << std::endl;
+	auto solutions = GA->execute(10, 0.0001, 30);
+	
+	std::cout << "Best Solution(s):";
+	for (auto solution: solutions) {
+		std::cout << "\n\t" << solution.item()
+		          << "\t-- cost: " << solution.total_cost()
+		          << "\t-- costs: ";
+		for (auto cost: solution.costs()) {
+			std::cout << cost << " ";
+		}
+	}
+	std::cout << std::endl;
 
 	delete GA;
 	delete problem;

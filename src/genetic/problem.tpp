@@ -25,6 +25,16 @@ namespace genetic {
 		return evaluation_report<T>(costs, trans);
 	}
 
+	template<typename T>
+	int problem<T>::num_constraints() {
+		return _constraints.size();
+	}
+
+	template<typename T>
+	int problem<T>::num_cost_functions() {
+		return _cost_functions.size();
+	}
+
 } // namespace genetic
 
 #endif 

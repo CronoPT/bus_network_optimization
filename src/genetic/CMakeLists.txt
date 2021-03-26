@@ -8,7 +8,8 @@ target_sources(genetic INTERFACE
     cost_function.hpp
     problem.hpp
     algorithm.hpp
-    classic_ga.hpp)
+    classic_ga.hpp
+    nsga.hpp)
 
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 

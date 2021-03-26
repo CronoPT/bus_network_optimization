@@ -23,15 +23,15 @@ namespace genetic {
 
 		public:
 			algorithm(problem<T>* problem);
-			virtual solution<T> execute(
+			virtual std::vector<solution<T>> execute(
 				int max_iterations, 
 				float min_improv,
 				int max_stalled
 			) = 0;
 			void initialize_population();
-			virtual void iteration() const = 0;
-			void compute_costs();
-			void assign_fitness();
+			virtual void iteration() = 0;
+			virtual void compute_costs()  = 0;
+			virtual void assign_fitness() = 0;
 			void reproduce();
 			std::pair<T, T> crossover(T i1, T i2);
 			void mutate();
@@ -39,6 +39,8 @@ namespace genetic {
 
 			solution<T> best_solution(); 
 			void print_population();
+			population<T>& get_population();
+			problem<T>* get_problem();
 		
 	};
 

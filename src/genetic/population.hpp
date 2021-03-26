@@ -24,6 +24,9 @@ namespace genetic {
 			void clip();
 			solution<T>& nth_best(int n);
 			std::vector<solution<T>>& solutions();
+			void reset_ranks();
+			int size();
+			void reset_crowding_distance();
 			
 	};
 

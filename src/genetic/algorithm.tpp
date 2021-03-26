@@ -44,47 +44,6 @@ namespace genetic {
 	}
 
 	template<typename T>
-	void algorithm<T>::compute_costs() {
-		for (auto& solution: _population.solutions()) {
-			auto report = _problem->compute_cost(solution.item());
-			auto costs  = report.first;
-			auto trans  = report.second;
-
-			float total_cost = 0.0;
-			for (auto cost: costs)
-				total_cost += cost;
-				
-			for (auto tra: trans)
-				total_cost += tra;
-
-			solution.costs(costs);
-			solution.total_cost(total_cost);
-		}
-	}
-
-	template<typename T>
-	void algorithm<T>::assign_fitness() {
-		float total_cost = 0.0;
-		for (auto& solution: _population.solutions())
-			total_cost += solution.total_cost();
-
-		float total_fitness = 0;
-		for (auto& solution: _population.solutions()) {
-			solution.fitness(
-				1-solution.total_cost()/total_cost
-			);
-
-			total_fitness += solution.fitness();
-		}
-
-		for (auto& solution: _population.solutions()) {
-			solution.fitness(
-				solution.fitness()/total_fitness
-			);
-		}
-	}
-
-	template<typename T>
 	void algorithm<T>::reproduce() {
 		auto crossovers = std::vector<std::pair<int, int>>();
 		for (int i=0; i<_population.solutions().size()/2; i++) {
@@ -133,9 +92,21 @@ namespace genetic {
 
 	template<typename T>
 	void algorithm<T>::print_population() {
+		std::cout << "OOOOOooooo<<<<<<<<<<<<<<<<<<<<< Population size: " << _population.size()
+		          << " >>>>>>>>>>>>>>>>>>>>>oooooOOOOO" << std::endl;
 		for (auto solution: _population.solutions()) {
 			std::cout << solution << std::endl;
 		}
+	}
+
+	template<typename T>
+	population<T>& algorithm<T>::get_population() {
+		return _population;
+	}
+
+	template<typename T>
+	problem<T>* algorithm<T>::get_problem() {
+		return _problem;
 	}
 
 } // namespace genetic

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 namespace genetic {
 	
@@ -17,6 +18,7 @@ namespace genetic {
 			int _rank;
 			int _domination_count;
 			std::vector<int> _dominates;
+			float _crowding_distance;
 
 		public:
 			solution(const T& item);
@@ -30,6 +32,7 @@ namespace genetic {
 			int rank() const;
 			int domination_count() const;
 			std::vector<int>& dominates();
+			float crowding_distance();
 
 			//setters
 			void total_cost(float new_total);
@@ -38,9 +41,20 @@ namespace genetic {
 			void item(const T& new_item);
 			void rank(int new_rank);
 			void domination_count(int new_count);
-			void dominates(std::vector<int>& new_dominates); 
+			void dominates(std::vector<int>& new_dominates);
+			void crowding_distance(float new_distance);
+
+			void inc_domination_count();
+			void dec_domination_count();
+			void add_dominates(int dominated);
+			void rem_dominates(int dominated);
+			void reset_rank();
+			bool has_rank();
+			bool dominates(int other);
 
 			bool dominates(solution<T>& other);
+			void reset_crowding_distance();
+			void add_crowding_distance(float increment);
 
 		template<typename C>
 		friend bool operator<(const solution<C>& s1, const solution<C>& s2);
