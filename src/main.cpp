@@ -8,6 +8,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <memory>
+#include <ctime>
+#include <iomanip>
 
 class cone {
 
@@ -59,6 +61,8 @@ class cone {
 };
 
 std::ostream& operator<<(std::ostream& os, const cone& c) {
+	os << std::fixed;
+	os << std::setprecision(2);
 	os << "{radius: " << c.radius() << ", height: "
 	   << c.height() << ", volume: " << c.volume() 
 	   << ", lateral_area: " << c.lateral_area() 
@@ -183,6 +187,8 @@ class cones_problem: genetic::problem<cone> {
 };
 
 int main() {
+	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
+
 	auto constraints = genetic::constraint_set<cone>();
 	constraints.push_back(std::make_shared<volume_constraint>(volume_constraint()));
 	constraints.push_back(std::make_shared<radius_constraint>(radius_constraint()));
@@ -196,7 +202,7 @@ int main() {
 
 	auto GA = new genetic::nsga<cone>((genetic::problem<cone>*) problem);
 
-	auto solutions = GA->execute(10, 0.0001, 30);
+	auto solutions = GA->execute(1000, 0.0001, 30);
 	
 	std::cout << "Best Solution(s):";
 	for (auto solution: solutions) {
@@ -206,6 +212,13 @@ int main() {
 		for (auto cost: solution.costs()) {
 			std::cout << cost << " ";
 		}
+
+		std::cout << " -- trans: ";
+		for (auto tran: solution.transgressions()) {
+			std::cout << tran << " ";
+		}
+
+		std::cout << " -- total_trans: " << solution.total_transgression();
 	}
 	std::cout << std::endl;
 

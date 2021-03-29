@@ -12,8 +12,10 @@ namespace genetic {
 
 		private:
 			float _total_cost;
+			float _total_transgression;
 			float _fitness;
 			std::vector<float> _costs;
+			std::vector<float> _transgressions;
 			T _item;
 			int _rank;
 			int _domination_count;
@@ -26,8 +28,10 @@ namespace genetic {
 
 			//getters
 			float total_cost() const;
+			float total_transgression() const;
 			float fitness() const;
 			std::vector<float>& costs();
+			std::vector<float>& transgressions();
 			T& item();
 			int rank() const;
 			int domination_count() const;
@@ -36,8 +40,10 @@ namespace genetic {
 
 			//setters
 			void total_cost(float new_total);
+			void total_transgression(float new_total);
 			void fitness(float new_fitness);
 			void costs(const std::vector<float>& new_costs);
+			void transgressions(const std::vector<float>& new_trans);
 			void item(const T& new_item);
 			void rank(int new_rank);
 			void domination_count(int new_count);
@@ -53,8 +59,11 @@ namespace genetic {
 			bool dominates(int other);
 
 			bool dominates(solution<T>& other);
+			bool constrained_dominates(solution<T>& other);
 			void reset_crowding_distance();
 			void add_crowding_distance(float increment);
+			bool is_feasible();
+			void reset_dominates();
 
 		template<typename C>
 		friend bool operator<(const solution<C>& s1, const solution<C>& s2);

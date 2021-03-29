@@ -6,7 +6,8 @@ namespace genetic {
 
 	template<typename T>
 	solution<T>::solution(const T& item):
-	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(item),
+	 _total_cost(-1), _total_transgression(-1), _fitness(-1), 
+	 _costs(0, 0), _transgressions(0, 0), _item(item),
 	 _rank(-1), _domination_count(0), _dominates(),
 	 _crowding_distance(0) {
 
@@ -14,7 +15,8 @@ namespace genetic {
 
 	template<typename T>
 	solution<T>::solution():
-	 _total_cost(-1), _fitness(-1), _costs(0, 0), _item(),
+	 _total_cost(-1), _total_transgression(-1), _fitness(-1), 
+	 _costs(0, 0), _transgressions(0, 0), _item(),
 	 _rank(-1), _domination_count(0), _dominates(),
 	 _crowding_distance(0) {
 
@@ -26,6 +28,11 @@ namespace genetic {
 	}
 
 	template<typename T>
+	float solution<T>::total_transgression() const {
+		return _total_transgression;
+	}
+
+	template<typename T>
 	float solution<T>::fitness() const {
 		return _fitness;
 	}
@@ -33,6 +40,11 @@ namespace genetic {
 	template<typename T>
 	std::vector<float>& solution<T>::costs() {
 		return _costs;
+	}
+
+	template<typename T>
+	std::vector<float>& solution<T>::transgressions() {
+		return _transgressions;
 	}
 
 	template<typename T>
@@ -66,6 +78,11 @@ namespace genetic {
 	}
 
 	template<typename T>
+	void solution<T>::total_transgression(float new_total) {
+		_total_transgression = new_total;
+	}
+
+	template<typename T>
 	void solution<T>::fitness(float new_fitness) {
 		_fitness = new_fitness;
 	}
@@ -74,6 +91,12 @@ namespace genetic {
 	void solution<T>::costs(const std::vector<float>& new_costs) {
 		_costs = new_costs;
 	}
+
+	template<typename T>
+	void solution<T>::transgressions(const std::vector<float>& new_trans) {
+		_transgressions = new_trans;
+	}
+
 
 	template<typename T>
 	void solution<T>::item(const T& new_item) {
@@ -111,6 +134,24 @@ namespace genetic {
 		}
 
 		return least_as_good && better_in_one;
+	}
+
+	template<typename T>
+	bool solution<T>::constrained_dominates(solution<T>& other) {
+		if (is_feasible() && !other.is_feasible()) {
+			return true;
+		} else if (!is_feasible() && !other.is_feasible()) {
+			return _total_transgression < other.total_transgression();
+		} else if (is_feasible() && other.is_feasible()) {
+			return dominates(other);
+		} else {
+			return false;
+		}
+	}
+
+	template<typename T>
+	bool solution<T>::is_feasible() {
+		return _total_transgression == 0;
 	}
 
 	template<typename T>
@@ -160,6 +201,11 @@ namespace genetic {
 	}
 
 	template<typename T>
+	void solution<T>:: reset_dominates() {
+		_dominates = std::vector<int>();
+	}
+
+	template<typename T>
 	bool operator<(const solution<T>& s1, const solution<T>& s2) {
 		return s1._total_cost < s2._total_cost;
 	}
@@ -191,6 +237,7 @@ namespace genetic {
 			os << dominated << " ";
 
 		os << "\n\tcrowding distance: " << s._crowding_distance;
+		os << "\n\tfeasible: " << (s._total_transgression==0?"true":"false");
 
 		return os;
 	}
