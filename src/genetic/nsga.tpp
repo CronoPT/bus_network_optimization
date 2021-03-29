@@ -110,7 +110,7 @@ namespace genetic {
 	void nsga<T>::crowding_distance_sorting() {
 		this->get_population().reset_crowding_distance();
 
-		for (int o=0; o<this->get_problem()->num_cost_functions()+1; o++) {
+		for (int o=0; o<this->get_problem()->num_variables(); o++) {
 			auto& sols = this->get_population().solutions();
 			std::sort(sols.begin(), sols.end(), [o](solution<T>& s1, solution<T>& s2)-> bool {
 				return s1.costs().at(o) < s2.costs().at(o);
@@ -155,21 +155,11 @@ namespace genetic {
 	template<typename T>
 	void nsga<T>::compute_costs() {
 		for (auto& solution: this->get_population().solutions()) {
-			auto report = this->get_problem()->compute_cost(solution.item());
-			auto costs  = report.first;
-			auto trans  = report.second;
-
-			float total_tran = 0.0;
+			auto costs = this->get_problem()->compute_cost(solution.item());
+			
 			float total_cost = 0.0;
 			for (auto cost: costs)
 				total_cost += cost;
-				
-			for (auto tra: trans) {
-				total_cost += tra;
-				total_tran += tra;
-			}
-
-			costs.push_back(total_tran);
 
 			solution.costs(costs);
 			solution.total_cost(total_cost);
