@@ -2,6 +2,7 @@
 #define __NSGA_HPP__
 
 #include "algorithm.hpp"
+#include "cost_function.hpp"
 #include <limits>
 #include <algorithm>
 

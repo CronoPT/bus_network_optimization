@@ -1,13 +1,13 @@
 #include <solution.hpp>
 #include <problem.hpp>
 #include <classic_ga.hpp>
-#include <variable.hpp>
+#include <constraint.hpp>
+#include <cost_function.hpp>
 #include <nsga.hpp>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
 #include <memory>
-#include <iomanip>
 
 class cone {
 
@@ -59,8 +59,6 @@ class cone {
 };
 
 std::ostream& operator<<(std::ostream& os, const cone& c) {
-	os << std::fixed;
-	os << std::setprecision(2);
 	os << "{radius: " << c.radius() << ", height: "
 	   << c.height() << ", volume: " << c.volume() 
 	   << ", lateral_area: " << c.lateral_area() 
@@ -68,102 +66,71 @@ std::ostream& operator<<(std::ostream& os, const cone& c) {
 	return os;
 }
 
-class height: public genetic::variable<cone> {
+class min_total_surface: public genetic::cost_function<cone> {
 	public:
-		bool in_accord(const cone& sol) const {
-			return sol.height() <= 20;
+		float compute(const cone& sol) const {
+			return sol.total_area();
 		}
-
-		float transgression(const cone& sol) const {
-			if (in_accord(sol)) {
-				return 0.0;
-			} else {
-				return std::pow((sol.height() - 20)+10, 2);
-			}
-		}
-
-		float objective(const cone& sol) const {
-			return 0;
-		}
-
 };
 
-class radius: public genetic::variable<cone> {
+class min_latetal_surface: public genetic::cost_function<cone> {
 	public:
-		bool in_accord(const cone& sol) const {
-			return sol.radius() <= 10;
+		float compute(const cone& sol) const {
+			return sol.lateral_area();
 		}
-
-		float transgression(const cone& sol) const {
-			if (in_accord(sol)) {
-				return 0.0;
-			} else {
-				return std::pow((sol.radius() - 10)+10, 2);
-			}
-		}
-
-		float objective(const cone& sol) const {
-			return 0;
-		}
-
 };
 
-class volume: public genetic::variable<cone> {
+
+class volume_constraint: public genetic::constraint<cone> {
 	public:
-		bool in_accord(const cone& sol) const {
+		bool satisfied(const cone& sol) const {
 			return sol.volume() > 200;
 		}
 
 		float transgression(const cone& sol) const {
-			if (in_accord(sol)) {
+			if (satisfied(sol)) {
 				return 0.0;
 			} else {
 				return std::pow((200 - sol.volume())+10, 2);
 			}
 		}
-
-		float objective(const cone& sol) const {
-			return 0;
-		}
-
 };
 
-class lateral_surface: public genetic::variable<cone> {
+class radius_constraint: public genetic::constraint<cone> {
 	public:
-		bool in_accord(const cone& sol) const {
-			return true;
+		bool satisfied(const cone& sol) const {
+			return sol.radius() <= 10;
 		}
 
 		float transgression(const cone& sol) const {
-			return 0.0;
+			if (satisfied(sol)) {
+				return 0.0;
+			} else {
+				return std::pow((sol.radius() - 10)+2, 2);
+			}
 		}
-
-		float objective(const cone& sol) const {
-			return sol.lateral_area();
-		}
-
 };
 
-class total_surface: public genetic::variable<cone> {
+class height_constraint: public genetic::constraint<cone> {
 	public:
-		bool in_accord(const cone& sol) const {
-			return true;
+		bool satisfied(const cone& sol) const {
+			return sol.height() <= 20;
 		}
 
 		float transgression(const cone& sol) const {
-			return 0.0;
+			if (satisfied(sol)) {
+				return 0.0;
+			} else {
+				return std::pow((sol.height() - 20)+2, 2);
+			}
 		}
-
-		float objective(const cone& sol) const {
-			return sol.total_area();
-		}
-
 };
 
 class cones_problem: genetic::problem<cone> {
 	public:
-		cones_problem(genetic::variable_set<cone> variables):
-		 problem(variables) {
+		cones_problem(genetic::constraint_set<cone> constraints, 
+		 genetic::cost_function_set<cone> cost_functions):
+		 problem(constraints, cost_functions) {
 
 		}
 
@@ -216,25 +183,26 @@ class cones_problem: genetic::problem<cone> {
 };
 
 int main() {
+	auto constraints = genetic::constraint_set<cone>();
+	constraints.push_back(std::make_shared<volume_constraint>(volume_constraint()));
+	constraints.push_back(std::make_shared<radius_constraint>(radius_constraint()));
+	constraints.push_back(std::make_shared<height_constraint>(height_constraint()));
 
-	auto variables = genetic::variable_set<cone>();
-	variables.push_back(std::make_shared<height>(height()));
-	variables.push_back(std::make_shared<radius>(radius()));
-	variables.push_back(std::make_shared<volume>(volume()));
-	variables.push_back(std::make_shared<total_surface>(total_surface()));
-	variables.push_back(std::make_shared<lateral_surface>(lateral_surface()));
+	auto cost_functs = genetic::cost_function_set<cone>();
+	cost_functs.push_back(std::make_shared<min_total_surface>(min_total_surface()));
+	cost_functs.push_back(std::make_shared<min_latetal_surface>(min_latetal_surface()));
 
-	auto problem = new cones_problem(variables);
+	auto problem = new cones_problem(constraints, cost_functs);
 
 	auto GA = new genetic::nsga<cone>((genetic::problem<cone>*) problem);
 
-	auto solutions = GA->execute(1000, 0.0001, 30);
+	auto solutions = GA->execute(10, 0.0001, 30);
 	
 	std::cout << "Best Solution(s):";
 	for (auto solution: solutions) {
 		std::cout << "\n\t" << solution.item()
 		          << "\t-- cost: " << solution.total_cost()
-		          << " \t-- costs: ";
+		          << "\t-- costs: ";
 		for (auto cost: solution.costs()) {
 			std::cout << cost << " ";
 		}

@@ -4,11 +4,12 @@ add_library(genetic INTERFACE)
 target_sources(genetic INTERFACE 
     solution.hpp
     population.hpp
-    algorithm.hpp
+    constraint.hpp
+    cost_function.hpp
     problem.hpp
+    algorithm.hpp
     classic_ga.hpp
-    nsga.hpp
-    variable.hpp)
+    nsga.hpp)
 
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 

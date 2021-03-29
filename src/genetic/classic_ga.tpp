@@ -63,11 +63,16 @@ namespace genetic {
 	template<typename T>
 	void classic_ga<T>::compute_costs() {
 		for (auto& solution: this->get_population().solutions()) {
-			auto costs = this->get_problem()->compute_cost(solution.item());
+			auto report = this->get_problem()->compute_cost(solution.item());
+			auto costs  = report.first;
+			auto trans  = report.second;
 
 			float total_cost = 0.0;
 			for (auto cost: costs)
 				total_cost += cost;
+				
+			for (auto tra: trans)
+				total_cost += tra;
 
 			solution.costs(costs);
 			solution.total_cost(total_cost);
