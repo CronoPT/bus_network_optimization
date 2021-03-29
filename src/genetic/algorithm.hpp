@@ -37,7 +37,7 @@ namespace genetic {
 			void mutate();
 			void clip_population();
 
-			solution<T> best_solution(); 
+			solution<T> get_best_solution(); 
 			void print_population();
 			population<T>& get_population();
 			problem<T>* get_problem();

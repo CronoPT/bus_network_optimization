@@ -28,10 +28,10 @@ namespace genetic {
 		while (iteration<max_iterations && insig_iters<max_stalled) {
 			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
 
-			float best_cost = this->best_solution().total_cost();
+			float best_cost = this->get_best_solution().get_total_cost();
 			this->iteration();
 			this->print_population();
-			float new_best = this->best_solution().total_cost();
+			float new_best = this->get_best_solution().get_total_cost();
 
 			cost_diff = (best_cost-new_best)/best_cost;
 			if (cost_diff < min_improv) { ++insig_iters; } 
@@ -47,10 +47,10 @@ namespace genetic {
 
 		std::vector<solution<T>> result;
 		std::copy_if(
-			this->get_population().solutions().begin(), 
-			this->get_population().solutions().end(), 
+			this->get_population().get_solutions().begin(), 
+			this->get_population().get_solutions().end(), 
 			std::back_inserter(result), 
-			[](solution<T> sol){ return sol.rank()==0; }
+			[](solution<T> sol){ return sol.get_rank()==0; }
 		);
 
 		return result;
@@ -70,24 +70,24 @@ namespace genetic {
 	template<typename T>
 	void nsga<T>::nondominated_sorting() {
 		
-		for (auto& solution: this->get_population().solutions()) {
+		for (auto& solution: this->get_population().get_solutions()) {
 			solution.reset_dominates();
-			solution.domination_count(0);
+			solution.set_domination_count(0);
 		}
 
 		auto curr_front = std::vector<int>(); 
 		for (int i=0; i<this->get_population().size(); i++) {
-			auto& solution_i = this->get_population().solutions().at(i);
+			auto& solution_i = this->get_population().get_solutions().at(i);
 			for (int j=0; j<this->get_population().size(); j++) {
-				auto& solution_j = this->get_population().solutions().at(j);
+				auto& solution_j = this->get_population().get_solutions().at(j);
 				if (solution_i.constrained_dominates(solution_j)) {
 					solution_i.add_dominates(j);
 				} else if (solution_j.constrained_dominates(solution_i)) {
 					solution_i.inc_domination_count();
 				}
 			}
-			if(solution_i.domination_count()==0) {
-				solution_i.rank(0);
+			if(solution_i.get_domination_count()==0) {
+				solution_i.set_rank(0);
 				curr_front.push_back(i);
 			}
 		}
@@ -96,12 +96,12 @@ namespace genetic {
 		while(!curr_front.empty()) {
 			auto next_front = std::vector<int>();
 			for (auto i: curr_front) {
-				auto& solution_i = this->get_population().solutions().at(i);
-				for (auto j: solution_i.dominates()) {
-					auto& solution_j = this->get_population().solutions().at(j);
+				auto& solution_i = this->get_population().get_solutions().at(i);
+				for (auto j: solution_i.get_dominates()) {
+					auto& solution_j = this->get_population().get_solutions().at(j);
 					solution_j.dec_domination_count();
-					if (solution_j.domination_count() == 0) {
-						solution_j.rank(curr_rank);
+					if (solution_j.get_domination_count() == 0) {
+						solution_j.set_rank(curr_rank);
 						next_front.push_back(j);
 					}
 				}
@@ -118,41 +118,41 @@ namespace genetic {
 		this->get_population().reset_crowding_distance();
 
 		for (int o=0; o<this->get_problem()->num_cost_functions(); o++) {
-			auto& sols = this->get_population().solutions();
+			auto& sols = this->get_population().get_solutions();
 			std::sort(sols.begin(), sols.end(), [o](solution<T>& s1, solution<T>& s2)-> bool {
-				return s1.costs().at(o) < s2.costs().at(o);
+				return s1.get_costs().at(o) < s2.get_costs().at(o);
 			});
 
 			int pop_size = this->get_population().size();
 
-			float min = this->get_population().solutions().at(0).costs().at(o);
-			float max = this->get_population().solutions().at(pop_size-1).costs().at(o);
+			float min = this->get_population().get_solutions().at(0).get_costs().at(o);
+			float max = this->get_population().get_solutions().at(pop_size-1).get_costs().at(o);
 
-			this->get_population().solutions().at(0).crowding_distance(
+			this->get_population().get_solutions().at(0).set_crowding_distance(
 				std::numeric_limits<float>::infinity()
 			);
 
-			this->get_population().solutions().at(pop_size-1).crowding_distance(
+			this->get_population().get_solutions().at(pop_size-1).set_crowding_distance(
 				std::numeric_limits<float>::infinity()
 			);
 
 			for (int i=1; i<pop_size-1; i++) {
-				auto& solution = this->get_population().solutions().at(i);
-				auto& solution_before = this->get_population().solutions().at(i-1);
-				auto& solution_after  = this->get_population().solutions().at(i+1);
+				auto& solution = this->get_population().get_solutions().at(i);
+				auto& solution_before = this->get_population().get_solutions().at(i-1);
+				auto& solution_after  = this->get_population().get_solutions().at(i+1);
 				solution.add_crowding_distance(
-					(solution_after.costs().at(o) - solution_before.costs().at(o)) /
+					(solution_after.get_costs().at(o) - solution_before.get_costs().at(o)) /
 					(max-min)
 				);
 			}
 
 		}
 
-		auto& sols = this->get_population().solutions();
+		auto& sols = this->get_population().get_solutions();
 		std::sort(sols.begin(), sols.end(), [](solution<T>& s1, solution<T>& s2)-> bool {
-			if (s1.rank() < s2.rank()) {
+			if (s1.get_rank() < s2.get_rank()) {
 				return true;
-			} else if ((s1.rank()==s2.rank()) && (s1.crowding_distance()>s2.crowding_distance())) {
+			} else if ((s1.get_rank()==s2.get_rank()) && (s1.get_crowding_distance()>s2.get_crowding_distance())) {
 				return true;
 			} else { return false; }
 		});
@@ -161,8 +161,8 @@ namespace genetic {
 
 	template<typename T>
 	void nsga<T>::compute_costs() {
-		for (auto& solution: this->get_population().solutions()) {
-			auto report = this->get_problem()->compute_cost(solution.item());
+		for (auto& solution: this->get_population().get_solutions()) {
+			auto report = this->get_problem()->compute_cost(solution.get_item());
 			auto costs  = report.first;
 			auto trans  = report.second;
 
@@ -175,36 +175,36 @@ namespace genetic {
 				total_tran += tra;
 			}
 
-			solution.costs(costs);
-			solution.transgressions(trans);
-			solution.total_cost(total_cost);
-			solution.total_transgression(total_tran);
+			solution.set_costs(costs);
+			solution.set_transgressions(trans);
+			solution.set_total_cost(total_cost);
+			solution.set_total_transgression(total_tran);
 		}
 	}
 
 	template<typename T>
 	void nsga<T>::assign_fitness() {
 		float total_rank = 0.0;
-		for (auto& solution: this->get_population().solutions()) {
+		for (auto& solution: this->get_population().get_solutions()) {
 			if(solution.has_rank()) {
-				total_rank += solution.rank()+solution.crowding_distance();
+				total_rank += solution.get_rank()+solution.get_crowding_distance();
 			} else {
 				total_rank += 1;
 			}
 		}
 			
 		float total_fitness = 0;
-		for (auto& solution: this->get_population().solutions()) {
-			solution.fitness(
-				1-solution.rank()/total_rank
+		for (auto& solution: this->get_population().get_solutions()) {
+			solution.set_fitness(
+				1-solution.get_rank()/total_rank
 			);
 
-			total_fitness += solution.fitness();
+			total_fitness += solution.get_fitness();
 		}
 
-		for (auto& solution: this->get_population().solutions()) {
-			solution.fitness(
-				solution.fitness()/total_fitness
+		for (auto& solution: this->get_population().get_solutions()) {
+			solution.set_fitness(
+				solution.get_fitness()/total_fitness
 			);
 		}
 	}

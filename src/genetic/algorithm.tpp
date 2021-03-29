@@ -20,8 +20,8 @@ namespace genetic {
 		float rand_nu = ((float) std::rand() / RAND_MAX);
 
 		float sum = 0.0;
-		for (int i=0; i<_population.solutions().size(); i++) {
-			sum += _population.solutions().at(i).fitness();
+		for (int i=0; i<_population.get_solutions().size(); i++) {
+			sum += _population.get_solutions().at(i).get_fitness();
 			if (sum >= rand_nu) { return i; }
 		}
 
@@ -46,7 +46,7 @@ namespace genetic {
 	template<typename T>
 	void algorithm<T>::reproduce() {
 		auto crossovers = std::vector<std::pair<int, int>>();
-		for (int i=0; i<_population.solutions().size()/2; i++) {
+		for (int i=0; i<_population.get_solutions().size()/2; i++) {
 			int sol1 = select_solution();
 			int sol2 = select_solution();
 			crossovers.push_back(std::pair<int, int>(sol1, sol2));
@@ -54,8 +54,8 @@ namespace genetic {
 
 		for (auto pair: crossovers) {
 			auto new_pair = crossover(
-				_population.solutions().at(pair.first).item(),
-				_population.solutions().at(pair.second).item()
+				_population.get_solutions().at(pair.first).get_item(),
+				_population.get_solutions().at(pair.second).get_item()
 			);
 			_population.add_solution(new_pair.first);
 			_population.add_solution(new_pair.second);
@@ -74,9 +74,9 @@ namespace genetic {
 
 	template<typename T>
 	void algorithm<T>::mutate() {
-		for (auto& solution: _population.solutions()) {
+		for (auto& solution: _population.get_solutions()) {
 			if (do_mutate())
-				_problem->mutate(solution.item());
+				_problem->mutate(solution.get_item());
 		}
 	}
 
@@ -86,15 +86,15 @@ namespace genetic {
 	}
 
 	template<typename T>
-	solution<T> algorithm<T>::best_solution() {
-		return _population.nth_best(0);
+	solution<T> algorithm<T>::get_best_solution() {
+		return _population.get_nth_best(0);
 	}
 
 	template<typename T>
 	void algorithm<T>::print_population() {
 		std::cout << "OOOOOooooo<<<<<<<<<<<<<<<<<<<<< Population size: " << _population.size()
 		          << " >>>>>>>>>>>>>>>>>>>>>oooooOOOOO" << std::endl;
-		for (auto solution: _population.solutions()) {
+		for (auto solution: _population.get_solutions()) {
 			std::cout << solution << std::endl;
 		}
 	}

@@ -27,11 +27,11 @@ namespace genetic {
 
 		while (iteration<max_iterations && insig_iters<max_stalled) {
 			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
-			float best_cost = this->best_solution().total_cost();
+			float best_cost = this->get_best_solution().get_total_cost();
 
 			this->iteration();
 
-			float new_best = this->best_solution().total_cost();
+			float new_best = this->get_best_solution().get_total_cost();
 			cost_diff = (best_cost-new_best)/best_cost;
 			if (cost_diff < min_improv) { ++insig_iters; } 
 			else { insig_iters = 0; }
@@ -45,7 +45,7 @@ namespace genetic {
 		          << "\n" << std::endl;
 
 		auto result = std::vector<solution<T>>();
-		result.push_back(this->best_solution());
+		result.push_back(this->get_best_solution());
 
 		return result;
 	}
@@ -62,8 +62,8 @@ namespace genetic {
 
 	template<typename T>
 	void classic_ga<T>::compute_costs() {
-		for (auto& solution: this->get_population().solutions()) {
-			auto report = this->get_problem()->compute_cost(solution.item());
+		for (auto& solution: this->get_population().get_solutions()) {
+			auto report = this->get_problem()->compute_cost(solution.get_item());
 			auto costs  = report.first;
 			auto trans  = report.second;
 
@@ -74,29 +74,29 @@ namespace genetic {
 			for (auto tra: trans)
 				total_cost += tra;
 
-			solution.costs(costs);
-			solution.total_cost(total_cost);
+			solution.set_costs(costs);
+			solution.set_total_cost(total_cost);
 		}
 	}
 
 	template<typename T>
 	void classic_ga<T>::assign_fitness() {
 		float total_cost = 0.0;
-		for (auto& solution: this->get_population().solutions())
-			total_cost += solution.total_cost();
+		for (auto& solution: this->get_population().get_solutions())
+			total_cost += solution.get_total_cost();
 
 		float total_fitness = 0;
-		for (auto& solution: this->get_population().solutions()) {
-			solution.fitness(
-				1-solution.total_cost()/total_cost
+		for (auto& solution: this->get_population().get_solutions()) {
+			solution.set_fitness(
+				1-solution.get_total_cost()/total_cost
 			);
 
-			total_fitness += solution.fitness();
+			total_fitness += solution.get_fitness();
 		}
 
-		for (auto& solution: this->get_population().solutions()) {
-			solution.fitness(
-				solution.fitness()/total_fitness
+		for (auto& solution: this->get_population().get_solutions()) {
+			solution.set_fitness(
+				solution.get_fitness()/total_fitness
 			);
 		}
 	}

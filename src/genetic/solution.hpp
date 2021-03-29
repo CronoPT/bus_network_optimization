@@ -27,28 +27,28 @@ namespace genetic {
 			solution();
 
 			//getters
-			float total_cost() const;
-			float total_transgression() const;
-			float fitness() const;
-			std::vector<float>& costs();
-			std::vector<float>& transgressions();
-			T& item();
-			int rank() const;
-			int domination_count() const;
-			std::vector<int>& dominates();
-			float crowding_distance();
+			float get_total_cost() const;
+			float get_total_transgression() const;
+			float get_fitness() const;
+			std::vector<float>& get_costs();
+			std::vector<float>& get_transgressions();
+			T& get_item();
+			int get_rank() const;
+			int get_domination_count() const;
+			std::vector<int>& get_dominates();
+			float get_crowding_distance();
 
 			//setters
-			void total_cost(float new_total);
-			void total_transgression(float new_total);
-			void fitness(float new_fitness);
-			void costs(const std::vector<float>& new_costs);
-			void transgressions(const std::vector<float>& new_trans);
-			void item(const T& new_item);
-			void rank(int new_rank);
-			void domination_count(int new_count);
-			void dominates(std::vector<int>& new_dominates);
-			void crowding_distance(float new_distance);
+			void set_total_cost(float new_total);
+			void set_total_transgression(float new_total);
+			void set_fitness(float new_fitness);
+			void set_costs(const std::vector<float>& new_costs);
+			void set_transgressions(const std::vector<float>& new_trans);
+			void set_item(const T& new_item);
+			void set_rank(int new_rank);
+			void set_domination_count(int new_count);
+			void set_dominates(std::vector<int>& new_dominates);
+			void set_crowding_distance(float new_distance);
 
 			void inc_domination_count();
 			void dec_domination_count();

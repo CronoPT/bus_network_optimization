@@ -35,13 +35,13 @@ namespace genetic {
 	}
 
 	template<typename T>
-	solution<T>& population<T>::nth_best(int n) {
+	solution<T>& population<T>::get_nth_best(int n) {
 		std::sort(_solutions.begin(), _solutions.end());
 		return _solutions.at(n);
 	}
 
 	template<typename T>
-	std::vector<solution<T>>& population<T>::solutions() {
+	std::vector<solution<T>>& population<T>::get_solutions() {
 		return _solutions;
 	}
 

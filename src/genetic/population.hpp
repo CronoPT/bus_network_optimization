@@ -22,8 +22,8 @@ namespace genetic {
 			void add_solution(solution<T>& sol);
 			void add_solution(T& sol);
 			void clip();
-			solution<T>& nth_best(int n);
-			std::vector<solution<T>>& solutions();
+			solution<T>& get_nth_best(int n);
+			std::vector<solution<T>>& get_solutions();
 			void reset_ranks();
 			int size();
 			void reset_crowding_distance();

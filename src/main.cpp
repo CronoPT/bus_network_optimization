@@ -206,19 +206,19 @@ int main() {
 	
 	std::cout << "Best Solution(s):";
 	for (auto solution: solutions) {
-		std::cout << "\n\t" << solution.item()
-		          << "\t-- cost: " << solution.total_cost()
+		std::cout << "\n\t" << solution.get_item()
+		          << "\t-- cost: " << solution.get_total_cost()
 		          << "\t-- costs: ";
-		for (auto cost: solution.costs()) {
+		for (auto cost: solution.get_costs()) {
 			std::cout << cost << " ";
 		}
 
 		std::cout << " -- trans: ";
-		for (auto tran: solution.transgressions()) {
+		for (auto tran: solution.get_transgressions()) {
 			std::cout << tran << " ";
 		}
 
-		std::cout << " -- total_trans: " << solution.total_transgression();
+		std::cout << " -- total_trans: " << solution.get_total_transgression();
 	}
 	std::cout << std::endl;
 

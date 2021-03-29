@@ -23,103 +23,103 @@ namespace genetic {
 	}
 
 	template<typename T>
-	float solution<T>::total_cost() const {
+	float solution<T>::get_total_cost() const {
 		return _total_cost;
 	}
 
 	template<typename T>
-	float solution<T>::total_transgression() const {
+	float solution<T>::get_total_transgression() const {
 		return _total_transgression;
 	}
 
 	template<typename T>
-	float solution<T>::fitness() const {
+	float solution<T>::get_fitness() const {
 		return _fitness;
 	}
 
 	template<typename T>
-	std::vector<float>& solution<T>::costs() {
+	std::vector<float>& solution<T>::get_costs() {
 		return _costs;
 	}
 
 	template<typename T>
-	std::vector<float>& solution<T>::transgressions() {
+	std::vector<float>& solution<T>::get_transgressions() {
 		return _transgressions;
 	}
 
 	template<typename T>
-	T& solution<T>::item() {
+	T& solution<T>::get_item() {
 		return _item;
 	}
 
 	template<typename T>
-	int solution<T>::rank() const {
+	int solution<T>::get_rank() const {
 		return _rank;
 	}
 
 	template<typename T>
-	int solution<T>::domination_count() const {
+	int solution<T>::get_domination_count() const {
 		return _domination_count;
 	}
 	
 	template<typename T>
-	std::vector<int>& solution<T>::dominates() {
+	std::vector<int>& solution<T>::get_dominates() {
 		return _dominates;
 	}
 
 	template<typename T>
-	float solution<T>::crowding_distance() {
+	float solution<T>::get_crowding_distance() {
 		return _crowding_distance;
 	}
 
 	template<typename T>
-	void solution<T>::total_cost(float new_total) {
+	void solution<T>::set_total_cost(float new_total) {
 		_total_cost = new_total;
 	}
 
 	template<typename T>
-	void solution<T>::total_transgression(float new_total) {
+	void solution<T>::set_total_transgression(float new_total) {
 		_total_transgression = new_total;
 	}
 
 	template<typename T>
-	void solution<T>::fitness(float new_fitness) {
+	void solution<T>::set_fitness(float new_fitness) {
 		_fitness = new_fitness;
 	}
 
 	template<typename T>
-	void solution<T>::costs(const std::vector<float>& new_costs) {
+	void solution<T>::set_costs(const std::vector<float>& new_costs) {
 		_costs = new_costs;
 	}
 
 	template<typename T>
-	void solution<T>::transgressions(const std::vector<float>& new_trans) {
+	void solution<T>::set_transgressions(const std::vector<float>& new_trans) {
 		_transgressions = new_trans;
 	}
 
 
 	template<typename T>
-	void solution<T>::item(const T& new_item) {
+	void solution<T>::set_item(const T& new_item) {
 		_item = new_item;
 	}
 
 	template<typename T>
-	void solution<T>::rank(int new_rank) {
+	void solution<T>::set_rank(int new_rank) {
 		_rank = new_rank;
 	}
 
 	template<typename T>
-	void solution<T>::domination_count(int new_count) {
+	void solution<T>::set_domination_count(int new_count) {
 		_domination_count = new_count;
 	}
 
 	template<typename T>
-	void solution<T>::dominates(std::vector<int>& new_dominates) {
+	void solution<T>::set_dominates(std::vector<int>& new_dominates) {
 		_dominates = new_dominates;
 	}
 
 	template<typename T>
-	void solution<T>::crowding_distance(float new_distance) {
+	void solution<T>::set_crowding_distance(float new_distance) {
 		_crowding_distance = new_distance;
 	}
 
@@ -129,8 +129,8 @@ namespace genetic {
 		bool better_in_one = false;
 
 		for (int i=0; i<_costs.size(); i++) {
-			least_as_good &= _costs.at(i) <= other.costs().at(i);
-			better_in_one |= _costs.at(i) <  other.costs().at(i);
+			least_as_good &= _costs.at(i) <= other.get_costs().at(i);
+			better_in_one |= _costs.at(i) <  other.get_costs().at(i);
 		}
 
 		return least_as_good && better_in_one;
@@ -141,7 +141,7 @@ namespace genetic {
 		if (is_feasible() && !other.is_feasible()) {
 			return true;
 		} else if (!is_feasible() && !other.is_feasible()) {
-			return _total_transgression < other.total_transgression();
+			return _total_transgression < other.get_total_transgression();
 		} else if (is_feasible() && other.is_feasible()) {
 			return dominates(other);
 		} else {
