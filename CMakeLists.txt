@@ -17,9 +17,11 @@ set(GENETIC_INSTALL_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 set(GENETIC_INSTALL_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 
 set(GENETIC_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src/genetic)
+set(NET_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src/net)
 
 include_directories(${GENETIC_INSTALL_INCLUDE_DIR})
 include_directories(${GENETIC_HEADERS_DIR})
+include_directories(${NET_HEADERS_DIR})
 
 add_subdirectory(src)
 add_subdirectory(tests)

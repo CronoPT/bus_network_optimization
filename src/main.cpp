@@ -3,6 +3,9 @@
 #include <classic_ga.hpp>
 #include <constraint.hpp>
 #include <cost_function.hpp>
+#include <edge.hpp>
+#include <node.hpp>
+#include <graph.hpp>
 #include <nsga.hpp>
 #include <iostream>
 #include <cmath>

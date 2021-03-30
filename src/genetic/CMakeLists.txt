@@ -13,7 +13,7 @@ target_sources(genetic INTERFACE
 
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(genetic INTERFACE .)
+target_include_directories(genetic INTERFACE ${PROJECT_SOURCE_DIR}/src/genetic)
 
 # install(TARGETS genetic DESTINATION ${GENETIC_INSTALL_LIB_DIR})
 # install(FILES 
