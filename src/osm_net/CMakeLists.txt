@@ -6,7 +6,9 @@ add_library(osm_net SHARED STATIC
 	osm_net.hpp
 	osm_net.cpp
 	osm_edge.hpp
-	osm_node.hpp)
+	osm_edge.cpp
+	osm_node.hpp
+	osm_node.cpp)
 
 target_include_directories(osm_net PUBLIC ${PROJECT_SOURCE_DIR}/src/osm_net)
 
