@@ -3,6 +3,7 @@
 #include <classic_ga.hpp>
 #include <constraint.hpp>
 #include <cost_function.hpp>
+#include <osm_net.hpp>
 #include <edge.hpp>
 #include <node.hpp>
 #include <graph.hpp>
@@ -190,6 +191,9 @@ class cones_problem: genetic::problem<cone> {
 };
 
 int main() {
+
+	auto g = osm_net::import_network();
+
 	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
 	auto constraints = genetic::constraint_set<cone>();
