@@ -4,13 +4,18 @@
 namespace net {
 
 	template<typename T>
-	bool operator<(const priority_queue<T>::item& s1, const priority_queue<T>::item& s2) {
-		return s1.cost < s2.cost;
+	bool operator<(const item<T>& i1, const item<T>& i2) {
+		if (i1._cost == i2._cost) {
+			return i1._key < i2._key;
+		}
+		else {
+			return i1._cost < i2._cost;
+		}
 	}
 
 	template<typename T>
-	priority_queue<T>::item::item(T key, float cost):
-	 _cost(cost), _key(T) {
+	item<T>::item(T key, float cost):
+	 _cost(cost), _key(key) {
 
 	}
 
@@ -22,8 +27,8 @@ namespace net {
 
 	template<typename T>
 	void priority_queue<T>::push(T key, float cost) {
-		auto holder = item(key, cost);
-		_set.insert(item);
+		auto holder = item<T>(key, cost);
+		_set.insert(holder);
 	}
 
 	template<typename T>
@@ -35,13 +40,41 @@ namespace net {
 
 	template<typename T>
 	void priority_queue<T>::update(T key, float new_cost) {
-		for (auto holder: _set) {
-			auto it = std::find_if(_set.begin(), _set.end(), [](item holder){
-				return holder._key == key;
-			})
+		auto it = std::find_if(_set.begin(), _set.end(), [key](item<T> holder){
+			return holder._key == key;
+		});
+		if (it != _set.end()) {
+			_set.erase(it);
+			push(key, new_cost);
 		}
 	}
 
+	template<typename T>
+	int priority_queue<T>::size() {
+		return _set.size();
+	}
+
+	template<typename T>
+	bool priority_queue<T>::empty() {
+		return _set.empty();
+	}
+
+	template<typename T>
+	bool priority_queue<T>::contains(T key) {
+		auto it = std::find_if(_set.begin(), _set.end(), [key](item<T> holder){
+			return holder._key == key;
+		});
+		return it != _set.end();
+	}
+
+	template<typename T>
+	void priority_queue<T>::print() {
+		for (auto i: _set) {
+			std::cout << "id: " << i._key 
+			          << "cost: " << i._cost << "\n";
+		}
+		std::cout << std::endl;
+	}
 
 
 } // namespace net

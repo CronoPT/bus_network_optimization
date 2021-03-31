@@ -84,45 +84,39 @@ namespace net {
 		int destin_id,
 		float (*weight)(edge<E>&)
 	) {
-		auto queue = std::vector<int>(); 
+		auto queue = net::priority_queue<int>();
 		auto dist  = std::unordered_map<int, float>();
 		auto prev  = std::unordered_map<int, int>();
 		
-		int undefined = -1;
+		const int undefined = -1;
 
 		for (auto& v_pair: _nodes) {
 			auto id = v_pair.first;
 			dist[id] = std::numeric_limits<float>::infinity();
 			prev[id] = undefined;
-			queue.push_back(id);
+			queue.push(id, dist[id]);
 		}
 		dist[origin_id] = 0.0;
+		queue.update(origin_id, 0.0);
 
 		while (!queue.empty()) {
 
-			auto u = std::pair<int, float>(
-				undefined, std::numeric_limits<float>::infinity()
-			);
-			for (auto& d: dist) {
-				if (d.second < u.second && std::find(queue.begin(), queue.end(), d.first)!=queue.end()) {
-					u = d;
-				}
-			}
+			auto u = queue.pop();
 
-			if (u.first == destin_id) { break; }
+			if (u == destin_id) { break; }
 
-			queue.erase(std::remove(queue.begin(), queue.end(), u.first));
-			auto& u_node = _nodes[u.first];
+			auto& u_node = _nodes[u];
 			for (auto& edge_info: u_node.get_adjacencies()) {
 				auto   key  = edge_info.first;
 				auto&  edge = edge_info.second;
 				auto   v    = edge.get_destin(); 
 
-				if (std::find(queue.begin(), queue.end(), v)!=queue.end()) {
-					float alt = dist[u.first] + weight(edge);
+				if (queue.contains(v)) {
+					float alt = dist[u] + weight(edge);
 					if (alt < dist[v]) {
 						dist[v] = alt;
-						prev[v] = u.first;
+						prev[v] = u;
+						queue.update(v, dist[v]);
 					}
 				}
 			}
@@ -130,7 +124,7 @@ namespace net {
 		}
 
 		float cost = dist[destin_id];
-		auto stk = std::stack<int>();
+		auto stk   = std::stack<int>();
 		int  u = destin_id;
 		if (prev[u]!=undefined || u==origin_id) {
 			while (u != undefined) {

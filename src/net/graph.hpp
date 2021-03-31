@@ -8,6 +8,7 @@
 #include <stack>
 #include "node.hpp"
 #include "edge.hpp"
+#include "priority_queue.hpp"
 
 namespace net {
 

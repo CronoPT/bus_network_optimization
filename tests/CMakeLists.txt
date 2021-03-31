@@ -5,7 +5,8 @@ find_package(GTest REQUIRED)
 add_executable(main_tests 
 	genetic/solution_test.cpp
 	genetic/population_test.cpp
-	net/graph_test.cpp)
+	net/graph_test.cpp
+	net/priority_queue_test.cpp)
 	
 target_link_libraries(main_tests INTERFACE genetic 
                                  INTERFACE net
