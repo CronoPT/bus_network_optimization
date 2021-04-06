@@ -192,7 +192,7 @@ class cones_problem: genetic::problem<cone> {
 
 int main() {
 
-	auto g = osm_net::import_network();
+	// auto g = osm_net::import_network();
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
@@ -209,25 +209,25 @@ int main() {
 
 	auto GA = new genetic::nsga<cone>((genetic::problem<cone>*) problem);
 
-	// auto solutions = GA->execute(1000, 0.0001, 30);
+	auto solutions = GA->execute(1000, 0.0001, 30);
 	
-	// std::cout << "Best Solution(s):";
-	// for (auto solution: solutions) {
-	// 	std::cout << "\n\t" << solution.get_item()
-	// 	          << "\t-- cost: " << solution.get_total_cost()
-	// 	          << "\t-- costs: ";
-	// 	for (auto cost: solution.get_costs()) {
-	// 		std::cout << cost << " ";
-	// 	}
+	std::cout << "Best Solution(s):";
+	for (auto solution: solutions) {
+		std::cout << "\n\t" << solution.get_item()
+		          << "\t-- cost: " << solution.get_total_cost()
+		          << "\t-- costs: ";
+		for (auto cost: solution.get_costs()) {
+			std::cout << cost << " ";
+		}
 
-	// 	std::cout << " -- trans: ";
-	// 	for (auto tran: solution.get_transgressions()) {
-	// 		std::cout << tran << " ";
-	// 	}
+		std::cout << " -- trans: ";
+		for (auto tran: solution.get_transgressions()) {
+			std::cout << tran << " ";
+		}
 
-	// 	std::cout << " -- total_trans: " << solution.get_total_transgression();
-	// }
-	// std::cout << std::endl;
+		std::cout << " -- total_trans: " << solution.get_total_transgression();
+	}
+	std::cout << std::endl;
 
 	delete GA;
 	delete problem;

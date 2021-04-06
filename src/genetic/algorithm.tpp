@@ -31,7 +31,7 @@ namespace genetic {
 	template<typename T>
 	algorithm<T>::algorithm(problem<T>* problem):
 	 _population(), _problem(problem), 
-	 _crossover_prob(0.8), _mutation_prob(0.8) {
+	 _crossover_prob(0.8), _mutation_prob(0.1) {
 
 	}
 
