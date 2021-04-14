@@ -28,5 +28,21 @@ GREEN_LINE = [
 RED_LINE = [
 	'M49', 'M48', 'M47', 'M36',
 	'M35', 'M34', 'M33', 'M32',
-	'M23', 'M17', 'M08'
+	'M31', 'M23', 'M17', 'M08'
 ]
+
+NETWORK = '../data/json/final_network.json'
+
+BUS_STOPS = '../data/json/clustered_stop_locations.json'
+
+MAX_DIST_METRO_BUS = 300
+
+NETWORK_WITH_METRO = '../data/json/network_with_metro.json'
+
+NETWORK_LINKS = '../data/geojson/network_with_metro_links.geojson'
+
+NETWORK_NODES = '../data/geojson/network_with_metro_nodes.geojson'
+
+INTERFACED_METRO = '../data/json/metro_stations_interfaced.json'
+
+INTERFACED_BUS = '../data/json/clustered_stop_locations_interfaced.json'
