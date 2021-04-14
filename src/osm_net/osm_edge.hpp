@@ -20,6 +20,7 @@ namespace osm_net {
 			         int m_speed, coord_sequence geometry);
 			osm_edge(int origin, int destin, float len, 
 			         int m_speed);
+			osm_edge(int origin, int destin, float len);
 			osm_edge();
 			int get_origin_id() const;
 			int get_destin_id() const;

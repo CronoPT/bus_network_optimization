@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16.3)
 add_subdirectory(genetic)
 add_subdirectory(net)
 add_subdirectory(osm_net)
+add_subdirectory(urban)
 
 add_executable(main main.cpp)
 add_executable(main_x main_x.cpp)

@@ -19,6 +19,11 @@ namespace osm_net {
 
 	}
 
+	osm_edge::osm_edge(int origin, int destin, float len): 
+	 _origin_id(origin), _destin_id(destin), _length(len),
+	 _max_speed(-1), _geometry() {
+
+	}
 
 	osm_edge::osm_edge():
 	 _origin_id(-1), _destin_id(-1), _length(-1),

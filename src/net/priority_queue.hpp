@@ -3,6 +3,7 @@
 
 #include <set>
 #include <iostream>
+#include <algorithm>
 
 namespace net {
 
