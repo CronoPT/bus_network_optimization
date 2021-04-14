@@ -5,7 +5,7 @@ namespace osm_net {
 
 	net::graph<osm_node, osm_edge> import_network() {
 
-		std::ifstream input_file("../data/final_network.json");
+		std::ifstream input_file("../data/json/final_network.json");
 		nlohmann::json json_net = nlohmann::json::parse(input_file);
 
 		auto network  = net::graph<osm_node, osm_edge>();
