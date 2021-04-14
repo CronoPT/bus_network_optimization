@@ -25,6 +25,9 @@ namespace net {
 		void add_edge(int origin_id, int destin_id);
 		void add_edge(int origin_id, int destin_id, E attributes);
 
+		int get_number_of_nodes();
+		int get_number_of_edges();
+
 		std::unordered_map<int, node<V, E>>& get_nodes();
 		std::unordered_map<int, edge<E>>& get_edges();
 

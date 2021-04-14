@@ -69,6 +69,16 @@ namespace net {
 	}
 
 	template<typename V, typename E>
+	int graph<V, E>::get_number_of_nodes() {
+		return _nodes.size();
+	}
+
+	template<typename V, typename E>
+	int graph<V, E>::get_number_of_edges() {
+		return _edges.size();
+	}
+
+	template<typename V, typename E>
 	std::unordered_map<int, node<V, E>>& graph<V, E>::get_nodes() {
 		return _nodes;
 	}

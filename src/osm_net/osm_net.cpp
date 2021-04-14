@@ -5,7 +5,7 @@ namespace osm_net {
 
 	net::graph<osm_node, osm_edge> import_network() {
 
-		std::ifstream input_file("../data/json/final_network.json");
+		std::ifstream input_file("../data/json/network_with_metro.json");
 		nlohmann::json json_net = nlohmann::json::parse(input_file);
 
 		auto network  = net::graph<osm_node, osm_edge>();
@@ -14,7 +14,14 @@ namespace osm_net {
 			int id = json_node["id"]; 	
 			double lon = json_node["x"];
 			double lat = json_node["y"];
-			network.add_node(id, osm_node(id, lon, lat));
+
+			if (json_node.contains("type")) {
+				std::string type = json_node["type"];
+				network.add_node(id, osm_node(id, lon, lat, type));
+			} else {
+				network.add_node(id, osm_node(id, lon, lat, "road"));
+			}
+
 			node_ids.push_back(id);
 		}
 
