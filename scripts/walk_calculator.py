@@ -144,7 +144,8 @@ if __name__ == '__main__':
 		important_points[bus_stop['stop_id']] = {
 			'type': 'bus',
 			'close_bus': [],
-			'close_metro': []
+			'close_metro': [],
+			'point': bus_stop['point']
 		}
 
 		lon = bus_stop['point'][0]
@@ -187,7 +188,8 @@ if __name__ == '__main__':
 		important_points[id] = {
 			'type': 'metro',
 			'close_bus': [],
-			'close_metro': []
+			'close_metro': [],
+			'point': metro_station['point']
 		}
 
 		lon = metro_station['point'][0]
