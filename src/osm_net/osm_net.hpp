@@ -11,13 +11,12 @@
 
 namespace osm_net {
 
-	class osm_network {
-		//TODO implement this class which is supposed to be an encapsulation of a graph that makes it easier
-		//to compute paths with specific modality needs
-		// net::graph<osm_node, osm_edge> _some;
-	};
+	class osm_net: public net::graph<osm_node, osm_edge> {
 
-	net::graph<osm_node, osm_edge> import_network();
+		public:
+		osm_net();
+
+	};
 
 } // namespace osm_net
 

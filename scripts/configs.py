@@ -46,3 +46,9 @@ NETWORK_NODES = '../data/geojson/network_with_metro_nodes.geojson'
 INTERFACED_METRO = '../data/json/metro_stations_interfaced.json'
 
 INTERFACED_BUS = '../data/json/clustered_stop_locations_interfaced.json'
+
+METRO_NETWORK = '../data/json/metro_network.json'
+
+METRO_SPEED = 60
+
+METRO_NETWORKNX = '../data/json/metro_networknx.json'

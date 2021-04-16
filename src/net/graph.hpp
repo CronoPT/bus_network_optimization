@@ -9,6 +9,8 @@
 #include "node.hpp"
 #include "edge.hpp"
 #include "priority_queue.hpp"
+#include <nlohmann/json.hpp>
+#include <fstream>
 
 namespace net {
 

@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <string>
 #include "edge.hpp"
 
 namespace net {
@@ -21,7 +22,9 @@ namespace net {
 
 		int get_id() const;
 		std::unordered_map<int, edge<E>>& get_adjacencies();
-		V& get_attributes(); 
+		V& get_attributes();
+
+		bool is_of_type(std::string type); 
 
 		std::vector<edge<E>> get_out_edges();
 		void add_adjacency(int key, edge<E>& edge);

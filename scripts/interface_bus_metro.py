@@ -46,13 +46,15 @@ if __name__ == '__main__':
 				bus_stop_node['close_metro'].append(metro_id_int)
 
 				road_network.add_edge(bus_id, metro_id_int, **{
-					'walking': True,
-					'length':  distance
+					'walking':  True,
+					'length':   distance,
+					'maxspeed': '5'
 				})
 
 				road_network.add_edge(metro_id_int, bus_id, **{
-					'walking': True,
-					'length':  distance
+					'walking':  True,
+					'length':   distance,
+					'maxspeed': '5'
 				})
 
 	blue   = configs.BLUE_LINE

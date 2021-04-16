@@ -43,21 +43,6 @@ if __name__ == '__main__':
 				if len(shape) > 1:
 					links_list.append(shape)
 				
-				# new_shape = []
-				# d = None
-				# for o in shape:
-				# 	if d != None:
-				# 		distance = utils.geometric_utils.haversine_distance(
-				# 			o, d
-				# 		)
-				# 		if distance < 1:
-				# 			continue
-				# 		else:
-				# 			new_shape.append(d)
-				# 	else:
-				# 		new_shape.append(o)
-				# 	d = o
-				# links_list.append(new_shape)
 			else:
 				'''
 				| Whenever a road segment has no curves, i.e. it is only
@@ -69,8 +54,6 @@ if __name__ == '__main__':
 				origin  = [json_data['nodes'][index]['x'], json_data['nodes'][index]['y']]
 				destiny = [destiny_item['x'], destiny_item['y']]
 
-				# if [destiny, origin] not in links_list and [origin, destiny] not in links_list and origin!=destiny:
-				# if 'metro' not in link and 'walking' not in link:
 				links_list.append([origin, destiny])
 
 	utils.general_utils.print_progress_bar(len(json_data['adjacency']), len(json_data['adjacency']))

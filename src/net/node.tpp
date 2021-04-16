@@ -36,6 +36,10 @@ namespace net {
 		return _attributes;
 	} 
 
+	template<typename V, typename E>
+	bool node<V, E>::is_of_type(std::string type) {
+		return (type=="any" || _attributes.get_type()==type);
+	}
 
 	template<typename V, typename E>
 	std::vector<edge<E>> node<V, E>::get_out_edges() {

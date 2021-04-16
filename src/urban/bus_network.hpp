@@ -1,21 +1,25 @@
 #ifndef __BUS_NETWORK_HPP__
 #define __BUS_NETWORK_HPP__
 
-#include <osm_node.hpp>
-#include <osm_edge.hpp>
+#include "bus_node.hpp"
+#include "bus_edge.hpp"
+#include "route.hpp"
 #include <graph.hpp>
 #include <vector>
+#include <osm_net.hpp>
+#include <fstream>
+#include <string>
 
 namespace urban {
 
-	typedef net::graph<osm_net::osm_node, osm_net::osm_edge> road_graph;
-
-	class bus_network {
-		road_graph _graph;
-
+	class bus_network: public net::graph<bus_node, bus_edge> {
+		
 		public:
-			bus_network(std::vector<std::vector<int>> stop_sequences,
-				        road_graph road_network);
+		bus_network(
+			std::vector<route> routes,
+			osm_net::osm_net road_network
+		);
+
 	};
 
 } // namespace urban
