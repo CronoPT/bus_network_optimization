@@ -38,8 +38,10 @@ namespace urban {
 					);
 					auto travel_time = path_report.second;
 					add_edge(origin_stop, destin_stop, bus_edge(
-						origin_stop, destin_stop, 
-						route_id, travel_time
+						origin_stop, 
+						destin_stop, 
+						route_id, 
+						travel_time
 					));
 				}
 				origin_stop = destin_stop;

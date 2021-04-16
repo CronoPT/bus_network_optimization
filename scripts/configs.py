@@ -51,4 +51,10 @@ METRO_NETWORK = '../data/json/metro_network.json'
 
 METRO_SPEED = 60
 
+WALKING_SPEED = 5
+
 METRO_NETWORKNX = '../data/json/metro_networknx.json'
+
+DIVISIONS = 50
+
+WALKS = '../data/json/walks.json'
