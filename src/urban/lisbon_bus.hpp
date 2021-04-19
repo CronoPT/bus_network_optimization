@@ -5,10 +5,12 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <vector>
+#include <osm_net.hpp>
+#include "route.hpp"
 
 namespace urban {
 
-	bus_network import_lisbon_bus(road_graph graph);
+	bus_network import_lisbon_bus(osm_net::osm_net graph);
 
 } // namespace urban
 

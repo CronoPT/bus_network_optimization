@@ -5,20 +5,24 @@
 
 namespace urban {
 
-	bus_network import_lisbon_bus(road_graph graph) {
+	bus_network import_lisbon_bus(osm_net::osm_net graph) {
 		std::ifstream input_file(
 			"../data/json/clustered_routes_stop_sequence.json"
 		);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 
-		std::vector<std::vector<int>> routes;
+		std::vector<route> routes;
+		int route_id = 0;
 		for (auto& json_route: json_routes) {
-			auto route = std::vector<int>();
-			for (auto stop: json_route['stops']) {
-				route.push_back(stop);
+			auto route_stops = std::vector<int>();
+			for (auto stop: json_route["stops"]) {
+				route_stops.push_back(stop);
 			}
-			routes.push_back(route);
+			routes.push_back(route(route_id, route_stops));
+			route_id += 1;
 		}
+
+		std::cout << "Did you read all?" << std::endl;
 
 		return bus_network(routes, graph);
 	}

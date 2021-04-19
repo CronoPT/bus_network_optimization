@@ -17,13 +17,15 @@ namespace urban {
 			));
 		}
 
-		for (auto& edge: json_net["adjacency"]) {
-			add_edge(edge["origin_id"], edge["destin_id"], metro_edge(
-				edge["origin_id"],
-				edge["destin_id"],
-				edge["line_color"],
-				edge["time"]
-			));
+		for (auto& adja: json_net["adjacency"]) {
+			for (auto& edge: adja) {
+				add_edge(edge["origin_id"], edge["destin_id"], metro_edge(
+					edge["origin_id"],
+					edge["destin_id"],
+					edge["line_color"],
+					edge["time"]
+				));
+			}
 		}
 	}
 

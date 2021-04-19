@@ -176,7 +176,7 @@ if __name__ == '__main__':
 					point_prime
 				)
 				if distance < configs.MAX_DIST_METRO_BUS:
-					important_points[bus_stop['stop_id']]['close_bus'].append({
+					important_points[bus_stop['stop_id']]['close_metro'].append({
 						'station_id': bus_prime,
 						'time': (distance / (configs.WALKING_SPEED / 3.6))
 					})

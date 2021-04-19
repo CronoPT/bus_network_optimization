@@ -34,6 +34,7 @@ namespace urban {
 							auto length = e.get_attributes().get_length();
 							auto speed  = e.get_attributes().get_max_speed();
 							return (float) (length / (speed / 3.6));
+							// return length;
 						}
 					);
 					auto travel_time = path_report.second;

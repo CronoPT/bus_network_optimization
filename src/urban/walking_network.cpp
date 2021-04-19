@@ -12,19 +12,19 @@ namespace urban {
 		for (auto& walk_item: json_walks.items()) {
 			int id = std::stoi(walk_item.key());
 			auto& type  = walk_item.value()["type"];
-			auto& point = walk_item.value()["point"]; 
+			auto& point = walk_item.value()["point"];
 			add_node(id, walking_node(
 				id, type, point[0], point[1]
 			));
 		}
 
 		for (auto& walk_item: json_walks.items()) {
-			int origin_id = std::stoi(walk_item.key());
+			int   origin_id   = std::stoi(walk_item.key());
 			auto& origin_type = walk_item.value()["type"];
 
 			for (auto& bus: walk_item.value()["close_bus"]) {
 				int destin_id    = bus["stop_id"]; 
-				float time_taken = bus["time_taken"];
+				float time_taken = bus["time"];
 				add_edge(origin_id, destin_id, walking_edge(
 					origin_id, destin_id, time_taken,
 					origin_type, "bus"
@@ -33,7 +33,7 @@ namespace urban {
 
 			for (auto& metro: walk_item.value()["close_metro"]) {
 				int destin_id    = metro["station_id"]; 
-				float time_taken = metro["time_taken"];
+				float time_taken = metro["time"];
 				add_edge(origin_id, destin_id, walking_edge(
 					origin_id, destin_id, time_taken,
 					origin_type, "metro"

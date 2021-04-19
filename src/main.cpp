@@ -192,7 +192,7 @@ class cones_problem: genetic::problem<cone> {
 
 int main() {
 
-	auto g = osm_net::import_network();
+	// auto g = osm_net::import_network();
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
@@ -229,9 +229,9 @@ int main() {
 	}
 	std::cout << std::endl;
 
-	std::cout << "Nodes: " << g.get_number_of_nodes()
-	          << "\nEdges: " << g.get_number_of_edges()
-			  << std::endl;
+	// std::cout << "Nodes: " << g.get_number_of_nodes()
+	//           << "\nEdges: " << g.get_number_of_edges()
+	// 		  << std::endl;
 
 	delete GA;
 	delete problem;

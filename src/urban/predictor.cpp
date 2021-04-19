@@ -6,7 +6,7 @@
 namespace urban {
 
 	std::pair<std::vector<int>, float> predictor::predict_path(
-		road_graph road,
+		osm_net::osm_net road,
 		bus_network bus
 	) {
 

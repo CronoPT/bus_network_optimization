@@ -97,21 +97,18 @@ namespace net {
 		auto queue = net::priority_queue<int>();
 		auto dist  = std::unordered_map<int, float>();
 		auto prev  = std::unordered_map<int, int>();
+		auto explo = std::set<int>();
 		
 		const int undefined = -1;
 
-		for (auto& v_pair: _nodes) {
-			auto id = v_pair.first;
-			dist[id] = std::numeric_limits<float>::infinity();
-			prev[id] = undefined;
-			queue.push(id, dist[id]);
-		}
+		prev[origin_id] = undefined;
 		dist[origin_id] = 0.0;
-		queue.update(origin_id, 0.0);
+		queue.push(origin_id, 0.0);
 
 		while (!queue.empty()) {
 
 			auto u = queue.pop();
+			explo.insert(u);
 
 			if (u == destin_id) { break; }
 
@@ -123,11 +120,16 @@ namespace net {
 
 				if (queue.contains(v)) {
 					float alt = dist[u] + weight(edge);
-					if (alt < dist[v]) {
+					if (alt < dist[u]) {
 						dist[v] = alt;
 						prev[v] = u;
-						queue.update(v, dist[v]);
+						queue.update(v, alt);
 					}
+				} else if (explo.find(v) == explo.end()) {
+					/* v hasn't been visited before */
+					dist[v] = dist[u] + weight(edge);
+					prev[v] = u;
+					queue.push(v, dist[v]);
 				}
 			}
 

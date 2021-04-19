@@ -3,6 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <string>
 #include <graph.hpp>
 #include "walking_edge.hpp"
 #include "walking_node.hpp"
