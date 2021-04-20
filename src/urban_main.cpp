@@ -35,4 +35,5 @@ int main() {
 
 	auto grid = urban::grid(road, bus, metro);
 	std::cout << "Built grid" << std::endl;
+	grid.generate_geojson();
 }
