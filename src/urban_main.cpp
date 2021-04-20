@@ -6,7 +6,7 @@
 #include <metro_edge.hpp>
 #include <metro_network.hpp>
 #include <metro_node.hpp>
-#include <predictor.hpp>
+#include <grid.hpp>
 #include <route.hpp>
 #include <walking_edge.hpp>
 #include <walking_network.hpp>
@@ -32,4 +32,7 @@ int main() {
 	std::cout << "Read metro network" << std::endl;
 	auto walk  = urban::walking_network();
 	std::cout << "Read walking network" << std::endl;
+
+	auto grid = urban::grid(road, bus, metro);
+	std::cout << "Built grid" << std::endl;
 }

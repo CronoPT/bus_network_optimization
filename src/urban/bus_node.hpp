@@ -13,8 +13,8 @@ namespace urban {
 		bus_node();
 
 		int get_stop_id() const;
-		double lon() const;
-		double lat() const;
+		double get_lon() const;
+		double get_lat() const;
 	};
 
 } // namespace urban

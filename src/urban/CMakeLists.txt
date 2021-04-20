@@ -17,8 +17,8 @@ add_library(urban SHARED STATIC
 	metro_network.cpp
 	metro_node.hpp
 	metro_node.cpp
-	predictor.hpp
-	predictor.cpp
+	grid.hpp
+	grid.cpp
 	route.hpp
 	route.cpp
 	walking_edge.hpp

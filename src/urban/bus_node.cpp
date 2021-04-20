@@ -16,15 +16,15 @@ namespace urban {
 	}
 
 	int bus_node::get_stop_id() const {
-
+		return _stop_id;
 	}
 
-	double bus_node::lon() const {
-
+	double bus_node::get_lon() const {
+		return _lon;
 	}
 
-	double bus_node::lat() const {
-
+	double bus_node::get_lat() const {
+		return _lat;
 	}
 
 } // namespace urban
