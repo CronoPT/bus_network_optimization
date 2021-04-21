@@ -36,4 +36,11 @@ int main() {
 	auto grid = urban::grid(road, bus, metro);
 	std::cout << "Built grid" << std::endl;
 	grid.generate_geojson();
+	std::cout << "Made geojson file with grid" << std::endl;
+	grid.print_report();
+	start = std::chrono::high_resolution_clock::now();
+	grid.predict_all_od_pairs(bus, metro, walk);
+	stop  = std::chrono::high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	std::cout << "Predicted all od pairs in " << duration.count() << " milliseconds" << std::endl;
 }

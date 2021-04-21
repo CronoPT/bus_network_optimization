@@ -6,10 +6,14 @@ add_executable(main_tests
 	genetic/solution_test.cpp
 	genetic/population_test.cpp
 	net/graph_test.cpp
-	net/priority_queue_test.cpp)
+	net/priority_queue_test.cpp
+	urban/exists_square_test.cpp)
 	
 target_link_libraries(main_tests INTERFACE genetic 
                                  INTERFACE net
-                                 PUBLIC GTest::Main)
+								 PUBLIC osm_net 
+								 PUBLIC urban
+                                 PUBLIC GTest::Main
+								 )
 
 install(TARGETS main_tests DESTINATION bin)

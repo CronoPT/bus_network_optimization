@@ -28,6 +28,8 @@ add_library(urban SHARED STATIC
 	walking_node.hpp
 	walking_node.cpp)
 
+target_link_libraries(urban INTERFACE net PUBLIC osm_net)
+
 target_include_directories(urban PUBLIC ${PROJECT_SOURCE_DIR}/src/urban)
 
 # target_link_libraries(urban PRIVATE osm_net INTERFACE net)

@@ -1,5 +1,5 @@
-#ifndef __PREDICTOR_CPP__
-#define __PREDICTOR_CPP__
+#ifndef __GRID_CPP__
+#define __GRID_CPP__
 
 #include "grid.hpp"
 
@@ -21,6 +21,24 @@ namespace urban {
 
 	void square::add_metro(int station_id) {
 		_metro.insert(station_id);
+	}
+
+	const std::set<int>& square::get_bus() const {
+		return _bus;
+	}
+
+	const std::set<int>& square::get_metro() const {
+		return _metro;
+	}
+
+	grid::grid():
+	 _squares(), 
+	 _min_lon(std::numeric_limits<double>::max()), 
+	 _min_lat(std::numeric_limits<double>::max()), 
+	 _max_lon(std::numeric_limits<double>::lowest()),
+	 _max_lat(std::numeric_limits<double>::lowest()), 
+	 _lon_step(0), _lat_step(0) {
+		/* Do Nothing */
 	}
 
 	grid::grid(
@@ -53,7 +71,7 @@ namespace urban {
 			auto& attr = b_node.second.get_attributes(); 
 			auto sq = coordinates_to_squares(attr.get_lon(), attr.get_lat());
 
-			if (!exists_square(attr.get_lon(), attr.get_lat())) {
+			if (!exists_square(sq.first, sq.second)) {
 				_squares[sq.first][sq.second] = square(
 					sq.first, sq.second
 				);
@@ -66,7 +84,7 @@ namespace urban {
 			auto& attr  = m_node.second.get_attributes(); 
 			auto sq = coordinates_to_squares(attr.get_lon(), attr.get_lat());
 
-			if (!exists_square(attr.get_lon(), attr.get_lat())) {
+			if (!exists_square(sq.first, sq.second)) {
 				_squares[sq.first][sq.second] = square(
 					sq.first, sq.second
 				);
@@ -90,6 +108,28 @@ namespace urban {
 		bool exists_square = _squares.find(i)->second.find(j) != 
 		                     _squares.find(i)->second.end();
 		return exists_square;
+	}
+
+	void grid::print_report() const {
+		int total_squares = 0;
+		for (auto& column: _squares) {
+			int i = column.first;
+			for (auto& line: column.second) {
+				int j = line.first;
+				std::cout << "(" << i << ",";
+				std::cout << j << ") {bus:[";
+				for (auto& bus: line.second.get_bus()) {
+					std::cout << bus << ", ";
+				}
+				std::cout << "], metro:[";
+				for (auto& metro: line.second.get_metro()) {
+					std::cout << metro << ", ";
+				}
+				std::cout << "]}" << std::endl;
+				total_squares += 1;
+			}
+		}
+		std::cout << "Total: " << total_squares << std::endl;
 	}
 
 	void grid::generate_geojson() const {
@@ -116,7 +156,39 @@ namespace urban {
 		o << "}" << std::endl;
 	}
 
-	void grid::best_path_between(
+	bool grid::element_in(int element, std::set<int> vec) {
+		return std::find(vec.begin(), vec.end(), element) != vec.end();
+	}
+
+	std::unordered_map<int, std::unordered_map<int, square>>& grid::get_squares() {
+		return _squares;
+	}
+
+	std::string grid::bus_or_metro(
+		int node_id, 
+		bus_network bus,
+		metro_network metro
+	) {
+		if (metro.get_nodes().find(node_id) != metro.get_nodes().end()) {
+			return "metro";
+		} else { return "bus"; }
+	}
+
+	bool grid::needs_penalty_bus(net::edge<bus_edge> edge, std::string prev_itinerary) {
+		bool diff_routes  = std::to_string(edge.get_attributes().get_route_id()) != prev_itinerary;
+		bool not_walking  = prev_itinerary != "walk";
+		bool not_starting = prev_itinerary != "start";
+		return diff_routes && not_walking && not_starting;
+	}
+
+	bool grid::needs_penalty_metro(net::edge<metro_edge> edge, std::string prev_itinerary) {
+		bool diff_routes = edge.get_attributes().get_line_color() != prev_itinerary;
+		bool not_walking = prev_itinerary != "walk";
+		bool not_starting = prev_itinerary != "start";
+		return diff_routes && not_walking && not_starting;
+	}
+
+	std::pair<std::vector<int>, float> grid::best_path_between(
 		std::pair<int, int> origin, 
 		std::pair<int, int> destin, 
 		bus_network bus,
@@ -130,9 +202,282 @@ namespace urban {
 		auto queue = net::priority_queue<int>();
 		auto dist  = std::unordered_map<int, float>();
 		auto prev  = std::unordered_map<int, int>();
+		auto mode  = std::unordered_map<int, std::string>();
+		auto prev_mode = std::unordered_map<int, std::string>();
+		auto prev_itinerary = std::unordered_map<int, std::string>();
 		auto explo = std::set<int>();
 
 		const int undefined = -1; 
+		const int transfer_penalty = 10*60;
+
+		// considering bus stops as starting points
+		for (auto origin_point: origin_square.get_bus()) {
+			prev[origin_point] = undefined;
+			dist[origin_point] = 0.0;
+			mode[origin_point] = "bus";
+			prev_mode[origin_point] = "start";
+			prev_itinerary[origin_point] = "start";
+			queue.push(origin_point, 0.0);
+		}
+
+		// considering metro stations as starting points
+		for (auto origin_point: origin_square.get_metro()) {
+			prev[origin_point] = undefined;
+			dist[origin_point] = 0.0;
+			mode[origin_point] = "metro";
+			prev_mode[origin_point] = "start";
+			prev_itinerary[origin_point] = "start";
+			queue.push(origin_point, 0.0);
+		}
+
+		const auto& destin_bus   = destin_square.get_bus();
+		const auto& destin_metro = destin_square.get_metro();
+		int destin_id = undefined; 
+		while (!queue.empty()) {
+
+			auto u = queue.pop();
+			explo.insert(u);
+
+			// we found our way, u is somewhere in the destiny square
+			if (element_in(u, destin_bus) || element_in(u, destin_metro)) {
+				destin_id = u;
+				break;
+			}
+
+			if (mode[u] == "bus") {
+				auto& u_node_bus  = bus.get_nodes()[u];
+				auto& u_node_walk = walk.get_nodes()[u];
+
+				// checking for connectivity through the bus network
+				for (auto& edge_info: u_node_bus.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin(); 
+
+					if (queue.contains(v)) {
+						float alt;
+						if (needs_penalty_bus(edge, prev_itinerary[u])) {
+							alt = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							alt = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = "bus";
+							prev_mode[v] = "bus";
+							prev_itinerary[v] = std::to_string(edge.get_attributes().get_route_id());
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						if (needs_penalty_bus(edge, prev_itinerary[u])) {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						prev[v] = u;
+						mode[v] = "bus";
+						prev_mode[v] = "bus";
+						prev_itinerary[v] = std::to_string(edge.get_attributes().get_route_id());
+						queue.push(v, dist[v]);
+					}
+				}
+
+				// checking for connectivity through the walking network
+				for (auto& edge_info: u_node_walk.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin();
+
+					if (queue.contains(v)) {
+						float alt = dist[u] + edge.get_attributes().get_time_taken();
+						if (alt < dist[v] && prev_itinerary[v]!="walk") {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = bus_or_metro(v, bus, metro);
+							prev_mode[v] = "walk";
+							prev_itinerary[v] = "walk";
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						prev[v] = u;
+						mode[v] = bus_or_metro(v, bus, metro);
+						prev_mode[v] = "walk";
+						prev_itinerary[v] = "walk";
+						queue.push(v, dist[v]);
+					}
+				}
+
+			} else if (mode[u] == "metro") {
+				auto& u_node_metro  = metro.get_nodes()[u];
+				auto& u_node_walk = walk.get_nodes()[u];
+
+				// checking for connectivity through the bus network
+				for (auto& edge_info: u_node_metro.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin(); 
+
+					if (queue.contains(v)) {
+						float alt;
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							alt = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							alt = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = "metro";
+							prev_mode[v] = "metro";
+							prev_itinerary[v] = edge.get_attributes().get_line_color();
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
+							          transfer_penalty;
+						} else {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						
+						prev[v] = u;
+						mode[v] = "metro";
+						prev_mode[v] = "metro";
+						prev_itinerary[v] = edge.get_attributes().get_line_color();
+						queue.push(v, dist[v]);
+					}
+				}
+
+				// checking for connectivity through the walking network
+				for (auto& edge_info: u_node_walk.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin();
+
+					if (queue.contains(v)) {
+						float alt = dist[u] + edge.get_attributes().get_time_taken();
+						if (alt < dist[v] && prev_itinerary[v]!="walk") {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = bus_or_metro(v, bus, metro);
+							prev_mode[v] = "walk";
+							prev_itinerary[v] = "walk";
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						prev[v] = u;
+						mode[v] = bus_or_metro(v, bus, metro);
+						prev_mode[v] = "walk";
+						prev_itinerary[v] = "walk";
+						queue.push(v, dist[v]);
+					}
+				}
+			}
+
+		}
+
+		float cost = dist[destin_id];
+		auto stk   = std::stack<int>();
+		int  u = destin_id;
+		if (prev[u]!=undefined || element_in(u, destin_bus) || 
+		    element_in(u, destin_metro)) {
+			while (u != undefined) {
+				stk.push(u);
+				u = prev[u];
+			} 
+		}
+
+		auto path = std::vector<int>();
+		while (!stk.empty()) {
+			path.push_back(stk.top());
+			stk.pop();
+		}
+
+		return std::pair<std::vector<int>, float>(path, cost);
+	}
+
+	void grid::print_progress_bar(int iteration, int total) {
+		float percent = 100 * (iteration/total);
+		int filled_length = (100 * iteration) / total;
+		std::string bar = std::string(filled_length, '=') + 
+		                  std::string(100 - filled_length, '-');
+		std::cout << "|" << bar << "| ";
+		std::cout << iteration << "/" << total << "\r" << std::flush;
+		if (iteration == total) { std::cout << std::endl; } 
+	}
+
+	int grid::get_total_squares() {
+		int sum = 0;
+		for (auto& column: _squares) {
+			sum += column.second.size();
+		}
+		return sum;
+	}
+
+	void grid::predict_all_od_pairs(
+		bus_network bus,
+		metro_network metro,
+		walking_network walk	
+	) {
+		int total_sq = get_total_squares();
+		int counter  = 0;
+		int total = total_sq * (total_sq-1); 
+		for (auto& column: _squares) {
+			int i = column.first;
+			for (auto& line: column.second) {
+				int j = line.first;
+
+				for (auto& column_prime: _squares) {
+					int i_prime = column_prime.first;
+					for (auto& line_prime: column_prime.second) {
+						int j_prime = line_prime.first;
+
+						if (i!=i_prime && j!=j_prime) {
+							// std::cout << "Path number "   << counter++; 
+							// std::cout << " being computed" << std::endl;
+							// std::cout << i << " " << j << " ";
+							// std::cout << i_prime << " " << j_prime << " ";
+
+							auto report = best_path_between(
+								std::pair<int, int>(i, j),
+								std::pair<int, int>(i_prime, j_prime),
+								bus, metro, walk
+							);
+
+							print_progress_bar(counter, total);
+							counter += 1;
+							// std::cout << "-- Taking: " << report.second/60;
+							// std::cout << " minutes, trough: ";
+							// for (auto id: report.first) {
+							// 	std::cout << id << " ";
+							// }
+							// std::cout << std::endl;
+						}
+
+					}
+				}
+			}
+		}
+		
+		std::cout << "<<<<<<<<<<<>>>>>>>>>>>" << std::endl;
+		std::cout << "\n" << _squares.size() << std::endl;
+
+		int sum = 0;
+		for (auto& column: _squares) {
+			std::cout << column.second.size() << std::endl;
+			sum += column.second.size();
+		}
+		std::cout << sum << std::endl;
 	}
 
 } // namespace urban

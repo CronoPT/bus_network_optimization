@@ -4,7 +4,6 @@
 #include <nlohmann/json.hpp>
 #include <graph.hpp>
 #include <fstream>
-#include "osm_net.hpp"
 #include "osm_node.hpp"
 #include "osm_edge.hpp"
 

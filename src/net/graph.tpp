@@ -120,7 +120,7 @@ namespace net {
 
 				if (queue.contains(v)) {
 					float alt = dist[u] + weight(edge);
-					if (alt < dist[u]) {
+					if (alt < dist[v]) {
 						dist[v] = alt;
 						prev[v] = u;
 						queue.update(v, alt);
