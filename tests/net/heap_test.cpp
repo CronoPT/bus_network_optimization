@@ -63,3 +63,26 @@ TEST_F(heap_test, heap_update_test) {
 	ASSERT_EQ(_heap.extract_minimum(), 7);
 	ASSERT_EQ(_heap.extract_minimum(), 10);
 }
+
+TEST_F(heap_test, heap_contains_test) {
+
+	ASSERT_TRUE(_heap.size()==0);
+
+	_heap.insert(14);
+	_heap.insert(10);
+	_heap.insert(1);
+	_heap.insert(2);
+	_heap.insert(4);
+	_heap.insert(5);
+	_heap.insert(11);
+
+	ASSERT_TRUE(_heap.size()==7);
+
+	ASSERT_TRUE(_heap.contains(1));
+	ASSERT_TRUE(_heap.contains(2));
+	ASSERT_TRUE(_heap.contains(4));
+	ASSERT_TRUE(_heap.contains(5));
+	ASSERT_TRUE(_heap.contains(10));
+	ASSERT_TRUE(_heap.contains(14));
+	ASSERT_TRUE(_heap.contains(11));
+}

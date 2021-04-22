@@ -4,6 +4,7 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include "heap.hpp"
 
 namespace net {
 
@@ -16,13 +17,17 @@ namespace net {
 
 		template<typename C>
 		friend bool operator<(const item<C>& i1, const item<C>& i2);
+		template<typename C>
+		friend bool operator>(const item<C>& i1, const item<C>& i2);
+		template<typename C>
+		friend bool operator==(const item<C>& i1, const item<C>& i2);
 	};
 
 	template<typename T>
 	class priority_queue {
 
 		private:
-			std::set<item<T>> _set;
+			heap<item<T>> _heap;
 
 		public:
 			priority_queue();
@@ -37,6 +42,15 @@ namespace net {
 	};
 
 } // namespace net
+
+namespace std {
+	template<typename T>
+	struct hash<net::item<T>> {
+		std::size_t operator()(const net::item<T>& item) const {
+			return hash<int>()(item._key);
+		}
+	};
+}
 
 #include "priority_queue.tpp"
 
