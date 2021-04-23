@@ -442,7 +442,7 @@ namespace urban {
 					for (auto& line_prime: column_prime.second) {
 						int j_prime = line_prime.first;
 
-						if (i!=i_prime && j!=j_prime) {
+						if (i!=i_prime || j!=j_prime) {
 							// std::cout << "Path number "   << counter++; 
 							// std::cout << " being computed" << std::endl;
 							// std::cout << i << " " << j << " ";
@@ -454,8 +454,8 @@ namespace urban {
 								bus, metro, walk
 							);
 
-							print_progress_bar(counter, total);
 							counter += 1;
+							print_progress_bar(counter, total);
 							// std::cout << "-- Taking: " << report.second/60;
 							// std::cout << " minutes, trough: ";
 							// for (auto id: report.first) {
@@ -469,15 +469,6 @@ namespace urban {
 			}
 		}
 		
-		std::cout << "<<<<<<<<<<<>>>>>>>>>>>" << std::endl;
-		std::cout << "\n" << _squares.size() << std::endl;
-
-		int sum = 0;
-		for (auto& column: _squares) {
-			std::cout << column.second.size() << std::endl;
-			sum += column.second.size();
-		}
-		std::cout << sum << std::endl;
 	}
 
 } // namespace urban

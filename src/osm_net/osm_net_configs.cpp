@@ -5,9 +5,11 @@
 
 namespace osm_net {
 
-	const std::string osm_net_configs::road_network = 
-		"../data/json/final_network.json"; 
+	// const std::string osm_net_configs::road_network = 
+	// 	"../data/json/final_network.json"; 
 
+	const std::string osm_net_configs::road_network = 
+		"../data/json/generated_road_network.json"; 
 }
 
 #endif

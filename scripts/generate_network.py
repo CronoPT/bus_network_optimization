@@ -6,7 +6,7 @@ import configs
 import math
 import networkx as nx
 
-_DIVISIONS  = 6
+_DIVISIONS  = 10
 _ROAD_BASE  = 0
 _BUS_BASE   = 10000
 _METRO_BASE = 100000000
@@ -63,7 +63,7 @@ class Square:
 	def get_metro_coordinates(self):
 		center = self.get_center_coordinates()
 		lon = center[0] + lon_step/4
-		lat = center[1] + lat_step/4
+		lat = center[1] - lat_step/4
 		return (lon, lat)
 
 	def get_bus_coordinates(self):
@@ -97,7 +97,11 @@ def build_road_network():
 	global squares
 
 	bus_stop_locations = []
-	bus_routes = []
+	bus_routes  = []
+	bus_points  = []
+	bus_lines   = []
+	road_points = []
+	road_lines  = []
 	road_network = nx.MultiDiGraph()
 	
 	for column in squares:
@@ -111,6 +115,9 @@ def build_road_network():
 				'x': square.get_bus_coordinates()[0],
 				'y': square.get_bus_coordinates()[1]
 			})
+
+			bus_points.append(square.get_bus_coordinates())
+			road_points.append(square.get_bus_coordinates())
 
 			if square.left_road != None:
 				road_network.add_node(square.left_road, **{
@@ -129,6 +136,11 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_points.append(square.get_left_road_coordinates())
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square.get_left_road_coordinates()
+				])
 
 			if square.right_road != None:
 				road_network.add_node(square.right_road, **{
@@ -147,6 +159,11 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_points.append(square.get_right_road_coordinates())
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square.get_right_road_coordinates()
+				])
 
 			if square.upper_road != None:
 				road_network.add_node(square.upper_road, **{
@@ -165,6 +182,11 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_points.append(square.get_upper_road_coordinates())
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square.get_upper_road_coordinates()
+				])
 
 			if square.lower_road != None:
 				road_network.add_node(square.lower_road, **{
@@ -183,11 +205,19 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_points.append(square.get_lower_road_coordinates())
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square.get_lower_road_coordinates()
+				])
 
 	for column in squares:
 		for square in column:
 			i = square.i
 			j = square.j
+
+			# if the square is not in the right end of the grid, connect
+			# the bus stop with the bus stop to the right
 			if i != _DIVISIONS-1:
 				i_prime = i + 1
 				j_prime = j
@@ -204,6 +234,14 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square_prime.get_bus_coordinates()
+				])
+				bus_lines.append([
+					square.get_bus_coordinates(),
+					square_prime.get_bus_coordinates()
+				])
 
 			if j != _DIVISIONS-1:
 				i_prime = i
@@ -221,6 +259,14 @@ def build_road_network():
 					'length'  : distance,
 					'maxspeed': '50'
 				})
+				road_lines.append([
+					square.get_bus_coordinates(),
+					square_prime.get_bus_coordinates()
+				])
+				bus_lines.append([
+					square.get_bus_coordinates(),
+					square_prime.get_bus_coordinates()
+				])
 
 	for i in range(_DIVISIONS):
 		route = []
@@ -252,18 +298,36 @@ def build_road_network():
 		'../data/json/generated_road_network.json',
 		road_network	
 	)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_road_links.geojson',
+		road_lines
+	)
+	utils.json_utils.write_geojson_points(
+		'../data/geojson/generated_road_nodes.geojson',
+		road_points
+	)	
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_bus_lines.geojson',
+		bus_lines
+	)
+	utils.json_utils.write_geojson_points(
+		'../data/geojson/generated_bus_stops.geojson',
+		bus_points
+	)		
 
 def build_metro_network():
 	global squares
 	
 	metro_network = nx.DiGraph()
-
+	metro_points  = []
+	metro_lines   = [] 
 	for column in squares:
 		for square in column:
 			metro_network.add_node(square.metro, **{
 				'x': square.get_metro_coordinates()[0],
 				'y': square.get_metro_coordinates()[1]
 			})
+			metro_points.append(square.get_metro_coordinates())
 
 	total_lines = 0
 	for i in range(_DIVISIONS):
@@ -292,21 +356,23 @@ def build_metro_network():
 				'time':       time
 			})
 
+			metro_lines.append([
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			])
+
 			i_prime += 1
 			j_prime += 1
 		total_lines += 1
 
-	print("First OK")
-	#TODO fix bellow code and add missing metro lines 
-
 	for i in range(_DIVISIONS):
-		i = 0
-		i_prime = i+1
-		j_prime = j-1
-		while i_prime<_DIVISIONS and j_prime<_DIVISIONS:
+		j = 0
+		i_prime = i-1
+		j_prime = j+1
+		while i_prime>=0 and j_prime<_DIVISIONS:
 			square_1 = squares[i_prime][j_prime]
-			square_2 = squares[i_prime-1][j_prime+1]
-			distance = utils.haversine_distance(
+			square_2 = squares[i_prime+1][j_prime-1]
+			distance = utils.geometric_utils.haversine_distance(
 				square_1.get_metro_coordinates(),
 				square_2.get_metro_coordinates()
 			)
@@ -325,13 +391,96 @@ def build_metro_network():
 				'time':       time
 			})
 
-			i_prime = i+1
-			j_prime = j-1
+			metro_lines.append([
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			])
+
+			i_prime -= 1
+			j_prime += 1
 		total_lines += 1
-	
+
+	for j in range(1, _DIVISIONS, 1):
+		i = 0
+		i_prime = i+1
+		j_prime = j+1
+		while i_prime<_DIVISIONS and j_prime<_DIVISIONS:
+			square_1 = squares[i_prime][j_prime]
+			square_2 = squares[i_prime-1][j_prime-1]
+			distance = utils.geometric_utils.haversine_distance(
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			)
+			time = (distance / (configs.METRO_SPEED / 3.6))
+			metro_network.add_edge(square_1.metro, square_2.metro, **{
+				'origin_id':  square_1.metro,
+				'destin_id':  square_2.metro,
+				'line_color': f'line{total_lines}',
+				'time':       time
+			})
+
+			metro_network.add_edge(square_2.metro, square_1.metro, **{
+				'origin_id':  square_2.metro,
+				'destin_id':  square_1.metro,
+				'line_color': f'line{total_lines}',
+				'time':       time
+			})
+
+			metro_lines.append([
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			])
+
+			i_prime += 1
+			j_prime += 1
+		total_lines += 1
+
+	for j in range(1, _DIVISIONS, 1):
+		i = _DIVISIONS-1
+		i_prime = i-1
+		j_prime = j+1
+		while i_prime>=0 and j_prime<_DIVISIONS:
+			square_1 = squares[i_prime][j_prime]
+			square_2 = squares[i_prime+1][j_prime-1]
+			distance = utils.geometric_utils.haversine_distance(
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			)
+			time = (distance / (configs.METRO_SPEED / 3.6))
+			metro_network.add_edge(square_1.metro, square_2.metro, **{
+				'origin_id':  square_1.metro,
+				'destin_id':  square_2.metro,
+				'line_color': f'line{total_lines}',
+				'time':       time
+			})
+
+			metro_network.add_edge(square_2.metro, square_1.metro, **{
+				'origin_id':  square_2.metro,
+				'destin_id':  square_1.metro,
+				'line_color': f'line{total_lines}',
+				'time':       time
+			})
+
+			metro_lines.append([
+				square_1.get_metro_coordinates(),
+				square_2.get_metro_coordinates()
+			])
+
+			i_prime -= 1
+			j_prime += 1
+		total_lines += 1
+
 	utils.json_utils.write_networkx_json(
 		'../data/json/generated_metro_network.json',
 		metro_network
+	)
+	utils.json_utils.write_geojson_points(
+		'../data/geojson/generated_metro_stations.geojson',
+		metro_points
+	)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_metro_lines.geojson',
+		metro_lines
 	)
 
 def build_walks():
@@ -351,7 +500,8 @@ def build_walks():
 				'close_metro': [{
 					'station_id': square.metro,
 					'time': time
-				}]
+				}],
+				'point': square.get_bus_coordinates()
 			}
 			walks[str(square.metro)] = {
 				'type': 'metro',
@@ -359,10 +509,27 @@ def build_walks():
 					'stop_id': square.bus,
 					'time': time
 				}],
-				'close_metro': []	
+				'close_metro': [],
+				'point': square.get_metro_coordinates()	
 			}
 
 	utils.json_utils.write_json_object('../data/json/generated_walks.json', walks)
+
+def build_grid():
+	lines = []
+	for i in range(_DIVISIONS+1):
+		lines.append([
+			[min_lon, min_lat + i*lat_step],
+			[max_lon, min_lat + i*lat_step]
+		])
+		lines.append([
+			[min_lon + i*lon_step, min_lat],
+			[min_lon + i*lon_step, max_lat]
+		])
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_grid.geojson',
+		lines
+	)
 
 if __name__ == '__main__':
 	net = utils.json_utils.read_json_object(configs.NETWORK)
@@ -382,12 +549,12 @@ if __name__ == '__main__':
 		max_lon = lon if lon > max_lon else max_lon
 		min_lon = lon if lon < min_lon else min_lon
 
-	lat_step = (max_lat-min_lat)/configs.DIVISIONS
-	lon_step = (max_lon-min_lon)/configs.DIVISIONS
+	lat_step = (max_lat-min_lat)/_DIVISIONS
+	lon_step = (max_lon-min_lon)/_DIVISIONS
 
 	squares = [[Square(i, j) 
-		for i in range(_DIVISIONS)] 
-		for j in range(_DIVISIONS)]
+		for j in range(_DIVISIONS)] 
+		for i in range(_DIVISIONS)]
 
 	print(len(squares))
 	[print(len(line)) for line in squares]
@@ -398,3 +565,4 @@ if __name__ == '__main__':
 	print("Metro OK")
 	build_walks()
 	print("Walk OK")
+	build_grid()
