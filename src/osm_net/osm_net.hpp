@@ -6,6 +6,7 @@
 #include <fstream>
 #include "osm_node.hpp"
 #include "osm_edge.hpp"
+#include "osm_net_configs.hpp"
 
 
 namespace osm_net {

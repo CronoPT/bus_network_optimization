@@ -1,5 +1,4 @@
 #include <bus_edge.hpp>
-#include <bus_metro_walks.hpp>
 #include <bus_network.hpp>
 #include <bus_node.hpp>
 #include <lisbon_bus.hpp>

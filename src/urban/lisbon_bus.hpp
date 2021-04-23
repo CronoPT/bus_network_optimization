@@ -7,6 +7,7 @@
 #include <vector>
 #include <osm_net.hpp>
 #include "route.hpp"
+#include "configs.hpp"
 
 namespace urban {
 

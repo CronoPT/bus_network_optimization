@@ -64,7 +64,6 @@ TEST_F(priority_queue_test, priority_queue_empty_add_test) {
 	_queue.push(10, 2.0);
 	_queue.push(40, 4.0);
 	_queue.push(30, 3.0);
-	_queue.print();
 	ASSERT_EQ(_queue.pop(), 10);
 	ASSERT_EQ(_queue.pop(), 30);
 	ASSERT_EQ(_queue.pop(), 40);
@@ -72,7 +71,6 @@ TEST_F(priority_queue_test, priority_queue_empty_add_test) {
 	_queue.push(10, 2.0);
 	_queue.push(40, 4.0);
 	_queue.push(30, 3.0);
-	_queue.print();
 	ASSERT_EQ(_queue.pop(), 10);
 	ASSERT_EQ(_queue.pop(), 30);
 	ASSERT_EQ(_queue.pop(), 40);

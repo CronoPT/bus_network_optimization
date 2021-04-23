@@ -9,7 +9,7 @@ namespace urban {
 		std::vector<route> routes,
 	    osm_net::osm_net road_network
 	): graph() {
-		std::ifstream input_file("../data/json/clustered_stop_locations.json");
+		std::ifstream input_file(configs::stop_locations);
 		nlohmann::json bus_stops = nlohmann::json::parse(input_file);
 
 		for (auto& stop: bus_stops) {

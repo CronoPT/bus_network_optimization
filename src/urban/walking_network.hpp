@@ -7,6 +7,7 @@
 #include <graph.hpp>
 #include "walking_edge.hpp"
 #include "walking_node.hpp"
+#include "configs.hpp"
 
 namespace urban {
 

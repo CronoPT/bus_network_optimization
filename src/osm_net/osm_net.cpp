@@ -4,7 +4,7 @@
 namespace osm_net {
 
 	osm_net::osm_net() {
-		std::ifstream input_file("../data/json/final_network.json");
+		std::ifstream input_file(osm_net_configs::road_network);
 		nlohmann::json json_net = nlohmann::json::parse(input_file);
 
 		auto node_ids = std::vector<int>();

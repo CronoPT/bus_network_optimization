@@ -6,7 +6,7 @@
 namespace urban {
 
 	walking_network::walking_network(): graph() {
-		std::ifstream input_file("../data/json/walks.json");
+		std::ifstream input_file(configs::walking_network);
 		nlohmann::json json_walks = nlohmann::json::parse(input_file);
 
 		for (auto& walk_item: json_walks.items()) {

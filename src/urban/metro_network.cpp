@@ -6,7 +6,7 @@
 namespace urban {
 
 	metro_network::metro_network(): graph() {
-		std::ifstream input_file("../data/json/metro_networknx.json");
+		std::ifstream input_file(configs::metro_network);
 		nlohmann::json json_net = nlohmann::json::parse(input_file);
 
 		for (auto& node: json_net["nodes"]) {

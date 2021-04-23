@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
+#include "configs.hpp"
 
 namespace urban {
 
@@ -33,7 +34,7 @@ namespace urban {
 
 	class grid {
 
-		const int _divisions = 30;
+		const int _divisions = configs::divisions;
 
 		double _min_lon;
 		double _min_lat;

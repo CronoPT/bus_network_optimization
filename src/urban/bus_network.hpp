@@ -9,6 +9,7 @@
 #include <osm_net.hpp>
 #include <fstream>
 #include <string>
+#include "configs.hpp"
 
 namespace urban {
 

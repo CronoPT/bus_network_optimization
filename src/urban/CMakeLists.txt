@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.16.3)
 add_library(urban SHARED STATIC
 	bus_edge.hpp
 	bus_edge.cpp
-	bus_metro_walks.hpp
-	bus_metro_walks.cpp
 	bus_network.hpp
 	bus_network.cpp
 	bus_node.hpp
@@ -26,7 +24,9 @@ add_library(urban SHARED STATIC
 	walking_network.hpp
 	walking_network.cpp
 	walking_node.hpp
-	walking_node.cpp)
+	walking_node.cpp
+	configs.hpp
+	configs.cpp)
 
 target_link_libraries(urban INTERFACE net PUBLIC osm_net)
 
