@@ -73,6 +73,13 @@ namespace urban {
 			metro_network metro,
 			walking_network walk
 		);
+		void best_path_between_all(
+			std::pair<int, int> origin, 
+			std::unordered_map<int, std::unordered_map<int, square>>& squares, 
+			bus_network bus,
+			metro_network metro,
+			walking_network walk
+		);
 		void print_progress_bar(int iteration, int total);
 		int get_total_squares();
 		void predict_all_od_pairs(

@@ -411,6 +411,260 @@ namespace urban {
 		return std::pair<std::vector<int>, std::vector<float>>(path, costs);
 	}
 
+	void grid::best_path_between_all(
+		std::pair<int, int> origin, 
+		std::unordered_map<int, std::unordered_map<int, square>>& squares, 
+		bus_network bus,
+		metro_network metro,
+		walking_network walk
+		) {
+		
+		auto& origin_square = _squares[origin.first][origin.second];
+
+		int total_paths = 0;
+		int total_paths_computed = 0;
+		auto squares_check = std::unordered_map<int, std::unordered_map<int, bool>>();
+		for (auto& column: squares) {
+			int j = column.first;
+			for (auto& line: column.second) {
+				int i = line.first;
+				squares_check[i][j] = false;
+				total_paths += 1;
+			}
+		}
+
+
+		auto queue = net::priority_queue<int>();
+		auto dist  = std::unordered_map<int, float>();
+		auto prev  = std::unordered_map<int, int>();
+		auto mode  = std::unordered_map<int, std::string>();
+		auto prev_mode = std::unordered_map<int, std::string>();
+		auto prev_itinerary = std::unordered_map<int, std::string>();
+		auto explo = std::set<int>();
+
+		const int undefined = -1; 
+		const int transfer_penalty = 10*60;
+
+		// considering bus stops as starting points
+		for (auto origin_point: origin_square.get_bus()) {
+			prev[origin_point] = undefined;
+			dist[origin_point] = 0.0;
+			mode[origin_point] = "bus";
+			prev_mode[origin_point] = "start";
+			prev_itinerary[origin_point] = "start";
+			queue.push(origin_point, 0.0);
+		}
+
+		// considering metro stations as starting points
+		for (auto origin_point: origin_square.get_metro()) {
+			prev[origin_point] = undefined;
+			dist[origin_point] = 0.0;
+			mode[origin_point] = "metro";
+			prev_mode[origin_point] = "start";
+			prev_itinerary[origin_point] = "start";
+			queue.push(origin_point, 0.0);
+		}
+
+		// const auto& destin_bus   = destin_square.get_bus();
+		// const auto& destin_metro = destin_square.get_metro();
+		int destin_id = undefined; 
+		while (!queue.empty()) {
+
+			auto u = queue.pop();
+			explo.insert(u);
+
+			// we found our way, u is somewhere in the destiny square
+			// if (element_in(u, destin_bus) || element_in(u, destin_metro)) {
+			// 	destin_id = u;
+			// 	break;
+			// }
+			std::pair<int, int> i_j;
+			if (bus.get_nodes().find(u) != bus.get_nodes().end()) {
+				auto& u_node = bus.get_nodes()[u].get_attributes();
+				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
+			} else if (metro.get_nodes().find(u) != metro.get_nodes().end()) {
+				auto& u_node = metro.get_nodes()[u].get_attributes();
+				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
+
+			}
+			int i = i_j.first;
+			int j = i_j.second;
+			if (!squares_check[i][j]) {
+				squares_check[i][j] = true;
+				total_paths_computed += 1;
+			}
+
+			if (total_paths_computed == total_paths) {
+				break;
+			}
+			
+			if (mode[u] == "bus") {
+				auto& u_node_bus  = bus.get_nodes()[u];
+				auto& u_node_walk = walk.get_nodes()[u];
+
+				// checking for connectivity through the bus network
+				for (auto& edge_info: u_node_bus.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin(); 
+
+					if (queue.contains(v)) {
+						float alt;
+						if (needs_penalty_bus(edge, prev_itinerary[u])) {
+							alt = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							alt = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = "bus";
+							prev_mode[v] = "bus";
+							prev_itinerary[v] = std::to_string(edge.get_attributes().get_route_id());
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						if (needs_penalty_bus(edge, prev_itinerary[u])) {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						prev[v] = u;
+						mode[v] = "bus";
+						prev_mode[v] = "bus";
+						prev_itinerary[v] = std::to_string(edge.get_attributes().get_route_id());
+						queue.push(v, dist[v]);
+					}
+				}
+
+				// checking for connectivity through the walking network
+				for (auto& edge_info: u_node_walk.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin();
+
+					if (queue.contains(v)) {
+						float alt = dist[u] + edge.get_attributes().get_time_taken();
+						if (alt < dist[v] && prev_itinerary[v]!="walk") {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = bus_or_metro(v, bus, metro);
+							prev_mode[v] = "walk";
+							prev_itinerary[v] = "walk";
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						prev[v] = u;
+						mode[v] = bus_or_metro(v, bus, metro);
+						prev_mode[v] = "walk";
+						prev_itinerary[v] = "walk";
+						queue.push(v, dist[v]);
+					}
+				}
+
+			} else if (mode[u] == "metro") {
+				auto& u_node_metro  = metro.get_nodes()[u];
+				auto& u_node_walk = walk.get_nodes()[u];
+
+				// checking for connectivity through the bus network
+				for (auto& edge_info: u_node_metro.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin(); 
+
+					if (queue.contains(v)) {
+						float alt;
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							alt = dist[u] + edge.get_attributes().get_time_taken() +
+							      transfer_penalty;
+						} else {
+							alt = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = "metro";
+							prev_mode[v] = "metro";
+							prev_itinerary[v] = edge.get_attributes().get_line_color();
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
+							          transfer_penalty;
+						} else {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						}
+						
+						prev[v] = u;
+						mode[v] = "metro";
+						prev_mode[v] = "metro";
+						prev_itinerary[v] = edge.get_attributes().get_line_color();
+						queue.push(v, dist[v]);
+					}
+				}
+
+				// checking for connectivity through the walking network
+				for (auto& edge_info: u_node_walk.get_adjacencies()) {
+					auto   key  = edge_info.first;
+					auto&  edge = edge_info.second;
+					auto   v    = edge.get_destin();
+
+					if (queue.contains(v)) {
+						float alt = dist[u] + edge.get_attributes().get_time_taken();
+						if (alt < dist[v] && prev_itinerary[v]!="walk") {
+							dist[v] = alt;
+							prev[v] = u;
+							mode[v] = bus_or_metro(v, bus, metro);
+							prev_mode[v] = "walk";
+							prev_itinerary[v] = "walk";
+							queue.update(v, alt);
+						}
+					} else if (explo.find(v) == explo.end()) {
+						/* v hasn't been visited before */
+						dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						prev[v] = u;
+						mode[v] = bus_or_metro(v, bus, metro);
+						prev_mode[v] = "walk";
+						prev_itinerary[v] = "walk";
+						queue.push(v, dist[v]);
+					}
+				}
+			}
+
+		}
+
+		// float cost = dist[destin_id];
+		// auto stk   = std::stack<int>();
+		// auto stk_d = std::stack<float>();  //TODO remove after testing 
+		// int  u = destin_id;
+		// if (prev[u]!=undefined || element_in(u, destin_bus) || 
+		//     element_in(u, destin_metro)) {
+		// 	while (u != undefined) {
+		// 		stk.push(u);
+		// 		stk_d.push(dist[u]); //TODO remove after testing
+		// 		u = prev[u];
+		// 	} 
+		// }
+
+		// auto path = std::vector<int>();
+		// auto costs = std::vector<float>(); //TODO remove after testing
+		// while (!stk.empty()) {
+		// 	path.push_back(stk.top());
+		// 	costs.push_back(stk_d.top()); //TODO remove after testing
+		// 	stk.pop();
+		// 	stk_d.pop();
+		// }
+
+		// return std::pair<std::vector<int>, std::vector<float>>(path, costs);
+	}
+
 	void grid::print_progress_bar(int iteration, int total) {
 		float percent = 100 * (iteration/total);
 		int filled_length = (100 * iteration) / total;
@@ -438,41 +692,47 @@ namespace urban {
 		int counter  = 0;
 		int total = total_sq * (total_sq-1); 
 		for (auto& column: _squares) {
-			int j = column.first;
+			int i = column.first;
 			for (auto& line: column.second) {
-				int i = line.first;
+				int j = line.first;
+				best_path_between_all(
+					std::pair<int, int>(i, j),
+					_squares,
+					bus, metro, walk
+				);
+				counter += 1;
+				print_progress_bar(counter, total_sq);
+				// for (auto& column_prime: _squares) {
+				// 	int j_prime = column_prime.first;
+				// 	for (auto& line_prime: column_prime.second) {
+				// 		int i_prime = line_prime.first;
 
-				for (auto& column_prime: _squares) {
-					int j_prime = column_prime.first;
-					for (auto& line_prime: column_prime.second) {
-						int i_prime = line_prime.first;
+				// 		if (i!=i_prime || j!=j_prime) {
+				// 			std::cout << "Path number "   << counter++; 
+				// 			std::cout << " being computed" << std::endl;
+				// 			std::cout << "(" << i << "," << j << ") -> (";
+				// 			std::cout << i_prime << ", " << j_prime << ") ";
 
-						if (i!=i_prime || j!=j_prime) {
-							std::cout << "Path number "   << counter++; 
-							std::cout << " being computed" << std::endl;
-							std::cout << "(" << i << "," << j << ") -> (";
-							std::cout << i_prime << ", " << j_prime << ") ";
+				// 			auto report = best_path_between(
+				// 				std::pair<int, int>(i, j),
+				// 				std::pair<int, int>(i_prime, j_prime),
+				// 				bus, metro, walk
+				// 			);
 
-							auto report = best_path_between(
-								std::pair<int, int>(i, j),
-								std::pair<int, int>(i_prime, j_prime),
-								bus, metro, walk
-							);
+				// 			counter += 1;
+				// 			// print_progress_bar(counter, total);
+				// 			for (auto id: report.second) {
+				// 				std::cout << id << " ";
+				// 			}
+				// 			std::cout << "|";
+				// 			for (auto id: report.first) {
+				// 				std::cout << id << " ";
+				// 			}
+				// 			std::cout << std::endl;
+				// 		}
 
-							counter += 1;
-							// print_progress_bar(counter, total);
-							for (auto id: report.second) {
-								std::cout << id << " ";
-							}
-							std::cout << "|";
-							for (auto id: report.first) {
-								std::cout << id << " ";
-							}
-							std::cout << std::endl;
-						}
-
-					}
-				}
+				// 	}
+				// }
 			}
 		}
 		
