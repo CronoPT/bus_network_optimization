@@ -6,10 +6,10 @@ import configs
 import math
 import networkx as nx
 
-_DIVISIONS  = 10
+_DIVISIONS  = 6
 _ROAD_BASE  = 0
-_BUS_BASE   = 10000
-_METRO_BASE = 100000000
+_BUS_BASE   = 2000
+_METRO_BASE = 4000
 
 def coord_to_square(lon, lat):
 	'''
@@ -34,8 +34,8 @@ class Square:
 	def __init__(self, i, j):
 		self.i = i
 		self.j = j
-		self.bus   = _BUS_BASE   + (j*_DIVISIONS) + i
-		self.metro = _METRO_BASE + (j*_DIVISIONS) + i
+		self.bus   = _BUS_BASE   + (i*(10**(_DIVISIONS//10+1))) + j
+		self.metro = _METRO_BASE + (i*(10**(_DIVISIONS//10+1))) + j
 		
 		self.left_road  = None
 		self.right_road = None
@@ -211,10 +211,10 @@ def build_road_network():
 					square.get_lower_road_coordinates()
 				])
 
-	for column in squares:
-		for square in column:
-			i = square.i
-			j = square.j
+	for i_index, column in enumerate(squares):
+		for j_index, square in enumerate(column):
+			i = i_index#square.i
+			j = j_index#square.j
 
 			# if the square is not in the right end of the grid, connect
 			# the bus stop with the bus stop to the right
@@ -286,6 +286,24 @@ def build_road_network():
 			'stops': route
 		})
 
+	for i in range(_DIVISIONS):
+		route = []
+		for j in range(_DIVISIONS-1, -1, -1):
+			route.append(squares[i][j].bus)
+		bus_routes.append({
+			'route_id': str(len(bus_routes)),
+			'stops': route
+		})
+
+	for j in range(_DIVISIONS):
+		route = []
+		for i in range(_DIVISIONS-1, -1, -1):
+			route.append(squares[i][j].bus)
+		bus_routes.append({
+			'route_id': str(len(bus_routes)),
+			'stops': route
+		})
+
 	utils.json_utils.write_json_object(
 		'../data/json/generated_bus_stops.json',
 		bus_stop_locations
@@ -334,6 +352,8 @@ def build_metro_network():
 		j = 0
 		i_prime = i+1
 		j_prime = j+1
+		if not (i_prime<_DIVISIONS and j_prime<_DIVISIONS):
+			total_lines -= 1
 		while i_prime<_DIVISIONS and j_prime<_DIVISIONS:
 			square_1 = squares[i_prime][j_prime]
 			square_2 = squares[i_prime-1][j_prime-1]
@@ -369,6 +389,8 @@ def build_metro_network():
 		j = 0
 		i_prime = i-1
 		j_prime = j+1
+		if not (i_prime>=0 and j_prime<_DIVISIONS):
+			total_lines -= 1
 		while i_prime>=0 and j_prime<_DIVISIONS:
 			square_1 = squares[i_prime][j_prime]
 			square_2 = squares[i_prime+1][j_prime-1]
@@ -404,6 +426,8 @@ def build_metro_network():
 		i = 0
 		i_prime = i+1
 		j_prime = j+1
+		if not (i_prime<_DIVISIONS and j_prime<_DIVISIONS):
+			total_lines -= 1
 		while i_prime<_DIVISIONS and j_prime<_DIVISIONS:
 			square_1 = squares[i_prime][j_prime]
 			square_2 = squares[i_prime-1][j_prime-1]
@@ -439,6 +463,8 @@ def build_metro_network():
 		i = _DIVISIONS-1
 		i_prime = i-1
 		j_prime = j+1
+		if not (i_prime>=0 and j_prime<_DIVISIONS):
+			total_lines -= 1
 		while i_prime>=0 and j_prime<_DIVISIONS:
 			square_1 = squares[i_prime][j_prime]
 			square_2 = squares[i_prime+1][j_prime-1]
@@ -554,15 +580,41 @@ if __name__ == '__main__':
 
 	squares = [[Square(i, j) 
 		for j in range(_DIVISIONS)] 
-		for i in range(_DIVISIONS)]
+		for i in range(_DIVISIONS-1, -1, -1)]
 
-	print(len(squares))
-	[print(len(line)) for line in squares]
+	for l in squares:
+		print(*[(s.i, s.j) for s in l])
 
 	build_road_network()
-	print("Road OK")
 	build_metro_network()
-	print("Metro OK")
 	build_walks()
-	print("Walk OK")
 	build_grid()
+
+	# square_bus_1 = squares[0][0]
+	# square_bus_2 = squares[0][1]
+	# distance_bus = utils.geometric_utils.haversine_distance(
+	# 	square_bus_1.get_bus_coordinates(),
+	# 	square_bus_2.get_bus_coordinates()
+	# )
+	# time_bus = (distance_bus / (50/ 3.6))
+
+	# square_metro_1 = squares[0][0]
+	# square_metro_2 = squares[1][1]
+	# distance_metro = utils.geometric_utils.haversine_distance(
+	# 	square_metro_1.get_metro_coordinates(),
+	# 	square_metro_2.get_metro_coordinates()
+	# )
+	# time_metro = (distance_metro / (configs.METRO_SPEED / 3.6))
+
+	# distance_walk = utils.geometric_utils.haversine_distance(
+	# 	square_metro_1.get_bus_coordinates(),
+	# 	square_metro_1.get_metro_coordinates()
+	# )
+	# time_walk = (distance_walk / (configs.WALKING_SPEED / 3.6))
+	
+	# print(f'Time between buses     -> {time_bus}')
+	# print(f'Distance between buses -> {distance_bus}')
+	# print(f'Time between metro     -> {time_metro}')
+	# print(f'Distance between metro -> {distance_metro}')
+	# print(f'Time while walking -    > {time_walk}')
+	# print(f'Distance while walking -> {distance_walk}')

@@ -66,7 +66,7 @@ namespace urban {
 		);
 		bool needs_penalty_bus(net::edge<bus_edge> edge, std::string prev_itinerary);
 		bool needs_penalty_metro(net::edge<metro_edge> edge, std::string prev_itinerary);
-		std::pair<std::vector<int>, float> best_path_between(
+		std::pair<std::vector<int>, std::vector<float>> best_path_between(
 			std::pair<int, int> origin, 
 			std::pair<int, int> destin, 
 			bus_network bus,

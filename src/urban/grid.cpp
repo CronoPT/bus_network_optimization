@@ -188,7 +188,7 @@ namespace urban {
 		return diff_routes && not_walking && not_starting;
 	}
 
-	std::pair<std::vector<int>, float> grid::best_path_between(
+	std::pair<std::vector<int>, std::vector<float>> grid::best_path_between(
 		std::pair<int, int> origin, 
 		std::pair<int, int> destin, 
 		bus_network bus,
@@ -388,22 +388,27 @@ namespace urban {
 
 		float cost = dist[destin_id];
 		auto stk   = std::stack<int>();
+		auto stk_d = std::stack<float>();  //TODO remove after testing 
 		int  u = destin_id;
 		if (prev[u]!=undefined || element_in(u, destin_bus) || 
 		    element_in(u, destin_metro)) {
 			while (u != undefined) {
 				stk.push(u);
+				stk_d.push(dist[u]); //TODO remove after testing
 				u = prev[u];
 			} 
 		}
 
 		auto path = std::vector<int>();
+		auto costs = std::vector<float>(); //TODO remove after testing
 		while (!stk.empty()) {
 			path.push_back(stk.top());
+			costs.push_back(stk_d.top()); //TODO remove after testing
 			stk.pop();
+			stk_d.pop();
 		}
 
-		return std::pair<std::vector<int>, float>(path, cost);
+		return std::pair<std::vector<int>, std::vector<float>>(path, costs);
 	}
 
 	void grid::print_progress_bar(int iteration, int total) {
@@ -433,20 +438,20 @@ namespace urban {
 		int counter  = 0;
 		int total = total_sq * (total_sq-1); 
 		for (auto& column: _squares) {
-			int i = column.first;
+			int j = column.first;
 			for (auto& line: column.second) {
-				int j = line.first;
+				int i = line.first;
 
 				for (auto& column_prime: _squares) {
-					int i_prime = column_prime.first;
+					int j_prime = column_prime.first;
 					for (auto& line_prime: column_prime.second) {
-						int j_prime = line_prime.first;
+						int i_prime = line_prime.first;
 
 						if (i!=i_prime || j!=j_prime) {
-							// std::cout << "Path number "   << counter++; 
-							// std::cout << " being computed" << std::endl;
-							// std::cout << i << " " << j << " ";
-							// std::cout << i_prime << " " << j_prime << " ";
+							std::cout << "Path number "   << counter++; 
+							std::cout << " being computed" << std::endl;
+							std::cout << "(" << i << "," << j << ") -> (";
+							std::cout << i_prime << ", " << j_prime << ") ";
 
 							auto report = best_path_between(
 								std::pair<int, int>(i, j),
@@ -455,13 +460,15 @@ namespace urban {
 							);
 
 							counter += 1;
-							print_progress_bar(counter, total);
-							// std::cout << "-- Taking: " << report.second/60;
-							// std::cout << " minutes, trough: ";
-							// for (auto id: report.first) {
-							// 	std::cout << id << " ";
-							// }
-							// std::cout << std::endl;
+							// print_progress_bar(counter, total);
+							for (auto id: report.second) {
+								std::cout << id << " ";
+							}
+							std::cout << "|";
+							for (auto id: report.first) {
+								std::cout << id << " ";
+							}
+							std::cout << std::endl;
 						}
 
 					}
