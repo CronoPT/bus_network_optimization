@@ -17,6 +17,11 @@
 
 namespace urban {
 
+	#define WALK  -2
+	#define START -1
+	#define BUS   2
+	#define METRO 3
+
 	class square {
 		int _i;
 		int _j;
@@ -44,6 +49,15 @@ namespace urban {
 		double _lat_step;
 
 		std::unordered_map<int, std::unordered_map<int, square>> _squares;
+		std::unordered_map<int, int> _node_to_index;
+		std::unordered_map<int, int> _node_modes;
+		int _total_nodes;
+
+		std::vector<float> dist;
+		std::vector<int>   prev;
+		std::vector<int>   mode;
+		std::vector<int>   prev_mode;
+		std::vector<int>   prev_itinerary;
 		
 		public:
 		grid();
@@ -53,29 +67,32 @@ namespace urban {
 			metro_network metro
 		);
 
+		// this is the return type for all pairs shortest path
+		typedef std::vector<std::pair<std::pair<int, int>, std::pair<std::vector<int>, float>>>
+		all_paths_report;
+
 		std::pair<int, int> coordinates_to_squares(double lon, double lat) const;
 		bool exists_square(int i, int j) const;
 		void print_report() const;
 		void generate_geojson() const;
 		bool element_in(int element, std::set<int> vec);
 		std::unordered_map<int, std::unordered_map<int, square>>& get_squares();
-		std::string bus_or_metro(
-			int node_id, 
-			bus_network bus,
-			metro_network metro
-		);
-		bool needs_penalty_bus(net::edge<bus_edge> edge, std::string prev_itinerary);
-		bool needs_penalty_metro(net::edge<metro_edge> edge, std::string prev_itinerary);
-		std::pair<std::vector<int>, std::vector<float>> best_path_between(
+		// int bus_or_metro(
+		// 	int node_id, 
+		// 	bus_network bus,
+		// 	metro_network metro
+		// );
+		bool needs_penalty_bus(net::edge<bus_edge>& edge, int prev_itinerary);
+		bool needs_penalty_metro(net::edge<metro_edge>& edge, int prev_itinerary);
+		// std::pair<std::vector<int>, std::vector<float>> best_path_between(
+		// 	std::pair<int, int> origin, 
+		// 	std::pair<int, int> destin, 
+		// 	bus_network bus,
+		// 	metro_network metro,
+		// 	walking_network walk
+		// );
+		all_paths_report best_path_between_all(
 			std::pair<int, int> origin, 
-			std::pair<int, int> destin, 
-			bus_network bus,
-			metro_network metro,
-			walking_network walk
-		);
-		void best_path_between_all(
-			std::pair<int, int> origin, 
-			std::unordered_map<int, std::unordered_map<int, square>>& squares, 
 			bus_network bus,
 			metro_network metro,
 			walking_network walk

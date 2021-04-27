@@ -31,7 +31,7 @@ namespace urban {
 	// const std::string configs::walking_network = 
 	// 	"../data/json/generated_walks.json";
 
-	// const int configs::divisions = 30;
+	// const int configs::divisions = 6;
 
 } // namespace urban
 

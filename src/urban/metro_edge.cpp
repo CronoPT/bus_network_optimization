@@ -8,7 +8,7 @@ namespace urban {
 	metro_edge::metro_edge(
 		int origin, 
 		int destin, 
-		std::string color, 
+		int color, 
 		float time_taken
 	): 
 	 _origin_id(origin), _destin_id(destin),
@@ -18,7 +18,7 @@ namespace urban {
 
 	metro_edge::metro_edge():
 	 _origin_id(-1), _destin_id(-1),
-	 _line_color("undefined"), _time_taken(-1) {
+	 _line_color(-1), _time_taken(-1) {
 		/* Do Nothing */
 	}
 
@@ -30,7 +30,7 @@ namespace urban {
 		return _destin_id;
 	}
 
-	const std::string& metro_edge::get_line_color() const {
+	int metro_edge::get_line_color() const {
 		return _line_color;
 	}
 
