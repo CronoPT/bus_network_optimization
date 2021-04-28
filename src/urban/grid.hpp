@@ -22,6 +22,10 @@ namespace urban {
 	#define BUS   2
 	#define METRO 3
 
+	/**
+	 * A class to hold information about what
+	 * belong to each deivision of a grid.
+	*/
 	class square {
 		int _i;
 		int _j;
@@ -37,6 +41,13 @@ namespace urban {
 		const std::set<int>& get_metro() const; 
 	};
 
+	/**
+	 * A class to devide a public transportation
+	 * network (road, bus and metro) into a grid
+	 * in which it is possible to compute shortest
+	 * paths (using bus and metro) between the divisions
+	 * made. 
+	*/
 	class grid {
 
 		const int _divisions = configs::divisions;
@@ -48,11 +59,16 @@ namespace urban {
 		double _lon_step;
 		double _lat_step;
 
+		// The squares that make up the network.
+		// _squares[i][j] should give us the square in column i
+		// and line j.
 		std::unordered_map<int, std::unordered_map<int, square>> _squares;
 		std::unordered_map<int, int> _node_to_index;
 		std::unordered_map<int, int> _node_modes;
 		int _total_nodes;
 
+		// Auxiliary structures to the path finding algorithm.
+		// Very similar structures to those in Dijkstra's.
 		std::vector<float> dist;
 		std::vector<int>   prev;
 		std::vector<int>   mode;
@@ -67,30 +83,19 @@ namespace urban {
 			metro_network metro
 		);
 
-		// this is the return type for all pairs shortest path
+		// This is the return type for all pairs shortest path.
+		// For each square (i & j pair), it holds a shortes
+		// path and the cost of that path. 
 		typedef std::vector<std::pair<std::pair<int, int>, std::pair<std::vector<int>, float>>>
-		all_paths_report;
+			all_paths_report;
 
 		std::pair<int, int> coordinates_to_squares(double lon, double lat) const;
 		bool exists_square(int i, int j) const;
 		void print_report() const;
 		void generate_geojson() const;
-		bool element_in(int element, std::set<int> vec);
 		std::unordered_map<int, std::unordered_map<int, square>>& get_squares();
-		// int bus_or_metro(
-		// 	int node_id, 
-		// 	bus_network bus,
-		// 	metro_network metro
-		// );
 		bool needs_penalty_bus(net::edge<bus_edge>& edge, int prev_itinerary);
 		bool needs_penalty_metro(net::edge<metro_edge>& edge, int prev_itinerary);
-		// std::pair<std::vector<int>, std::vector<float>> best_path_between(
-		// 	std::pair<int, int> origin, 
-		// 	std::pair<int, int> destin, 
-		// 	bus_network bus,
-		// 	metro_network metro,
-		// 	walking_network walk
-		// );
 		all_paths_report best_path_between_all(
 			std::pair<int, int> origin, 
 			bus_network bus,
@@ -99,6 +104,7 @@ namespace urban {
 		);
 		void print_progress_bar(int iteration, int total);
 		int get_total_squares();
+		void print_report(std::pair<int, int> origin, all_paths_report report);
 		void predict_all_od_pairs(
 			bus_network bus,
 			metro_network metro,
