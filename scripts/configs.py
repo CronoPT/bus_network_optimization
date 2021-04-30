@@ -35,6 +35,8 @@ NETWORK = '../data/json/final_network.json'
 
 BUS_STOPS = '../data/json/clustered_stop_locations.json'
 
+BUS_ROUTES = '../data/json/clustered_routes_stop_sequence.json'
+
 MAX_DIST_METRO_BUS = 300
 
 NETWORK_WITH_METRO = '../data/json/network_with_metro.json'

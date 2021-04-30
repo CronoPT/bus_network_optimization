@@ -89,8 +89,8 @@ if __name__ == '__main__':
 	flongitude = 6 
 	flatitude  = 7 
 
-	_lower_time = datetime.time(16, 0)
-	_upper_time = datetime.time(19, 0)
+	_lower_time = datetime.time(19, 0)
+	_upper_time = datetime.time(23, 0)
 	for res in result:
 		time_i = res[idate].time()
 		i_i, j_i = coord_to_square(res[ilongitude], res[ilatitude])
