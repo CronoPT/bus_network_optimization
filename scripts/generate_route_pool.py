@@ -1,10 +1,13 @@
 
 import utils.json_utils
 import utils.graph_utils
+import utils.general_utils
+import utils.geometric_utils
 import configs
 import numpy as np
 import math
 import random 
+import networkx as nx
 
 MIN_ROUTE_LEN = np.inf 
 MAX_ROUTE_LEN = -np.inf
@@ -27,6 +30,19 @@ main_squares = [
 	[11, 10]  # Belem
 ]
 
+main_stops = [
+	3802,
+	3803,
+	917,
+	2702,
+	9611,
+	2712,
+	3807,
+	801,
+	10315,
+	5826
+]
+
 def coord_to_square(lon, lat):
 	'''
 	| This function maps a coordinate pair to 
@@ -47,6 +63,28 @@ def coord_to_square(lon, lat):
 
 	return x, y
 
+def coord_to_strip_vertical(lon, divisions):
+	global max_lon
+	global min_lon
+
+	step = (max_lon-min_lon)/divisions
+
+	x = math.floor( (lon-min_lon) / step )
+	x = x if x < divisions else x-1
+
+	return x
+
+def coord_to_strip_horizontal(lat, divisions):
+	global max_lat
+	global min_lat
+
+	step = (max_lat-min_lat)/divisions
+
+	y = math.floor( (lat-min_lat) / step )
+	y = y if y < divisions else y-1
+
+	return y
+
 def assert_limits(routes):
 	global MIN_ROUTE_LEN
 	global MAX_ROUTE_LEN
@@ -60,7 +98,7 @@ def assert_limits(routes):
 		if route_len < MIN_ROUTE_LEN:
 			MIN_ROUTE_LEN = route_len
 
-def get_adjacent_squares(i, j):
+def get_adjacent_squares(i, j, end=False):
 	candidate_coords = [[i, j]]
 	
 	if i > 0:
@@ -87,7 +125,15 @@ def get_adjacent_squares(i, j):
 	if i<DIVISIONS-1 and j>0:
 		candidate_coords.append([i+1, j-1])
 
-	return candidate_coords
+	if end:
+		return candidate_coords
+	else:
+		result = []
+		for pair in candidate_coords:
+			result.extend(get_adjacent_squares(*pair, end=True))
+		candidate_coords = [(item[0], item[1]) for item in result]
+
+	return list(set(candidate_coords))
 
 
 def assert_coordinate_limits(net):
@@ -115,40 +161,271 @@ def choose_route_length():
 	return random.randint(MIN_ROUTE_LEN, MAX_ROUTE_LEN)
 
 
-def add_k_shortest():
+def add_k_shortest_stops():
 	global route_pool
 	global main_squares
 	global grid
 	global road_network
 	global existing_stops
 
-	for or_i, or_j in main_squares:
-		for de_i, de_j in main_squares:
-			if i != j:
-				origin = None
-				destin = None
-				if len(grid[or_i][or_j]) > 1:
-					origin = grid[or_i][or_j][random.randint(0, len(grid[or_i][or_j])-1)]
-				elif len(grid[or_i][or_j]) > 0:
-					origin = grid[or_i][or_j][0]
-				else:
+	replacements = utils.json_utils.read_json_object(configs.STOP_REPLACEMENTS)
+	print(replacements)
+
+	for index_out, origin in enumerate(main_stops):
+		for index_in, destin in enumerate(main_stops):
+			if origin != destin:
+				path = None
+
+				origin_ = origin if str(origin) not in replacements else replacements[str(origin)]
+				destin_ = destin if str(destin) not in replacements else replacements[str(destin)]
+
+				try:	
+					path = nx.algorithms.shortest_paths.weighted.dijkstra_path(
+						road_network, 
+						source=origin_, 
+						target=destin_,
+						weight='length'
+					)
+				except nx.NetworkXNoPath:
 					continue
 
-				if len(grid[de_i][de_j]) > 1:
-					destin = grid[de_i][de_j][random.randint(0, len(grid[de_i][de_j])-1)]
-				elif len(grid[de_i][de_j]) > 0:
-					destin = grid[de_i][de_j][0]
+				path = [node for node in path if node in existing_stops]
+				route_pool.append(path)
+
+			progress = index_out*len(main_stops) + index_in + 1
+			total = len(main_stops)**2
+			utils.general_utils.print_progress_bar(progress, total)
+
+def north_south(stop_north, stop_south):
+	return stop_north[1] > stop_south[1]
+
+
+def south_north(stop_south, stop_north):
+	return stop_north[1] > stop_south[1]
+
+
+def west_east(stop_west, stop_east):
+	return stop_west[0] < stop_east[0] 
+
+
+def east_west(stop_east, stop_west):
+	return stop_west[0] < stop_east[0] 
+
+
+def northwest_southeast(stop_northwest, stop_southeast):
+	return stop_northwest[1] > stop_southeast[1] and \
+	       stop_northwest[0] < stop_southeast[0]
+
+
+def southwest_northeast(stop_southwest, stop_northeast):
+	return stop_southwest[1] < stop_northeast[1] and \
+		   stop_southwest[0] < stop_northeast[0]
+
+
+ROUTES_PER_DIRECTION = 20
+
+def decide_starting_points_north():
+	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
+
+	strips = [[] for _ in range(ROUTES_PER_DIRECTION)]
+
+	for stop in stops:
+		i = coord_to_strip_vertical(stop['point'][0], ROUTES_PER_DIRECTION)
+		strips[i].append(stop)
+
+	for strip in strips:
+		strip.sort(key=lambda item : item['point'][1], reverse=True)
+
+	return [strip[0]['stop_id'] for strip in strips if len(strip) > 0]
+
+
+def decide_starting_points_south():
+	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
+
+	strips = [[] for _ in range(ROUTES_PER_DIRECTION)]
+
+	for stop in stops:
+		i = coord_to_strip_vertical(stop['point'][0], ROUTES_PER_DIRECTION)
+		strips[i].append(stop)
+
+	for strip in strips:
+		strip.sort(key=lambda item : item['point'][1])
+
+	return [strip[0]['stop_id'] for strip in strips if len(strip) > 0]
+
+
+def decide_starting_points_east():
+	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
+
+	strips = [[] for _ in range(ROUTES_PER_DIRECTION)]
+
+	for stop in stops:
+		i = coord_to_strip_horizontal(stop['point'][1], ROUTES_PER_DIRECTION)
+		strips[i].append(stop)
+
+	for strip in strips:
+		strip.sort(key=lambda item : item['point'][0], reverse=True)
+
+	return [strip[0]['stop_id'] for strip in strips if len(strip) > 0]
+
+
+def decide_starting_points_west():
+	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
+
+	strips = [[] for _ in range(ROUTES_PER_DIRECTION)]
+
+	for stop in stops:
+		i = coord_to_strip_horizontal(stop['point'][1], ROUTES_PER_DIRECTION)
+		strips[i].append(stop)
+
+	for strip in strips:
+		strip.sort(key=lambda item : item['point'][0])
+
+	return [strip[0]['stop_id'] for strip in strips if len(strip) > 0]
+
+
+def generate_north_south_routes(start, comparator):
+	global road_network
+
+	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
+	stops_dict = {item['stop_id']:item['point'] for item in stops}
+	
+	starting_points = start()
+
+	routes = []
+	for start in starting_points:
+		curr_stop = start
+		route = [curr_stop]
+		for _ in range(MAX_ROUTE_LEN):
+			curr_point = stops_dict[curr_stop]
+			i, j = coord_to_square(curr_point[0], curr_point[1])
+			adjs = get_adjacent_squares(i, j)
+			chosen = False
+			radius = 2000
+			while not chosen:
+				c_stops = []
+				[c_stops.extend(grid[i_][j_]) for i_, j_ in adjs]
+				c_stops = [stop for stop in c_stops if
+					utils.geometric_utils.haversine_distance(
+						stops_dict[stop], curr_point
+					) < radius
+				]
+				c_stops = [stop for stop in c_stops if
+					comparator(curr_point, stops_dict[stop])
+				]
+				
+				dists = []
+				for stop in c_stops:
+					distance = 0
+					try:
+						distance = nx.algorithms.shortest_paths.weighted.dijkstra_path_length(
+							road_network, 
+							source=curr_stop, 
+							target=stop,
+							weight='length'
+						)
+					except nx.NetworkXNoPath:
+						distance = np.inf
+					
+					if distance != np.inf:
+						dists.append((stop, distance))
+				dists.sort(key = lambda x : x[1])
+
+				if len(dists) > 0:
+					chosen = True
+					curr_stop = dists[0][0]
+					route.append(stop)
+					break
 				else:
-					continue
+					radius += 2000
+					if radius > 4000:
+						break
 
-				paths  = utils.graph_utils.k_shortest_paths(
-					road_network, origin, destin, 4, weight='length'
-				) 
+		if len(route) > MIN_ROUTE_LEN:
+			routes.append(route)
 
-				paths = [[node for node in path if node in existing_stops] for path in paths]
-				route_pool.extend(paths)
+		route_pool.extend(routes)
+
+	return routes
+
+
+def generate_traversal_routes():
+	routes = generate_north_south_routes(
+		decide_starting_points_north, north_south
+	)
+	route_shapes = []
+	for route in routes:
+		route_shapes.append(coord_sequence_from_route(route))
+	utils.json_utils.write_geojson_lines('../data/geojson/north_south.geojson', route_shapes)
+
+	routes = generate_north_south_routes(
+		decide_starting_points_south, south_north
+	)
+	route_shapes = []
+	for route in routes:
+		route_shapes.append(coord_sequence_from_route(route))
+	utils.json_utils.write_geojson_lines('../data/geojson/south_north.geojson', route_shapes)
+
+	routes = generate_north_south_routes(
+		decide_starting_points_west, west_east
+	)
+	route_shapes = []
+	for route in routes:
+		route_shapes.append(coord_sequence_from_route(route))
+	utils.json_utils.write_geojson_lines('../data/geojson/west_east.geojson', route_shapes)
+
+	routes = generate_north_south_routes(
+		decide_starting_points_east, east_west
+	)
+	route_shapes = []
+	for route in routes:
+		route_shapes.append(coord_sequence_from_route(route))
+	utils.json_utils.write_geojson_lines('../data/geojson/east_west.geojson', route_shapes)
+
+
+def coord_sequence_from_route(route):
+	global road_network
+
+	start_node = route[0]
+	geo = [[road_network.nodes[start_node]['x'],
+	        road_network.nodes[start_node]['y']]]
+	origin = None
+	for destin in route:
+		if origin != None:
+			path = nx.algorithms.shortest_paths.weighted.dijkstra_path(
+				road_network, 
+				source=origin, 
+				target=destin,
+				weight='length'
+			)
+
+			origin_node = None
+			for destin_node in path:
+				if origin_node != None:
+					edge_data = road_network.get_edge_data(origin_node, destin_node)
+
+					min_length = np.inf
+					min_edge  = None
+
+					for _, edge in edge_data.items():
+						if edge['length'] < min_length:
+							min_length = edge['length']
+							min_edge   = edge
+
+					if 'geometry' in min_edge:
+						geo.extend(min_edge['geometry'][1:])
+					else:
+						geo.append([
+							road_network.nodes[destin_node]['x'], 
+							road_network.nodes[destin_node]['y']
+						])
+				origin_node = destin_node
+		origin = destin
+	return geo
+
 
 if __name__ == '__main__':
+	print(get_adjacent_squares(0, 0, end=False))
 	existing_routes = utils.json_utils.read_json_object(configs.BUS_ROUTES)
 	stop_points     = utils.json_utils.read_json_object(configs.BUS_STOPS)
 	road_points     = utils.json_utils.read_json_object(configs.NETWORK)
@@ -169,6 +446,7 @@ if __name__ == '__main__':
 
 	print(len(route_pool))
 
-	add_k_shortest()
+	add_k_shortest_stops()
+	generate_traversal_routes()
 
 	print(len(route_pool))

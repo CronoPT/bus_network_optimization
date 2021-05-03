@@ -52,12 +52,15 @@ def compute_path_cost(G, path):
 
 def k_shortest_paths(G, source, target, K, weight='length'):
 
-	shortest_path = nx.algorithms.shortest_paths.weighted.dijkstra_path(
-		G, 
-		source=source, 
-		target=target,
-		weight=weight
-	)
+	try:
+		shortest_path = nx.algorithms.shortest_paths.weighted.dijkstra_path(
+			G, 
+			source=source, 
+			target=target,
+			weight=weight
+		)
+	except nx.NetworkXNoPath:
+		return []
 	
 	candidates = []
 	As = [shortest_path]
@@ -102,7 +105,8 @@ def k_shortest_paths(G, source, target, K, weight='length'):
 					candidates.append((total_path, root_path_cost+spur_path_cost))
 					# print(f'Total path: {total_path}')
 			except nx.NetworkXNoPath:
-				print('Path not found, no biggie')
+				pass
+				# print('Path not found, no biggie')
 
 			# print(f'Deleted Edges: {deleted_edges}')
 			# print('=====================')	

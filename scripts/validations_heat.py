@@ -54,7 +54,7 @@ if __name__ == '__main__':
 		where fstation is not null and fdate is not null;
 	''')
 	result = cursor.fetchall()
-	print(len(result))
+	print(f'Number of validations in DB: {len(result)}')
 
 	net = utils.json_utils.read_json_object(configs.NETWORK)
 
@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
 	heat_map_i = [[0 for _ in range(_DIVISIONS)] for _ in range(_DIVISIONS)]
 	heat_map_f = [[0 for _ in range(_DIVISIONS)] for _ in range(_DIVISIONS)]
+	heat_stop  = {}
 
 	istation   = 0 
 	idate      = 1 
@@ -97,6 +98,14 @@ if __name__ == '__main__':
 		time_f = res[fdate].time()
 		i_f, j_f = coord_to_square(res[flongitude], res[flatitude])
 
+		if res[istation] not in heat_stop:
+			heat_stop[res[istation]] = 0
+		if res[fstation] not in heat_stop:
+			heat_stop[res[fstation]] = 0
+
+		heat_stop[res[istation]] += 1
+		heat_stop[res[fstation]] += 1				
+
 		if not (i_i == i_f and j_i == j_f):
 			if time_i > _lower_time and time_i < _upper_time:
 				heat_map_i[_DIVISIONS-1-j_i][i_i] += 1
@@ -105,10 +114,16 @@ if __name__ == '__main__':
 				heat_map_f[_DIVISIONS-1-j_f][i_f] += 1
 	
 
+	top_stops = [(stop, count) for stop, count in heat_stop.items()]
+	top_stops.sort(key = lambda x : x[1], reverse=True)
+
+	for info in top_stops[:10]:
+		print(f'Stop: {info[0]} | Validations: {info[1]}')
+
 	fig, ax = plt.subplots(1, 2)
 	im_i = ax[0].imshow(heat_map_i, cmap='Purples', norm=colors.PowerNorm(0.3))
 	ax[0].set_title('Entradas')
 	im_f = ax[1].imshow(heat_map_f, cmap='Purples', norm=colors.PowerNorm(0.3))
 	ax[1].set_title('Saídas')
 	plt.suptitle(f'Entradas e Saídas entre as {_lower_time:%H:%M} e as {_upper_time:%H:%M}')
-	plt.show()
+	# plt.show()

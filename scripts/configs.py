@@ -60,3 +60,5 @@ METRO_NETWORKNX = '../data/json/metro_networknx.json'
 DIVISIONS = 50
 
 WALKS = '../data/json/walks.json'
+
+STOP_REPLACEMENTS = '../data/json/stop_replacements.json'
