@@ -5,6 +5,7 @@
 #include "bus_network.hpp"
 #include "metro_network.hpp"
 #include "walking_network.hpp"
+#include "single_path_report.hpp"
 #include <osm_net.hpp>
 #include <unordered_map>
 #include <set>
@@ -14,6 +15,7 @@
 #include <iomanip>
 #include <algorithm>
 #include "configs.hpp"
+#include "trip.hpp"
 
 namespace urban {
 
@@ -83,12 +85,6 @@ namespace urban {
 			metro_network metro
 		);
 
-		// This is the return type for all pairs shortest path.
-		// For each square (i & j pair), it holds a shortes
-		// path and the cost of that path. 
-		typedef std::vector<std::pair<std::pair<int, int>, std::pair<std::vector<int>, float>>>
-			all_paths_report;
-
 		std::pair<int, int> coordinates_to_squares(double lon, double lat) const;
 		bool exists_square(int i, int j) const;
 		void print_report() const;
@@ -96,7 +92,7 @@ namespace urban {
 		std::unordered_map<int, std::unordered_map<int, square>>& get_squares();
 		bool needs_penalty_bus(net::edge<bus_edge>& edge, int prev_itinerary);
 		bool needs_penalty_metro(net::edge<metro_edge>& edge, int prev_itinerary);
-		all_paths_report best_path_between_all(
+		std::vector<single_path_report> best_path_between_all(
 			std::pair<int, int> origin, 
 			bus_network bus,
 			metro_network metro,
@@ -104,13 +100,22 @@ namespace urban {
 		);
 		void print_progress_bar(int iteration, int total);
 		int get_total_squares();
-		void print_report(std::pair<int, int> origin, all_paths_report report);
+		void print_report(
+			std::pair<int, int> origin, 
+			std::vector<single_path_report> report
+		);
 		void predict_all_od_pairs(
 			bus_network bus,
 			metro_network metro,
 			walking_network walk	
 		);
-
+		std::vector<trip> trip_from_report(
+			std::pair<int, int> origin,
+			std::vector<single_path_report> report,
+			bus_network bus,
+			metro_network metro,
+			walking_network walk
+		);
 	};
 
 } // namespace urban

@@ -269,7 +269,7 @@ namespace urban {
 	 * O(1) access goes a long way compared with a O(1) amortized access that
 	 * is provided by the std::unordered_map.  
 	*/
-	grid::all_paths_report grid::best_path_between_all(
+	std::vector<single_path_report> grid::best_path_between_all(
 		std::pair<int, int> origin, 
 		bus_network bus,
 		metro_network metro,
@@ -516,19 +516,23 @@ namespace urban {
 		// return type. It is basically the path constrution
 		// bit in the Dijskstra's Algorithm but for every
 		// path between the origin and a given square.
-		auto result = all_paths_report();
+		auto result = std::vector<single_path_report>();
 		for (auto& column: square_finale) {
 			auto i = column.first;
 			for (auto& line: column.second) {
 				auto j = line.first;
 				
 				auto stk   = std::stack<int>();
+				auto i_stk = std::stack<int>();
+				auto c_stk = std::stack<float>();
 				int u      = line.second;
 				int u_i    = _node_to_index[u]; 
 				float cost = dist[u_i];
 				if (prev[u_i]!=undefined) {
 					while (u != undefined) {
 						stk.push(u);
+						i_stk.push(prev_itinerary[u_i]);
+						c_stk.push(dist[u_i]);
 						u = prev[u_i];
 						u_i = _node_to_index[u];	
 					} 
@@ -540,14 +544,30 @@ namespace urban {
 					stk.pop();
 				}
 
-				auto destin_sq = std::pair<int, int>(i, j);
-				auto single_report = std::pair<std::vector<int>, float>(path, cost);
-				auto report_pair = std::pair<std::pair<int, int>, std::pair<std::vector<int>, float>>(
-					destin_sq, single_report
+				auto itineraries = std::vector<int>();
+				while (!i_stk.empty()) {
+					itineraries.push_back(i_stk.top());
+					i_stk.pop();
+				}
+
+				auto cost_until = std::vector<float>();
+				while (!c_stk.empty()) {
+					cost_until.push_back(c_stk.top());
+					c_stk.pop();
+				}
+				
+				auto destin_sq   = std::pair<int, int>(i, j);
+				auto this_report = single_path_report(
+					cost,
+					destin_sq,
+					path,
+					itineraries,
+					cost_until
 				);
-				result.push_back(report_pair);
+				result.push_back(this_report);
 			}
 		}
+
 		return result;
 	}
 
@@ -589,17 +609,16 @@ namespace urban {
 	 * 
 	 * 	@return void
 	*/
-	void grid::print_report(std::pair<int, int> origin, all_paths_report report) {
+	void grid::print_report(std::pair<int, int> origin, std::vector<single_path_report> report) {
 		int i = origin.first;
 		int j = origin.second;
 		for (auto& individual_report: report) {
-			auto& destin = individual_report.first;
-			auto& path_info = individual_report.second;
+			auto destin = individual_report.get_destin();
 			std::cout << "(" << i << "," << j;
 			std::cout << ") -> (" << destin.first;
 			std::cout << "," << destin.second << ") | cost: ";
-			std::cout << path_info.second << " | path: ";
-			for (auto node: path_info.first) {
+			std::cout << individual_report.get_cost() << " | path: ";
+			for (auto node: individual_report.get_stopations()) {
 				std::cout << node << " ";
 			}
 			std::cout << std::endl;
@@ -628,12 +647,80 @@ namespace urban {
 					std::pair<int, int>(i, j),
 					bus, metro, walk
 				);
-
+				auto trips = trip_from_report(
+					std::pair<int, int>(i, j),
+					report, bus, metro, walk
+				);
 				counter += 1;
 				print_progress_bar(counter, total_sq);
 			}
 		}
 		
+	}
+
+	std::vector<trip>  grid::trip_from_report(
+		std::pair<int, int> origin_sq,
+		std::vector<single_path_report> report,
+		bus_network bus,
+		metro_network metro,
+		walking_network walk
+	) {
+		auto trips = std::vector<trip>();
+		for (auto& single_path: report) {
+			auto time = single_path.get_cost();
+			auto destin_sq = single_path.get_destin();
+			const auto& itiniraries = single_path.get_itineraries(); 
+			const auto& path = single_path.get_stopations();
+			const auto& costs = single_path.get_costs_until();
+			
+			if (path.size() > 0) {
+				auto stages = std::vector<stage>();
+				int prev_itinerary = itiniraries.at(0);
+				int stage_start = path.at(0);
+				int stage_start_i = 0;
+				for (int i=1; i<path.size(); i++) {
+					int curr_itinerary = itiniraries.at(1);
+
+					if ((curr_itinerary != prev_itinerary && 
+						prev_itinerary != START) || i==path.size()-1) {
+						
+						int i_node = _node_to_index[path.at(i)];
+						int start_mode = _node_modes[stage_start];
+						int final_mode = _node_modes[path.at(i)];
+						int stage_type = -1;
+						if (prev_itinerary == WALK) {
+							stage_type = WALKING_STAGE;
+						} else if (final_mode == BUS) {
+							stage_type = BUS_STAGE;
+						} else if (final_mode == METRO) {
+							stage_type = METRO_STAGE;
+						}
+						auto this_stage = stage(
+							stage_start,
+							path.at(i),
+							stage_type,
+							(costs.at(i)-costs.at(stage_start_i)),
+							prev_itinerary
+						);
+						stages.push_back(this_stage);
+						stage_start   = path.at(i);
+						stage_start_i = i; 
+					}
+
+					prev_itinerary = curr_itinerary;
+				}
+
+				auto this_trip = trip(
+					stages, 0, 
+					path[0], 
+					path[path.size()-1], 
+					origin_sq,
+					destin_sq
+				);
+				trips.push_back(this_trip);
+			}
+		}
+		return trips;
 	}
 
 } // namespace urban

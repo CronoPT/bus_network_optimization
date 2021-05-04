@@ -26,7 +26,13 @@ add_library(urban SHARED STATIC
 	walking_node.hpp
 	walking_node.cpp
 	configs.hpp
-	configs.cpp)
+	configs.cpp
+	trip.hpp
+	trip.cpp
+	stage.hpp
+	stage.cpp
+	single_path_report.hpp
+	single_path_report.cpp)
 
 target_link_libraries(urban INTERFACE net PUBLIC osm_net)
 
