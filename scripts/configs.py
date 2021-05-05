@@ -162,3 +162,43 @@ STOP_REPLACEMENTS = '../data/json/stop_replacements.json'
 | the genetic algorithms that will be run in this work.
 '''
 ROUTE_POOL = '../data/json/route_pool.json' 
+
+
+'''
+| All the time stamps bellow work as landmarks to devide
+| the day into stages. I'm naming them as follows
+| 
+| 07:00 (Morning Rush Hour Start)
+|   |
+|   | Morning Rush Hour
+|   |
+| 10:00 (Morning Rush Hour End)
+|   |
+|   | Midday
+|   |
+| 16:00 (Afternoon Rush Hour Start)
+|   |
+|   | Afternoon Rush Hour
+|   |
+| 19:00 (Afternoon Rush Hour End)
+|   |
+|   | Happy Hour
+|   |
+| 23:00 (Happy Hour End)
+|   |
+|   | Night Time
+|   |
+| 07:00 (Morning Rush Hour Start)
+|
+'''
+MORNING_RUSH_HOUR_START = '07:00'
+
+MORNING_RUSH_HOUR_END = '10:00'
+
+AFTERNOON_RUSH_HOUR_START = '16:00'
+
+AFTERNOON_RUSH_HOUR_END = '19:00'
+
+HAPPY_HOUR_END = '23:00'
+
+ODX_MATRIX = '../data/json/odx_matrix.json'

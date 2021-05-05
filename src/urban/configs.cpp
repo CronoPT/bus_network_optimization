@@ -19,6 +19,9 @@ namespace urban {
 
 	const int configs::divisions = 30;
 
+	const std::string configs::odx_matrix_data = 
+		"../data/json/odx_matrix.json";
+
 	// const std::string configs::stop_locations = 
 	// 	"../data/json/generated_bus_stops.json";
 
