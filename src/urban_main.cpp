@@ -10,6 +10,8 @@
 #include <walking_edge.hpp>
 #include <walking_network.hpp>
 #include <walking_node.hpp>
+#include <odx_matrix.hpp>
+#include <tndp.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -38,8 +40,11 @@ int main() {
 	std::cout << "Made geojson file with grid" << std::endl;
 	grid.print_report();
 	start = std::chrono::high_resolution_clock::now();
-	grid.predict_all_od_pairs(bus, metro, walk);
+	auto use = grid.predict_all_od_pairs(bus, metro, walk);
 	stop  = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	std::cout << "Predicted all od pairs in " << duration.count() << " milliseconds" << std::endl;
+	auto odx = urban::odx_matrix();
+	bus.evaluate(use, metro, walk, odx);
+	std::cout << "Evaluated bus network" << std::endl;
 }

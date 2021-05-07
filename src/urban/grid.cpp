@@ -630,12 +630,13 @@ namespace urban {
 	 * 	@param bus: the bus network to be used
 	 * 	@param metro: the metro network
 	*/
-	void grid::predict_all_od_pairs(
+	network_usage grid::predict_all_od_pairs(
 		bus_network bus,
 		metro_network metro,
 		walking_network walk	
 	) {
 
+		auto result = network_usage();
 		int total_sq = get_total_squares();
 		int counter  = 0;
 		int total = total_sq * (total_sq-1); 
@@ -651,13 +652,33 @@ namespace urban {
 					std::pair<int, int>(i, j),
 					report, bus, metro, walk
 				);
+				result.add_usage_from(
+					std::pair<int, int>(i, j),
+					trips
+				);
 				counter += 1;
 				print_progress_bar(counter, total_sq);
 			}
 		}
-		
+		return result;
 	}
 
+	/**
+	 * The output the comes out of best_path_between_all is
+	 * a bit to raw. This function essentially refines that
+	 * output into a more understandable format.
+	 * 
+	 * 	@param origin_sq: the pair (i,j) that identifies the origin
+	 * 	@param report: what came out of best_path_between_all, and
+	 * what we want to be refining
+	 * 	@param bus: the bus network that the path was based on
+	 * 	@param metro: the metro network that the path was based on
+	 * 	@param walk: the walking network that the path was based on
+	 * 
+	 * 	@return a set of trips, which are a much nicer way to compute
+	 * statistics for the bus network which is always the subject of
+	 * evaluation in this problem.
+	*/
 	std::vector<trip>  grid::trip_from_report(
 		std::pair<int, int> origin_sq,
 		std::vector<single_path_report> report,

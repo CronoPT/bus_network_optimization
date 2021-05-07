@@ -15,6 +15,7 @@ namespace urban {
 
 		int get_route_id() const;
 		const std::vector<int>& get_stop_sequence() const;
+		int size() const; 
 	};
 
 } // namespace urban

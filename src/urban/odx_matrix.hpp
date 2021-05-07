@@ -54,7 +54,8 @@ namespace urban {
 
 	class odx_matrix {
 		std::unordered_map<int, std::unordered_map<int, odx_entry>> _origins;
-
+		std::vector<std::pair<std::pair<int,int>, std::pair<int,int>>> _all_pairs;
+		
 		public:
 		odx_matrix();
 		int get_morning_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin);
@@ -67,7 +68,8 @@ namespace urban {
 			std::pair<int, int> origin, 
 			std::pair<int, int> destin, 
 			odx_pair_info info
-		);	
+		);
+		std::vector<std::pair<std::pair<int,int>, std::pair<int,int>>>& get_all_pairs();
 	};
 
 } // namespace urban

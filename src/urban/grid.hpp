@@ -6,6 +6,7 @@
 #include "metro_network.hpp"
 #include "walking_network.hpp"
 #include "single_path_report.hpp"
+#include "network_usage.hpp"
 #include <osm_net.hpp>
 #include <unordered_map>
 #include <set>
@@ -104,7 +105,7 @@ namespace urban {
 			std::pair<int, int> origin, 
 			std::vector<single_path_report> report
 		);
-		void predict_all_od_pairs(
+		network_usage predict_all_od_pairs(
 			bus_network bus,
 			metro_network metro,
 			walking_network walk	

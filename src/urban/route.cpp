@@ -22,6 +22,8 @@ namespace urban {
 		return _stop_sequence;
 	}
 
+	int route::size() const { return _stop_sequence.size(); }
+
 } // namespace urban
 
 #endif

@@ -105,7 +105,7 @@ namespace urban {
 	}
 
 
-	odx_matrix::odx_matrix(): _origins() { 
+	odx_matrix::odx_matrix(): _origins(), _all_pairs() { 
 		std::ifstream input_file(configs::odx_matrix_data);
 		nlohmann::json json_obj = nlohmann::json::parse(input_file);
 
@@ -133,6 +133,11 @@ namespace urban {
 				total
 			);
 			add_odx_pair_info(origin, destin, odx_info);
+			_all_pairs.push_back(
+				std::pair<std::pair<int, int>, std::pair<int, int>>(
+					origin, destin
+				)
+			);
 		}
 
 	}
@@ -181,6 +186,12 @@ namespace urban {
 		int i = origin.first;
 		int j = origin.second;
 		_origins[i][j].add_odx_pair_info(destin, info);
+	}
+
+	std::vector<
+		std::pair<std::pair<int,int>, std::pair<int,int>>
+	>& odx_matrix::get_all_pairs() {
+		return _all_pairs;
 	}
 
 } // namespace urban

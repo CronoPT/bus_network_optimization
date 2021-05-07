@@ -11,6 +11,7 @@ namespace urban {
 		int _passengers;
 		int _origin;
 		int _destin;
+		int _transfers;
 		std::pair<int, int> _origin_square;
 		std::pair<int, int> _destin_square;
 
@@ -29,6 +30,7 @@ namespace urban {
 		int get_passengers() const;
 		int get_origin() const;
 		int get_destin() const;
+		int get_transfers() const;
 		std::pair<int, int> get_origin_square() const;
 		std::pair<int, int> get_destin_square() const;
 

@@ -34,7 +34,9 @@ add_library(urban SHARED STATIC
 	single_path_report.hpp
 	single_path_report.cpp
 	odx_matrix.hpp
-	odx_matrix.cpp)
+	odx_matrix.cpp
+	network_usage.hpp
+	network_usage.cpp)
 
 target_link_libraries(urban INTERFACE net PUBLIC osm_net)
 
