@@ -271,9 +271,9 @@ namespace urban {
 	*/
 	std::vector<single_path_report> grid::best_path_between_all(
 		std::pair<int, int> origin, 
-		bus_network bus,
-		metro_network metro,
-		walking_network walk
+		bus_network& bus,
+		metro_network& metro,
+		walking_network& walk
 		) {
 		
 		auto& origin_square = _squares[origin.first][origin.second]; 
@@ -631,9 +631,9 @@ namespace urban {
 	 * 	@param metro: the metro network
 	*/
 	network_usage grid::predict_all_od_pairs(
-		bus_network bus,
-		metro_network metro,
-		walking_network walk	
+		bus_network& bus,
+		metro_network& metro,
+		walking_network& walk	
 	) {
 
 		auto result = network_usage();
@@ -682,9 +682,9 @@ namespace urban {
 	std::vector<trip>  grid::trip_from_report(
 		std::pair<int, int> origin_sq,
 		std::vector<single_path_report> report,
-		bus_network bus,
-		metro_network metro,
-		walking_network walk
+		bus_network& bus,
+		metro_network& metro,
+		walking_network& walk
 	) {
 		auto trips = std::vector<trip>();
 		for (auto& single_path: report) {

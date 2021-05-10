@@ -95,9 +95,9 @@ namespace urban {
 		bool needs_penalty_metro(net::edge<metro_edge>& edge, int prev_itinerary);
 		std::vector<single_path_report> best_path_between_all(
 			std::pair<int, int> origin, 
-			bus_network bus,
-			metro_network metro,
-			walking_network walk
+			bus_network& bus,
+			metro_network& metro,
+			walking_network& walk
 		);
 		void print_progress_bar(int iteration, int total);
 		int get_total_squares();
@@ -106,16 +106,16 @@ namespace urban {
 			std::vector<single_path_report> report
 		);
 		network_usage predict_all_od_pairs(
-			bus_network bus,
-			metro_network metro,
-			walking_network walk	
+			bus_network& bus,
+			metro_network& metro,
+			walking_network& walk	
 		);
 		std::vector<trip> trip_from_report(
 			std::pair<int, int> origin,
 			std::vector<single_path_report> report,
-			bus_network bus,
-			metro_network metro,
-			walking_network walk
+			bus_network& bus,
+			metro_network& metro,
+			walking_network& walk
 		);
 	};
 

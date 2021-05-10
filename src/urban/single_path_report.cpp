@@ -8,9 +8,9 @@ namespace urban {
 	single_path_report::single_path_report(
 		float cost, 
 		std::pair<int, int> destin,
-		std::vector<int> stopations,
-		std::vector<int> itineraries,
-		std::vector<float> costs_until
+		std::vector<int>& stopations,
+		std::vector<int>& itineraries,
+		std::vector<float>& costs_until
 	): 
 	 _cost(cost), _destin(destin),
 	 _stopations(stopations),

@@ -11,7 +11,7 @@
 
 namespace urban {
 
-	bus_network import_lisbon_bus(osm_net::osm_net graph);
+	bus_network import_lisbon_bus(osm_net::osm_net& graph);
 
 } // namespace urban
 

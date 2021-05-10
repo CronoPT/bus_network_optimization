@@ -36,8 +36,8 @@ namespace urban {
 	}
 
 	bus_network::bus_network(
-		std::vector<route> routes,
-	    osm_net::osm_net road_network
+		std::vector<route>& routes,
+	    osm_net::osm_net& road_network
 	):
 	 _evaluated(false),
 	 _transfers(0),
@@ -134,14 +134,15 @@ namespace urban {
 	}
 
 	void bus_network::evaluate(
-		network_usage usage, 
-		metro_network metro, 
-		walking_network walk,
-		odx_matrix odx
+		network_usage& usage, 
+		metro_network& metro, 
+		walking_network& walk,
+		odx_matrix& odx
 	) {
 
 		auto& pairs = odx.get_all_pairs();
 		int unsatisfied_pairs = 0;
+		int total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
@@ -155,6 +156,7 @@ namespace urban {
 			}
 
 			int passengers = odx.get_total(origin, destin);
+			total_passengers += passengers;
 			_transfers += use.get_transfers()*passengers;
 
 			for (auto& s: use.get_stages()) {
@@ -164,6 +166,7 @@ namespace urban {
 			}
 		}
 
+		_transfers /= total_passengers;
 		_unsatisfied_demand = unsatisfied_pairs/pairs.size();
 		_evaluated = true;
 	}

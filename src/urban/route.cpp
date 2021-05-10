@@ -5,7 +5,7 @@
 
 namespace urban {
 
-	route::route(int route_id, std::vector<int> stop_sequence):
+	route::route(int route_id, std::vector<int>& stop_sequence):
 	 _route_id(route_id), _stop_sequence(stop_sequence) {
 		/* Do Nothing */
 	}

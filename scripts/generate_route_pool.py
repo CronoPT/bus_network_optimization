@@ -556,3 +556,5 @@ if __name__ == '__main__':
 	utils.json_utils.write_json_object(configs.ROUTE_POOL, route_pool)
 
 	print(len(route_pool))
+	print(f'max_route_length: {MAX_ROUTE_LEN}')
+	print(f'min_route_length: {MIN_ROUTE_LEN}')

@@ -5,7 +5,7 @@
 
 namespace urban {
 
-	bus_network import_lisbon_bus(osm_net::osm_net graph) {
+	bus_network import_lisbon_bus(osm_net::osm_net& graph) {
 		std::ifstream input_file(configs::stop_sequences);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 

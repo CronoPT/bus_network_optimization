@@ -31,8 +31,8 @@ namespace urban {
 
 		public:
 		bus_network(
-			std::vector<route> routes,
-			osm_net::osm_net road_network
+			std::vector<route>& routes,
+			osm_net::osm_net& road_network
 		);
 
 		bool evaluated() const;
@@ -45,10 +45,10 @@ namespace urban {
 		int  get_longest_route() const;
 
 		void evaluate(
-			network_usage usage, 
-			metro_network metro, 
-			walking_network walk,
-			odx_matrix odx
+			network_usage& usage, 
+			metro_network& metro, 
+			walking_network& walk,
+			odx_matrix& odx
 		);
 
 	};

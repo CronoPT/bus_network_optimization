@@ -14,7 +14,7 @@ namespace transit_problem {
 	class total_length: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
-			
+			return sol.get_total_length();
 		}
 	};
 
@@ -24,7 +24,7 @@ namespace transit_problem {
 	class unsatisfied_demand: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
-			
+			return sol.get_unsatisfied_demand();
 		}
 	};
 
@@ -34,12 +34,12 @@ namespace transit_problem {
 	 * I think it makes no sense seeing as we do not get to
 	 * decide locations for new stops.
 	*/
-	class mode_connectivity: public genetic::cost_function<urban::bus_network> {
-		public:
-		float compute(const urban::bus_network& sol) const {
+	// class mode_connectivity: public genetic::cost_function<urban::bus_network> {
+	// 	public:
+	// 	float compute(const urban::bus_network& sol) const {
 			
-		}
-	};
+	// 	}
+	// };
 
 	/**
 	 * The less time spent inside vehicles by the users, the better.
@@ -47,7 +47,7 @@ namespace transit_problem {
 	class in_vehicle_time: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
-			
+			return sol.get_in_vehicle_time();
 		}
 	};
 
@@ -59,7 +59,7 @@ namespace transit_problem {
 	class transfers: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
-			
+			return sol.get_transfers();
 		}
 	};
 
