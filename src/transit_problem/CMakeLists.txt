@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 3.16.3)
 
 add_library(transit_problem SHARED STATIC
 	tndp.hpp
-	tndp.cpp)
+	tndp.cpp
+	tndp_configs.hpp
+	tndp_configs.cpp
+	tndp_constraints.hpp
+	tndp_objectives.hpp
+	route_pool.hpp
+	route_pool.cpp)
 
 target_link_libraries(transit_problem 
 	                  INTERFACE genetic 

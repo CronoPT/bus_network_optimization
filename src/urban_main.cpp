@@ -12,6 +12,7 @@
 #include <walking_node.hpp>
 #include <odx_matrix.hpp>
 #include <tndp.hpp>
+#include <route_pool.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -47,4 +48,6 @@ int main() {
 	auto odx = urban::odx_matrix();
 	bus.evaluate(use, metro, walk, odx);
 	std::cout << "Evaluated bus network" << std::endl;
+	auto pool = transit_problem::route_pool();
+	std::cout << "Created route pool" << std::endl;
 }

@@ -9,6 +9,11 @@
 #include <constraint.hpp>
 #include <cost_function.hpp>
 #include <vector>
+#include <random>
+#include <osm_net.hpp>
+
+#include "tndp_configs.hpp"
+#include "route_pool.hpp"
 
 namespace transit_problem {
 
@@ -16,6 +21,8 @@ namespace transit_problem {
 		urban::metro_network _metro;
 		urban::walking_network _walk;
 		urban::grid _grid;
+		route_pool  _pool;
+		osm_net::osm_net _road;
 
 		public:
 		tndp(
@@ -23,7 +30,9 @@ namespace transit_problem {
 			genetic::cost_function_set<urban::bus_network> cost_functions,
 			urban::metro_network& metro,
 			urban::walking_network& walk,
-			urban::grid& grid
+			urban::grid& grid,
+			route_pool& pool,
+			osm_net::osm_net& road
 		);
 
 		std::vector<genetic::solution<urban::bus_network>> initialize_population() override;
