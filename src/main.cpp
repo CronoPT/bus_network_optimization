@@ -76,14 +76,14 @@ std::ostream& operator<<(std::ostream& os, const cone& c) {
 
 class min_total_surface: public genetic::cost_function<cone> {
 	public:
-		float compute(const cone& sol) const {
+		float compute(cone& sol) const {
 			return sol.total_area();
 		}
 };
 
 class min_latetal_surface: public genetic::cost_function<cone> {
 	public:
-		float compute(const cone& sol) const {
+		float compute(cone& sol) const {
 			return sol.lateral_area();
 		}
 };
@@ -91,11 +91,11 @@ class min_latetal_surface: public genetic::cost_function<cone> {
 
 class volume_constraint: public genetic::constraint<cone> {
 	public:
-		bool satisfied(const cone& sol) const {
+		bool satisfied(cone& sol) const {
 			return sol.volume() > 200;
 		}
 
-		float transgression(const cone& sol) const {
+		float transgression(cone& sol) const {
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {
@@ -106,11 +106,11 @@ class volume_constraint: public genetic::constraint<cone> {
 
 class radius_constraint: public genetic::constraint<cone> {
 	public:
-		bool satisfied(const cone& sol) const {
+		bool satisfied(cone& sol) const {
 			return sol.radius() <= 10;
 		}
 
-		float transgression(const cone& sol) const {
+		float transgression(cone& sol) const {
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {
@@ -121,11 +121,11 @@ class radius_constraint: public genetic::constraint<cone> {
 
 class height_constraint: public genetic::constraint<cone> {
 	public:
-		bool satisfied(const cone& sol) const {
+		bool satisfied(cone& sol) const {
 			return sol.height() <= 20;
 		}
 
-		float transgression(const cone& sol) const {
+		float transgression(cone& sol) const {
 			if (satisfied(sol)) {
 				return 0.0;
 			} else {

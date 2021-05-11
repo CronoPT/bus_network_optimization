@@ -12,9 +12,12 @@
 namespace urban {
 
 	class metro_network: public net::graph<metro_node, metro_edge> {
+		
+		static metro_network* _instance;
+		metro_network();
 
 		public:
-		metro_network();
+		static metro_network* instance();
 
 	};
 

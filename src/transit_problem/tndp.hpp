@@ -18,21 +18,11 @@
 namespace transit_problem {
 
 	class tndp: public genetic::problem<urban::bus_network> {
-		urban::metro_network _metro;
-		urban::walking_network _walk;
-		urban::grid _grid;
-		route_pool  _pool;
-		osm_net::osm_net _road;
 
 		public:
 		tndp(
 			genetic::constraint_set<urban::bus_network> constraints, 
-			genetic::cost_function_set<urban::bus_network> cost_functions,
-			urban::metro_network& metro,
-			urban::walking_network& walk,
-			urban::grid& grid,
-			route_pool& pool,
-			osm_net::osm_net& road
+			genetic::cost_function_set<urban::bus_network> cost_functions
 		);
 
 		std::vector<genetic::solution<urban::bus_network>> initialize_population() override;

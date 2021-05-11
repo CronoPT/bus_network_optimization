@@ -15,13 +15,6 @@ int main() {
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
-	auto road  = osm_net::osm_net();
-	auto bus   = urban::import_lisbon_bus(road);
-	auto metro = urban::metro_network();
-	auto walk  = urban::walking_network();
-	auto grid = urban::grid(road, bus, metro);
-	auto pool = transit_problem::route_pool();
-
 	auto constraints = genetic::constraint_set<urban::bus_network>();
 	constraints.push_back(std::make_shared<transit_problem::route_length>(
 		transit_problem::route_length()));
@@ -42,12 +35,7 @@ int main() {
 
 	auto problem = new transit_problem::tndp(
 		constraints, 
-		cost_functs,
-		metro,
-		walk,
-		grid,
-		pool,
-		road
+		cost_functs
 	);
 
 	auto GA = new genetic::nsga<urban::bus_network>((genetic::problem<urban::bus_network>*) problem);

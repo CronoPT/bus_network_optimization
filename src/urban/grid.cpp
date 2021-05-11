@@ -31,21 +31,8 @@ namespace urban {
 		return _metro;
 	}
 
-	grid::grid():
-	 _squares(), 
-	 _min_lon(std::numeric_limits<double>::max()), 
-	 _min_lat(std::numeric_limits<double>::max()), 
-	 _max_lon(std::numeric_limits<double>::lowest()),
-	 _max_lat(std::numeric_limits<double>::lowest()), 
-	 _lon_step(0), _lat_step(0), _node_to_index(),
-	 _total_nodes(0), _node_modes() {
-		/* Do Nothing */
-	}
-
 	grid::grid(
-		osm_net::osm_net road,
-		bus_network bus,
-		metro_network metro
+
 	): 
 	 _squares(), 
 	 _min_lon(std::numeric_limits<double>::max()), 
@@ -56,7 +43,7 @@ namespace urban {
 	 _total_nodes(0), _node_modes() {
 
 		// Check for the grid limits
-		for (auto& r_node: road.get_nodes()) {
+		for (auto& r_node: osm_net::osm_net::instance()->get_nodes()) {
 			auto& attr = r_node.second.get_attributes();
 			if (attr.get_lon() < _min_lon)
 				_min_lon = attr.get_lon();
@@ -73,7 +60,7 @@ namespace urban {
 
 		// Place every bus node in the grid and initialize
 		// the respective auxiliary structures.
-		for (auto& b_node: bus.get_nodes()) {
+		for (auto& b_node: lisbon_bus::instance()->get_nodes()) {
 			auto& attr = b_node.second.get_attributes(); 
 			auto sq = coordinates_to_squares(attr.get_lon(), attr.get_lat());
 
@@ -90,7 +77,7 @@ namespace urban {
 
 		// Place every metro node in the grid and initialize
 		// the respective auxiliary structures.
-		for (auto& m_node: metro.get_nodes()) {
+		for (auto& m_node: metro_network::instance()->get_nodes()) {
 			auto& attr  = m_node.second.get_attributes(); 
 			auto sq = coordinates_to_squares(attr.get_lon(), attr.get_lat());
 
@@ -115,6 +102,13 @@ namespace urban {
 		prev_mode = std::vector<int>(_total_nodes, 0); 
 		prev_itinerary = std::vector<int>(_total_nodes, 0);
 
+	}
+
+	grid* grid::instance() {
+		if (!_instance) {
+			_instance = new grid();
+		}
+		return _instance;
 	}
 
 	/**
@@ -271,9 +265,7 @@ namespace urban {
 	*/
 	std::vector<single_path_report> grid::best_path_between_all(
 		std::pair<int, int> origin, 
-		bus_network& bus,
-		metro_network& metro,
-		walking_network& walk
+		bus_network& bus
 		) {
 		
 		auto& origin_square = _squares[origin.first][origin.second]; 
@@ -336,7 +328,7 @@ namespace urban {
 				auto& u_node = bus.get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
 			} else if (_node_modes[u] == METRO) {
-				auto& u_node = metro.get_nodes()[u].get_attributes();
+				auto& u_node = metro_network::instance()->get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
 			}
 
@@ -368,7 +360,7 @@ namespace urban {
 			int u_i = _node_to_index[u];
 			if (mode[u_i] == BUS) { // the node popped is from the bus network
 				auto& u_node_bus  = bus.get_nodes()[u];
-				auto& u_node_walk = walk.get_nodes()[u];
+				auto& u_node_walk = walking_network::instance()->get_nodes()[u];
 
 				// checking for connectivity through the bus network
 				for (auto& edge_info: u_node_bus.get_adjacencies()) {
@@ -438,8 +430,8 @@ namespace urban {
 				}
 
 			} else if (mode[u_i] == METRO) { // the node popped is from the metro network
-				auto& u_node_metro = metro.get_nodes()[u];
-				auto& u_node_walk  = walk.get_nodes()[u];
+				auto& u_node_metro = metro_network::instance()->get_nodes()[u];
+				auto& u_node_walk  = walking_network::instance()->get_nodes()[u];
 
 				// checking for connectivity through the bus network
 				for (auto& edge_info: u_node_metro.get_adjacencies()) {
@@ -631,9 +623,7 @@ namespace urban {
 	 * 	@param metro: the metro network
 	*/
 	network_usage grid::predict_all_od_pairs(
-		bus_network& bus,
-		metro_network& metro,
-		walking_network& walk	
+		bus_network& bus
 	) {
 
 		auto result = network_usage();
@@ -646,11 +636,11 @@ namespace urban {
 				int j = line.first;
 				auto report = best_path_between_all(
 					std::pair<int, int>(i, j),
-					bus, metro, walk
+					bus
 				);
 				auto trips = trip_from_report(
 					std::pair<int, int>(i, j),
-					report, bus, metro, walk
+					report, bus
 				);
 				result.add_usage_from(
 					std::pair<int, int>(i, j),
@@ -682,9 +672,7 @@ namespace urban {
 	std::vector<trip>  grid::trip_from_report(
 		std::pair<int, int> origin_sq,
 		std::vector<single_path_report> report,
-		bus_network& bus,
-		metro_network& metro,
-		walking_network& walk
+		bus_network& bus
 	) {
 		auto trips = std::vector<trip>();
 		for (auto& single_path: report) {
@@ -743,6 +731,8 @@ namespace urban {
 		}
 		return trips;
 	}
+
+	grid* grid::_instance = nullptr;
 
 } // namespace urban
 

@@ -5,7 +5,7 @@
 
 namespace urban {
 
-	bus_network import_lisbon_bus(osm_net::osm_net& graph) {
+	bus_network lisbon_bus::import_lisbon_bus() {
 		std::ifstream input_file(configs::stop_sequences);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 
@@ -20,10 +20,18 @@ namespace urban {
 			route_id += 1;
 		}
 
-		std::cout << "Did you read all?" << std::endl;
-
-		return bus_network(routes, graph);
+		return bus_network(routes);
 	}
+	
+	bus_network* lisbon_bus::instance() {
+		if (!_initialized) {
+			_instance = import_lisbon_bus();
+		}
+		return &_instance;
+	}
+
+	bus_network lisbon_bus::_instance = bus_network();
+	bool lisbon_bus::_initialized = false;
 
 } // namespace urban
 

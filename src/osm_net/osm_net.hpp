@@ -12,9 +12,12 @@
 namespace osm_net {
 
 	class osm_net: public net::graph<osm_node, osm_edge> {
+		
+		static osm_net* _instance;
+		osm_net();
 
 		public:
-		osm_net();
+		static osm_net* instance();
 
 	};
 

@@ -34,11 +34,16 @@ namespace urban {
 				));
 			}
 		}
-
-		for (auto& map: lines) {
-			std::cout << map.first << " -> " << map.second << std::endl;
-		}
 	}
+
+	metro_network* metro_network::instance() {
+		if (!_instance) {
+			_instance = new metro_network();
+		}
+		return _instance;
+	}
+
+	metro_network* metro_network::_instance = nullptr;
 
 } // namespace urban
 

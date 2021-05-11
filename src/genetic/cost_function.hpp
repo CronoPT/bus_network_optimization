@@ -9,7 +9,7 @@ namespace genetic {
 	class cost_function {
 
 		public:
-			virtual float compute(const T& sol) const = 0;
+			virtual float compute(T& sol) const = 0;
 
 	};
 

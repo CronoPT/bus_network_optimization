@@ -10,12 +10,17 @@
 namespace transit_problem {
 
 	class route_pool {
+
+		static route_pool* _instance;
+
 		std::vector<urban::route> _routes;
 		static const std::string  ge_routes;
 		static const std::string  og_routes;
 		
-		public:
 		route_pool();
+
+		public:
+		static route_pool* instance();
 		int size() const;
 		urban::route at(int i) const;
 

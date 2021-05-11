@@ -7,19 +7,8 @@ namespace transit_problem {
 
 	tndp::tndp(
 		genetic::constraint_set<urban::bus_network> constraints, 
-	    genetic::cost_function_set<urban::bus_network> cost_functions,
-		urban::metro_network& metro,
-		urban::walking_network& walk,
-		urban::grid& grid,
-		route_pool& pool,
-		osm_net::osm_net& road
-	):
-	 _metro(metro),
-	 _walk(walk),
-	 _grid(grid),
-	 _pool(pool),
-	 _road(road),
-	 problem(constraints, cost_functions) {
+	    genetic::cost_function_set<urban::bus_network> cost_functions
+	): problem(constraints, cost_functions) {
 		/* Do Nothing */
 	}
 
@@ -34,10 +23,10 @@ namespace transit_problem {
 			tndp_configs::max_number_routes
 		);
 		std::uniform_int_distribution<int> route_dist(
-			0, _pool.size()-1
+			0, route_pool::instance()->size()-1
 		);
 
-		std::cout << "[TNDP] Pool Size: " << _pool.size() << std::endl;
+		std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
 		std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;
 		std::cout << "[TNDP] Max N Routes: " << tndp_configs::max_number_routes << std::endl;
 		std::cout << "[TNDP] Population Size: " << pop_size << std::endl;
@@ -55,11 +44,11 @@ namespace transit_problem {
 				while (set.find(route)!=set.end()) {
 					route = route_dist(rng);
 				}
-				routes.push_back(_pool.at(route));
+				routes.push_back(route_pool::instance()->at(route));
 				set.insert(route);
 			}
 			pop.push_back(genetic::solution<urban::bus_network>(
-				urban::bus_network(routes, _road)
+				urban::bus_network(routes)
 			));
 		}
 
@@ -106,8 +95,8 @@ namespace transit_problem {
 			}		
 		}
 
-		auto new_bus_1 = urban::bus_network(new_routes_1, _road);
-		auto new_bus_2 = urban::bus_network(new_routes_2, _road);
+		auto new_bus_1 = urban::bus_network(new_routes_1);
+		auto new_bus_2 = urban::bus_network(new_routes_2);
 
 		return std::pair<urban::bus_network, urban::bus_network>(
 			new_bus_1, new_bus_2

@@ -44,6 +44,15 @@ namespace urban {
 
 	}
 
+	walking_network* walking_network::instance() {
+		if (!_instance) {
+			_instance = new walking_network();
+		}
+		return _instance;
+	}
+
+	walking_network* walking_network::_instance = nullptr;
+
 } // namespace urban
 
 #endif

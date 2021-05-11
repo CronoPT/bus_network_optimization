@@ -15,6 +15,7 @@
 #include <string>
 #include <limits>
 #include "configs.hpp"
+#include "grid.hpp"
 
 namespace urban {
 
@@ -31,10 +32,7 @@ namespace urban {
 		std::vector<route> _routes;
 
 		public:
-		bus_network(
-			std::vector<route>& routes,
-			osm_net::osm_net& road_network
-		);
+		bus_network(std::vector<route>& routes);
 		bus_network();
 
 		bool evaluated() const;
@@ -47,12 +45,7 @@ namespace urban {
 		int  get_longest_route() const;
 		const std::vector<route> get_routes() const;
 
-		void evaluate(
-			network_usage& usage, 
-			metro_network& metro, 
-			walking_network& walk,
-			odx_matrix& odx
-		);
+		void evaluate();
 
 		friend std::ostream& operator<<(std::ostream& os, const bus_network& a); 
 

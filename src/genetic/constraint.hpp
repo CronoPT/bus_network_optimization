@@ -9,8 +9,8 @@ namespace genetic {
 	class constraint {
 
 		public:
-			virtual bool  satisfied(const T& sol)     const = 0;
-			virtual float transgression(const T& sol) const = 0;
+			virtual bool  satisfied(T& sol)     const = 0;
+			virtual float transgression(T& sol) const = 0;
 
 	};
 

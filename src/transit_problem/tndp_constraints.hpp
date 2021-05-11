@@ -14,7 +14,11 @@ namespace transit_problem {
 	*/
 	class route_length: public genetic::constraint<urban::bus_network> {
 		public:
-		bool satisfied(const urban::bus_network& sol) const {
+		bool satisfied(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			int longest  = sol.get_longest_route();
 			int shortest = sol.get_shortest_route();
 			bool max = longest  <= tndp_configs::max_route_length && 
@@ -24,7 +28,11 @@ namespace transit_problem {
 			return max && min;
 		}
 
-		float transgression(const urban::bus_network& sol) const {
+		float transgression(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			if (satisfied(sol)) {
 				return 0;
 			}
@@ -55,13 +63,21 @@ namespace transit_problem {
 	*/
 	class number_routes: public genetic::constraint<urban::bus_network> {
 		public:
-		bool satisfied(const urban::bus_network& sol) const {
+		bool satisfied(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			int routes = sol.get_number_routes();
 			return routes >= tndp_configs::min_number_routes &&
 			       routes <= tndp_configs::max_number_routes;
 		}
 
-		float transgression(const urban::bus_network& sol) const {
+		float transgression(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			int routes = sol.get_number_routes();
 			
 			if (satisfied(sol)) {
@@ -81,11 +97,19 @@ namespace transit_problem {
 	*/
 	class transfers: public genetic::constraint<urban::bus_network> {
 		public:
-		bool satisfied(const urban::bus_network& sol) const {
+		bool satisfied(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			return sol.get_transfers() <= tndp_configs::max_transfers;
 		}
 
-		float transgression(const urban::bus_network& sol) const {
+		float transgression(urban::bus_network& sol) const {
+			if (!sol.evaluated()) {
+				sol.evaluate();
+			}
+
 			if (satisfied(sol)) {
 				return 0;
 			} else { 

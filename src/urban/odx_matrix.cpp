@@ -142,6 +142,13 @@ namespace urban {
 
 	}
 
+	odx_matrix* odx_matrix::instance() {
+		if (!_instance) {
+			_instance = new odx_matrix();
+		}
+		return _instance;
+	}
+
 	int odx_matrix::get_morning_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
@@ -193,6 +200,8 @@ namespace urban {
 	>& odx_matrix::get_all_pairs() {
 		return _all_pairs;
 	}
+
+	odx_matrix* odx_matrix::_instance = nullptr;
 
 } // namespace urban
 

@@ -17,8 +17,11 @@
 #include <algorithm>
 #include "configs.hpp"
 #include "trip.hpp"
+#include "lisbon_bus.hpp"
 
 namespace urban {
+
+	class bus_network;
 
 	#define WALK  -2
 	#define START -1
@@ -53,6 +56,8 @@ namespace urban {
 	*/
 	class grid {
 
+		static grid* _instance;
+
 		const int _divisions = configs::divisions;
 
 		double _min_lon;
@@ -78,13 +83,11 @@ namespace urban {
 		std::vector<int>   prev_mode;
 		std::vector<int>   prev_itinerary;
 		
-		public:
 		grid();
-		grid(
-			osm_net::osm_net road,
-			bus_network bus,
-			metro_network metro
-		);
+
+		public:
+		static grid* instance();
+
 
 		std::pair<int, int> coordinates_to_squares(double lon, double lat) const;
 		bool exists_square(int i, int j) const;
@@ -95,9 +98,7 @@ namespace urban {
 		bool needs_penalty_metro(net::edge<metro_edge>& edge, int prev_itinerary);
 		std::vector<single_path_report> best_path_between_all(
 			std::pair<int, int> origin, 
-			bus_network& bus,
-			metro_network& metro,
-			walking_network& walk
+			bus_network& bus
 		);
 		void print_progress_bar(int iteration, int total);
 		int get_total_squares();
@@ -106,16 +107,12 @@ namespace urban {
 			std::vector<single_path_report> report
 		);
 		network_usage predict_all_od_pairs(
-			bus_network& bus,
-			metro_network& metro,
-			walking_network& walk	
+			bus_network& bus
 		);
 		std::vector<trip> trip_from_report(
 			std::pair<int, int> origin,
 			std::vector<single_path_report> report,
-			bus_network& bus,
-			metro_network& metro,
-			walking_network& walk
+			bus_network& bus
 		);
 	};
 

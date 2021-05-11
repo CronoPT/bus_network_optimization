@@ -45,6 +45,15 @@ namespace transit_problem {
 		return _routes.at(i);
 	}
 
+	route_pool* route_pool::instance() {
+		if (!_instance) {
+			_instance = new route_pool();
+		}
+		return _instance;
+	}
+
+	route_pool* route_pool::_instance = nullptr;
+
 }
 
 #endif

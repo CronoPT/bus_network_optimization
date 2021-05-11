@@ -13,8 +13,11 @@ namespace urban {
 
 	class walking_network: public net::graph<walking_node, walking_edge> {
 		
-		public:
+		static walking_network* _instance;
 		walking_network();
+		
+		public:
+		static walking_network* instance();
 
 	};
 

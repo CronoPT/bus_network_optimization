@@ -70,14 +70,14 @@ std::ostream& operator<<(std::ostream& os, const x_bin& c) {
 
 class x_squared: public genetic::cost_function<x_bin> {
 	public:
-		float compute(const x_bin& bin) const {
+		float compute(x_bin& bin) const {
 			return std::pow(bin.get_x(), 2);
 		}
 };
 
 class one_over_x: public genetic::cost_function<x_bin> {
 	public:
-		float compute(const x_bin& bin) const {
+		float compute(x_bin& bin) const {
 			return 1/bin.get_x();
 			// return std::sin(bin.get_x());
 		}
@@ -86,11 +86,11 @@ class one_over_x: public genetic::cost_function<x_bin> {
 
 class x_constraint: public genetic::constraint<x_bin> {
 	public:
-		bool satisfied(const x_bin& bin) const {
+		bool satisfied(x_bin& bin) const {
 			return bin.get_x()>0 && bin.get_x()<10;
 		}
 
-		float transgression(const x_bin& bin) const {
+		float transgression(x_bin& bin) const {
 			if (satisfied(bin)) {
 				return 0.0;
 			} else if (bin.get_x() >= 10) {

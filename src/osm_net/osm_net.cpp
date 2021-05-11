@@ -61,4 +61,13 @@ namespace osm_net {
 		}
 	}
 
+	osm_net* osm_net::instance() {
+		if (!_instance) {
+			_instance = new osm_net();
+		}
+		return _instance;
+	}
+
+	osm_net* osm_net::_instance = nullptr;
+
 } // namespace osm_net

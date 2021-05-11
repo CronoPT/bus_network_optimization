@@ -6,7 +6,6 @@
 namespace urban {
 
 	float compute_path_time(
-		osm_net::osm_net& road_network, 
 		std::pair<std::vector<int>, float>& path_report
 	) {
 		float time  = 0; 
@@ -14,7 +13,7 @@ namespace urban {
 		int origin = -1;
 		for (auto destin: path) {
 			if (origin != -1) {
-				auto& adjs = road_network.get_nodes()[origin].get_adjacencies();
+				auto& adjs = osm_net::osm_net::instance()->get_nodes()[origin].get_adjacencies();
 
 				float min_cost = std::numeric_limits<float>::max();
 				int min_key = -1;
@@ -35,10 +34,7 @@ namespace urban {
 		return time;
 	}
 
-	bus_network::bus_network(
-		std::vector<route>& routes,
-	    osm_net::osm_net& road_network
-	):
+	bus_network::bus_network(std::vector<route>& routes):
 	 _evaluated(false),
 	 _transfers(0),
 	 _in_vehicle_time(0),
@@ -77,7 +73,7 @@ namespace urban {
 			int origin_stop = -1;
 			for (auto destin_stop: sequence) {
 				if (origin_stop != -1) {
-					auto path_report = road_network.dijkstra(
+					auto path_report = osm_net::osm_net::instance()->dijkstra(
 						origin_stop,
 						destin_stop,
 						[](net::edge<osm_net::osm_edge>& e) -> float {
@@ -87,7 +83,7 @@ namespace urban {
 						}
 					);
 
-					auto travel_time = compute_path_time(road_network, path_report);
+					auto travel_time = compute_path_time(path_report);
 					add_edge(origin_stop, destin_stop, bus_edge(
 						origin_stop, 
 						destin_stop, 
@@ -150,14 +146,10 @@ namespace urban {
 		return _routes;
 	}
 
-	void bus_network::evaluate(
-		network_usage& usage, 
-		metro_network& metro, 
-		walking_network& walk,
-		odx_matrix& odx
-	) {
+	void bus_network::evaluate() {
 
-		auto& pairs = odx.get_all_pairs();
+		auto& pairs = odx_matrix::instance()->get_all_pairs();
+		auto  usage = grid::instance()->predict_all_od_pairs(*this);
 		int unsatisfied_pairs = 0;
 		int total_passengers  = 0;
 		
@@ -172,7 +164,7 @@ namespace urban {
 				continue;
 			}
 
-			int passengers = odx.get_total(origin, destin);
+			int passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
 			_transfers += use.get_transfers()*passengers;
 

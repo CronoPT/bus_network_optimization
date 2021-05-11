@@ -125,29 +125,29 @@ class ciara {
 
 class objective_1: public genetic::cost_function<ciara> {
 	public:
-	float compute(const ciara& sol) const {
+	float compute(ciara& sol) const {
 		return 3*sol.get_var1().get_x() + sol.get_var2().get_x();
 	}
 };
 
 class objective_2: public genetic::cost_function<ciara> {
 	public:
-	float compute(const ciara& sol) const {
+	float compute(ciara& sol) const {
 		return -sol.get_var1().get_x() + 4*sol.get_var2().get_x();
 	}
 };
 
 class constraint_1: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return sol.get_var2().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)<=6;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
@@ -158,15 +158,15 @@ class constraint_1: public genetic::constraint<ciara> {
 
 class constraint_2: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return sol.get_var1().get_x() + 3*sol.get_var2().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)>=3;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
@@ -177,15 +177,15 @@ class constraint_2: public genetic::constraint<ciara> {
 
 class constraint_3: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return 2*sol.get_var1().get_x() - sol.get_var2().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)<=6;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
@@ -196,15 +196,15 @@ class constraint_3: public genetic::constraint<ciara> {
 
 class constraint_4: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return 2*sol.get_var1().get_x() + sol.get_var2().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)<=10;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
@@ -215,15 +215,15 @@ class constraint_4: public genetic::constraint<ciara> {
 
 class constraint_5: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return sol.get_var1().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)>=0;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
@@ -234,15 +234,15 @@ class constraint_5: public genetic::constraint<ciara> {
 
 class constraint_6: public genetic::constraint<ciara> {
 	public:
-	float val(const ciara& sol) const {
+	float val(ciara& sol) const {
 		return sol.get_var2().get_x();
 	}
 
-	bool satisfied(const ciara& sol) const {
+	bool satisfied(ciara& sol) const {
 		return val(sol)>=0;
 	}
 
-	float transgression(const ciara& sol) const {
+	float transgression(ciara& sol) const {
 		if (satisfied(sol)) {
 			return 0.0;
 		} else {
