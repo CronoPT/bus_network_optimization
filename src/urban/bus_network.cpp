@@ -47,6 +47,7 @@ namespace urban {
 	 _number_routes(0),
 	 _shortest_route(0),
 	 _longest_route(0),
+	 _routes(routes),
 	 graph() {
 		std::ifstream input_file(configs::stop_locations);
 		nlohmann::json bus_stops = nlohmann::json::parse(input_file);
@@ -101,6 +102,18 @@ namespace urban {
 		_number_routes = routes.size();
 	}
 
+	bus_network::bus_network():
+	 _evaluated(false),
+	 _transfers(0),
+	 _in_vehicle_time(0),
+	 _total_length(0),
+	 _unsatisfied_demand(0),
+	 _number_routes(0),
+	 _shortest_route(0),
+	 _longest_route(0),
+	 _routes(),
+	 graph() { /* Do Nothing */ }
+
 	bool bus_network::evaluated() const {
 		return _evaluated;
 	}
@@ -131,6 +144,10 @@ namespace urban {
 
 	int bus_network::get_longest_route() const {
 		return _longest_route;
+	}
+
+	const std::vector<route> bus_network::get_routes() const {
+		return _routes;
 	}
 
 	void bus_network::evaluate(
@@ -169,6 +186,13 @@ namespace urban {
 		_transfers /= total_passengers;
 		_unsatisfied_demand = unsatisfied_pairs/pairs.size();
 		_evaluated = true;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const bus_network& s) {
+		os << "Bus Network: { number_routes: ";
+		os << s.get_number_routes() << ", total_length: ";
+		os << s.get_total_length() << "}\n";
+		return os;
 	}
 
 } // namespace urban

@@ -28,12 +28,14 @@ namespace urban {
 		int   _number_routes;
 		int   _shortest_route;
 		int   _longest_route;
+		std::vector<route> _routes;
 
 		public:
 		bus_network(
 			std::vector<route>& routes,
 			osm_net::osm_net& road_network
 		);
+		bus_network();
 
 		bool evaluated() const;
 		int  get_transfers() const;
@@ -43,6 +45,7 @@ namespace urban {
 		int  get_number_routes() const;
 		int  get_shortest_route() const;
 		int  get_longest_route() const;
+		const std::vector<route> get_routes() const;
 
 		void evaluate(
 			network_usage& usage, 
@@ -50,6 +53,8 @@ namespace urban {
 			walking_network& walk,
 			odx_matrix& odx
 		);
+
+		friend std::ostream& operator<<(std::ostream& os, const bus_network& a); 
 
 	};
 

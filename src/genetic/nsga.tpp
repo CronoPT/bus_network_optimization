@@ -15,8 +15,11 @@ namespace genetic {
 		float min_improv,
 		int max_stalled
 	) {
+		std::cout << "[NSGA] Algorithm Starting" << std::endl;
 		this->initialize_population();
+		std::cout << "[NSGA] Initial Population Done" << std::endl;
 		this->compute_costs();
+		std::cout << "[NSGA] Costs for Initial Population Done" << std::endl;
 
 		int iteration = 0;
 		float cost_diff = min_improv+0.1;
@@ -29,7 +32,9 @@ namespace genetic {
 			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
 
 			float best_cost = this->get_best_solution().get_total_cost();
+			std::cout << "[NSGA] Best solution total cost OK" << std::endl;
 			this->iteration();
+			std::cout << "[NSGA] Iteration OK" << std::endl;
 			this->print_population();
 			float new_best = this->get_best_solution().get_total_cost();
 

@@ -11,7 +11,7 @@ namespace transit_problem {
 	 * The more you can do with less distance to cover,
 	 * the better.
 	*/
-	class total_length: public genetic::cost_function<urban::bus_network> {
+	class min_total_length: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
 			return sol.get_total_length();
@@ -21,7 +21,7 @@ namespace transit_problem {
 	/**
 	 * Minimize unsatisfied demand.
 	*/
-	class unsatisfied_demand: public genetic::cost_function<urban::bus_network> {
+	class min_unsatisfied_demand: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
 			return sol.get_unsatisfied_demand();
@@ -44,7 +44,7 @@ namespace transit_problem {
 	/**
 	 * The less time spent inside vehicles by the users, the better.
 	*/
-	class in_vehicle_time: public genetic::cost_function<urban::bus_network> {
+	class min_in_vehicle_time: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
 			return sol.get_in_vehicle_time();
@@ -56,7 +56,7 @@ namespace transit_problem {
 	 * The service is much better if people do not have to transfer
 	 * a lot to get to their desired destinations.
 	*/
-	class transfers: public genetic::cost_function<urban::bus_network> {
+	class min_transfers: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(const urban::bus_network& sol) const {
 			return sol.get_transfers();
