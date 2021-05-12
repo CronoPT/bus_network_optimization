@@ -83,6 +83,7 @@ namespace urban {
 						}
 					);
 
+					_total_length += path_report.second;
 					auto travel_time = compute_path_time(path_report);
 					add_edge(origin_stop, destin_stop, bus_edge(
 						origin_stop, 
@@ -114,7 +115,7 @@ namespace urban {
 		return _evaluated;
 	}
 
-	int bus_network::get_transfers() const {
+	float bus_network::get_transfers() const {
 		return _transfers;
 	}
 
@@ -166,6 +167,10 @@ namespace urban {
 
 			int passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
+
+			// std::cout << "Passengers: " << passengers << std::endl;
+			// std::cout << "Transfers per use: " << use.get_transfers() << std::endl;
+
 			_transfers += use.get_transfers()*passengers;
 
 			for (auto& s: use.get_stages()) {
@@ -178,6 +183,13 @@ namespace urban {
 		_transfers /= total_passengers;
 		_unsatisfied_demand = unsatisfied_pairs/pairs.size();
 		_evaluated = true;
+
+		std::cout << "{transfers: "  << _transfers;
+		std::cout << ", un_demand: " << _unsatisfied_demand;
+		std::cout << ", total_passengers: " << total_passengers;
+		std::cout << "}" << std::endl;
+
+
 	}
 
 	std::ostream& operator<<(std::ostream& os, const bus_network& s) {

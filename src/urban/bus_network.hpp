@@ -22,7 +22,7 @@ namespace urban {
 	class bus_network: public net::graph<bus_node, bus_edge> {
 		
 		bool  _evaluated;
-		int   _transfers;
+		float   _transfers;
 		float _in_vehicle_time;
 		float _total_length;
 		float _unsatisfied_demand;
@@ -36,7 +36,7 @@ namespace urban {
 		bus_network();
 
 		bool evaluated() const;
-		int  get_transfers() const;
+		float get_transfers() const;
 		float get_in_vehicle_time() const;
 		float get_total_length() const;
 		float get_unsatisfied_demand() const;

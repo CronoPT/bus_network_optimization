@@ -14,7 +14,7 @@ namespace transit_problem {
 
 	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population() {
 		auto pop = std::vector<genetic::solution<urban::bus_network>>();
-		const int pop_size = 20;
+		const int pop_size = 5;
 
 		std::random_device rd;     // only used once to initialise (seed) engine
 		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
@@ -32,9 +32,13 @@ namespace transit_problem {
 		std::cout << "[TNDP] Population Size: " << pop_size << std::endl;
 		std::cout << "[TNDP] Going into the main cycle" << std::endl;
 
-		for (int i=0; i<pop_size; i++) {
+
+		pop.push_back(genetic::solution<urban::bus_network>(
+			*urban::lisbon_bus::instance()
+		));
+		for (int i=1; i<pop_size; i++) {
 			int net_size = net_size_dist(rng);
-			std::cout << "[TNDP] Bus " << i << "/" << pop_size;
+			std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
 			std::cout << " generating net with " << net_size;
 			std::cout << " routes" << std::endl;
 			auto routes  = std::vector<urban::route>();

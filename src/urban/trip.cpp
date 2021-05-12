@@ -29,8 +29,10 @@ namespace urban {
 
 		// Discounting the first boarding which 
 		// is not really transfer.
-		_transfers -= 1;
-		
+		if (_transfers > 0) {
+			_transfers -= 1;
+		}
+
 	}
 
 	trip::trip():
