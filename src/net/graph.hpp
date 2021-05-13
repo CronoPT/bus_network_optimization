@@ -20,6 +20,14 @@ namespace net {
 		std::unordered_map<int, node<V, E>> _nodes;
 		std::unordered_map<int, edge<E>> _edges;
 
+		std::unordered_map<int, int> _node_to_index;
+		int _total_nodes;
+
+		std::vector<float> dist;
+		std::vector<int>   prev;
+
+		bool _nodes_added;
+
 		public:
 		graph();
 		void add_node(int id);
