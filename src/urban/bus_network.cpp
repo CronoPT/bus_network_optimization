@@ -151,7 +151,6 @@ namespace urban {
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
 		auto  usage = grid::instance()->predict_all_od_pairs(*this);
-		int unsatisfied_pairs = 0;
 		int total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
@@ -159,17 +158,24 @@ namespace urban {
 			auto destin = od_pair.second;
 
 			auto& use = usage.get_usage_between(origin, destin);
-
-			if (use.get_stages().size() == 0) {
-				unsatisfied_pairs += 1;
-				continue;
-			}
-
 			int passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
 
-			// std::cout << "Passengers: " << passengers << std::endl;
-			// std::cout << "Transfers per use: " << use.get_transfers() << std::endl;
+			if (origin.first  == destin.first && 
+			    origin.second == destin.second) { 
+				continue; 
+			}
+
+			if (use.get_stages().size() == 0) {
+				// if (_routes.size() == 309) {
+				// 	std::cout << "Found no path between: (";
+				// 	std::cout << origin.first << "," << origin.second << ") -> (";
+				// 	std::cout << destin.first << "," << destin.second << ")";
+				// 	std::cout << std::endl;
+				// }
+				_unsatisfied_demand += passengers;
+				continue;
+			}
 
 			_transfers += use.get_transfers()*passengers;
 
@@ -181,13 +187,13 @@ namespace urban {
 		}
 
 		_transfers /= total_passengers;
-		_unsatisfied_demand = unsatisfied_pairs/pairs.size();
+		_unsatisfied_demand /= total_passengers;
 		_evaluated = true;
 
 		std::cout << "{transfers: "  << _transfers;
 		std::cout << ", un_demand: " << _unsatisfied_demand;
 		std::cout << ", total_passengers: " << total_passengers;
-		std::cout << "}" << std::endl;
+		std::cout << ", routes: " << _routes.size() << "}" << std::endl;
 
 
 	}

@@ -202,3 +202,16 @@ AFTERNOON_RUSH_HOUR_END = '19:00'
 HAPPY_HOUR_END = '23:00'
 
 ODX_MATRIX = '../data/json/odx_matrix.json'
+
+'''
+| These are routes served by trams whihc is a mode of transportation
+| we are ignoring in this work.
+'''
+TRAM_ROUTES = [
+	# '15E',
+	# '12E',
+	# '18E',
+	# '24E',
+	# '25E',
+	# '28E'
+]

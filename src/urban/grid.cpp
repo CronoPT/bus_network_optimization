@@ -503,6 +503,10 @@ namespace urban {
 			}
 		}
 
+		// if (queue.empty()) {
+		// 	return std::vector<single_path_report>();
+		// }
+
 		// This will build the paths from the prev vector.
 		// A path is built for each square, hence the complex
 		// return type. It is basically the path constrution

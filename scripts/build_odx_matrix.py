@@ -36,8 +36,8 @@ if __name__ == '__main__':
 	connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
 	cursor = connection.cursor()
 	cursor.execute('''
-		select istation, idate, ilongitude, ilatitude, 
-		       fstation, fdate, flongitude, flatitude 
+		select istation, idate, ilongitude, ilatitude, icarreira,
+		       fstation, fdate, flongitude, flatitude, fcarreira 
 		from public.a_carris_whole_trip_val v
 		inner join (
 				select cod_paragem as icod_paragem,
@@ -118,11 +118,13 @@ if __name__ == '__main__':
 	istation   = 0 
 	idate      = 1 
 	ilongitude = 2 
-	ilatitude  = 3 
-	fstation   = 4 
-	fdate      = 5  
-	flongitude = 6 
-	flatitude  = 7 
+	ilatitude  = 3
+	icarreira  = 4 
+	fstation   = 5 
+	fdate      = 6  
+	flongitude = 7 
+	flatitude  = 8
+	fcarreira  = 9 
 
 	for res in result:
 		time_i = res[idate].time()
@@ -132,18 +134,19 @@ if __name__ == '__main__':
 		
 		odx_matrix[(i_i, j_i, i_f, j_f)]
 		
-		if time_i > MORNING_RUSH_HOUR_START and time_i < MORNING_RUSH_HOUR_END:
-			odx_matrix[(i_i, j_i, i_f, j_f)]['morning_rush_hour'] += 1
-		elif time_i > MORNING_RUSH_HOUR_END and time_i < AFTERNOON_RUSH_HOUR_START:
-			odx_matrix[(i_i, j_i, i_f, j_f)]['midday'] += 1
-		elif time_i > AFTERNOON_RUSH_HOUR_START and time_i < AFTERNOON_RUSH_HOUR_END:
-			odx_matrix[(i_i, j_i, i_f, j_f)]['afternoon_rush_hour'] += 1
-		elif time_i > AFTERNOON_RUSH_HOUR_END and time_i < HAPPY_HOUR_END:
-			odx_matrix[(i_i, j_i, i_f, j_f)]['happy_hour'] += 1
-		else:
-			odx_matrix[(i_i, j_i, i_f, j_f)]['night_time'] += 1
+		if res[icarreira] not in configs.TRAM_ROUTES and res[fcarreira] not in configs.TRAM_ROUTES:
+			if time_i > MORNING_RUSH_HOUR_START and time_i < MORNING_RUSH_HOUR_END:
+				odx_matrix[(i_i, j_i, i_f, j_f)]['morning_rush_hour'] += 1
+			elif time_i > MORNING_RUSH_HOUR_END and time_i < AFTERNOON_RUSH_HOUR_START:
+				odx_matrix[(i_i, j_i, i_f, j_f)]['midday'] += 1
+			elif time_i > AFTERNOON_RUSH_HOUR_START and time_i < AFTERNOON_RUSH_HOUR_END:
+				odx_matrix[(i_i, j_i, i_f, j_f)]['afternoon_rush_hour'] += 1
+			elif time_i > AFTERNOON_RUSH_HOUR_END and time_i < HAPPY_HOUR_END:
+				odx_matrix[(i_i, j_i, i_f, j_f)]['happy_hour'] += 1
+			else:
+				odx_matrix[(i_i, j_i, i_f, j_f)]['night_time'] += 1
 
-		odx_matrix[(i_i, j_i, i_f, j_f)]['total'] += 1
+			odx_matrix[(i_i, j_i, i_f, j_f)]['total'] += 1
 
 	odx_matrix = [{
 		**item

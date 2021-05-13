@@ -18,6 +18,7 @@ namespace urban {
 	 _costs_until(costs_until) {
 		/* Do Nothing */
 	}
+
 	single_path_report::single_path_report(): 
 	 _cost(-1), _destin({-1, -1}),
 	 _stopations(),

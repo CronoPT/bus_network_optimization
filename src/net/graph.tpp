@@ -149,7 +149,8 @@ namespace net {
 
 		}
 
-		float cost = dist[destin_id];
+		auto i_destin = _node_to_index[destin_id];
+		float cost = dist[i_destin];
 		auto stk   = std::stack<int>();
 		int  u   = destin_id;
 		int  u_i = _node_to_index[u];
