@@ -43,6 +43,7 @@ def generate_east_west_routes():
 
 			stop = 2000 + (i_*(10**(grid_size//10+1))) + j_
 
+		route.append(stop)
 		routes.append(filter_zags(route))
 
 	return routes
@@ -87,6 +88,7 @@ def generate_west_east_routes():
 
 			stop = 2000 + (i_*(10**(grid_size//10+1))) + j_
 
+		route.append(stop)
 		routes.append(filter_zags(route))
 
 	return routes
@@ -131,6 +133,7 @@ def generate_north_south_routes():
 
 			stop = 2000 + (i_*(10**(grid_size//10+1))) + j_
 
+		route.append(stop)
 		routes.append(filter_zags(route))
 
 	return routes
@@ -175,6 +178,7 @@ def generate_south_north_routes():
 
 			stop = 2000 + (i_*(10**(grid_size//10+1))) + j_
 
+		route.append(stop)
 		routes.append(filter_zags(route))
 
 	return routes
@@ -196,6 +200,23 @@ def filter_zags(route):
 	return route
 				
 
+def routes_to_geojson(routes):
+	global bus_stops
+	
+	lines = []
+
+	for route in routes:
+		line = []
+		for stop in route:
+			line.append([
+				item['point'] 
+				for item in bus_stops 
+				if item['stop_id']==stop
+			][0])
+		lines.append(line)
+	
+	return lines
+
 
 if __name__ == '__main__':
 	road_network = utils.json_utils.read_network_json('../data/json/generated_road_network.json')
@@ -208,12 +229,37 @@ if __name__ == '__main__':
 
 	routes = []
 
-	routes.extend(generate_east_west_routes())
-	routes.extend(generate_west_east_routes())
-	routes.extend(generate_north_south_routes())
-	routes.extend(generate_south_north_routes())
+	east_west = generate_east_west_routes()
+	routes.extend(east_west)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_east_west_made.geojson',
+		routes_to_geojson(east_west)
+	)
+
+	west_east = generate_west_east_routes()
+	routes.extend(west_east)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_west_east_made.geojson',
+		routes_to_geojson(west_east)
+	)
+
+	north_south = generate_north_south_routes()
+	routes.extend(north_south)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_north_south_made.geojson',
+		routes_to_geojson(north_south)
+	)
+
+	south_north = generate_south_north_routes()
+	routes.extend(south_north)
+	utils.json_utils.write_geojson_lines(
+		'../data/geojson/generated_south_north_made.geojson',
+		routes_to_geojson(south_north)
+	)
 
 	assert(len(routes) == grid_size*4)
 
 	for r in routes:
 		print(*r)
+
+	utils.json_utils.write_json_object('../data/json/generated_route_pool.json', routes)
