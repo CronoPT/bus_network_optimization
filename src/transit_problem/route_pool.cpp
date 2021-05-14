@@ -5,14 +5,8 @@
 
 namespace transit_problem {
 
-	const std::string route_pool::og_routes = 
-		"../data/json/clustered_routes_stop_sequence.json"; 
-
-	const std::string route_pool::ge_routes = 
-		"../data/json/route_pool.json"; 
-
 	route_pool::route_pool(): _routes() {
-		std::ifstream input_file(route_pool::og_routes);
+		std::ifstream input_file(tndp_configs::og_routes);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 
 		int route_id = 0;
@@ -25,7 +19,7 @@ namespace transit_problem {
 			route_id += 1;
 		}
 
-		input_file  = std::ifstream(route_pool::ge_routes);
+		input_file  = std::ifstream(tndp_configs::ge_routes);
 		json_routes = nlohmann::json::parse(input_file);
 		for (auto& json_route: json_routes) {
 			auto route_stops = std::vector<int>();

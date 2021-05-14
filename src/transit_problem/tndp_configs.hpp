@@ -1,6 +1,8 @@
 #ifndef __TNDP_CONFIGS_HPP__
 #define __TNDP_CONFIGS_HPP__
 
+#include <string>
+
 namespace transit_problem {
 
 	class tndp_configs {
@@ -10,6 +12,8 @@ namespace transit_problem {
 		static const int max_number_routes;
 		static const int min_number_routes;
 		static const float max_transfers;
+		static const std::string  ge_routes;
+		static const std::string  og_routes;
 	};
 
 } // namespace transit_problem

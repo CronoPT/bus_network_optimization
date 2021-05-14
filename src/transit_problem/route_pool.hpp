@@ -6,6 +6,7 @@
 #include <fstream>
 #include <route.hpp>
 #include <string>
+#include "tndp_configs.hpp"
 
 namespace transit_problem {
 
@@ -14,8 +15,6 @@ namespace transit_problem {
 		static route_pool* _instance;
 
 		std::vector<urban::route> _routes;
-		static const std::string  ge_routes;
-		static const std::string  og_routes;
 		
 		route_pool();
 
