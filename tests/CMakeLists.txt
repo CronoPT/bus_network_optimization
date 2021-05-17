@@ -9,7 +9,8 @@ add_executable(main_tests
 	net/heap_test.cpp
 	net/priority_queue_test.cpp
 	urban/exists_square_test.cpp
-	urban/odx_matrix_test.cpp)
+	urban/odx_matrix_test.cpp
+	urban/remove_route_test.cpp)
 	
 target_link_libraries(main_tests INTERFACE genetic 
                                  INTERFACE net

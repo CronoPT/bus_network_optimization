@@ -28,6 +28,7 @@ namespace net {
 
 		std::vector<edge<E>> get_out_edges();
 		void add_adjacency(int key, edge<E>& edge);
+		void remove_adjacency(int id);
 		
 	};
 

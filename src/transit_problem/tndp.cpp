@@ -36,6 +36,7 @@ namespace transit_problem {
 		pop.push_back(genetic::solution<urban::bus_network>(
 			*urban::lisbon_bus::instance()
 		));
+		std::cout << "Read Lisbon Bus Network" << std::endl;
 		for (int i=1; i<pop_size; i++) {
 			int net_size = net_size_dist(rng);
 			std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
@@ -108,7 +109,7 @@ namespace transit_problem {
 	}
 
 	void tndp::mutate(urban::bus_network& item) const {
-
+		
 	}
 
 } // namespace transit_problem

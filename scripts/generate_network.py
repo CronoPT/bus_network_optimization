@@ -348,7 +348,9 @@ def build_metro_network():
 			metro_points.append(square.get_metro_coordinates())
 
 	total_lines = 0
-	for i in range(_DIVISIONS):
+
+
+	for i in range(0, _DIVISIONS, 2):
 		j = 0
 		i_prime = i+1
 		j_prime = j+1
@@ -385,7 +387,7 @@ def build_metro_network():
 			j_prime += 1
 		total_lines += 1
 
-	for i in range(_DIVISIONS):
+	for i in range(0, _DIVISIONS, 2):
 		j = 0
 		i_prime = i-1
 		j_prime = j+1
@@ -421,8 +423,8 @@ def build_metro_network():
 			i_prime -= 1
 			j_prime += 1
 		total_lines += 1
-
-	for j in range(1, _DIVISIONS, 1):
+		
+	for j in range(2, _DIVISIONS, 2):
 		i = 0
 		i_prime = i+1
 		j_prime = j+1
@@ -459,7 +461,7 @@ def build_metro_network():
 			j_prime += 1
 		total_lines += 1
 
-	for j in range(1, _DIVISIONS, 1):
+	for j in range(2, _DIVISIONS, 2):
 		i = _DIVISIONS-1
 		i_prime = i-1
 		j_prime = j+1

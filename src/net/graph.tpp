@@ -76,6 +76,16 @@ namespace net {
 	}
 
 	template<typename V, typename E>
+	void graph<V, E>::remove_edge(
+		int origin_id, 
+		int destin_id, 
+		int id
+	) {
+		_nodes[origin_id].get_adjacencies().erase(id);
+		_edges.erase(id);
+	}
+
+	template<typename V, typename E>
 	int graph<V, E>::get_number_of_nodes() {
 		return _nodes.size();
 	}

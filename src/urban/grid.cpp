@@ -617,6 +617,10 @@ namespace urban {
 			for (auto node: individual_report.get_stopations()) {
 				std::cout << node << " ";
 			}
+			std::cout << " | itineraries: ";
+			for (auto iti: individual_report.get_itineraries()) {
+				std::cout << iti << " ";
+			}
 			std::cout << std::endl;
 		}
 	}
@@ -642,6 +646,7 @@ namespace urban {
 					std::pair<int, int>(i, j),
 					bus
 				);
+				// print_report(std::pair<int, int>(i, j), report);
 				auto trips = trip_from_report(
 					std::pair<int, int>(i, j),
 					report, bus
@@ -678,6 +683,7 @@ namespace urban {
 		std::vector<single_path_report> report,
 		bus_network& bus
 	) {
+		//TODO - fix this!
 		auto trips = std::vector<trip>();
 		for (auto& single_path: report) {
 			auto time = single_path.get_cost();
@@ -692,7 +698,7 @@ namespace urban {
 				int stage_start = path.at(0);
 				int stage_start_i = 0;
 				for (int i=1; i<path.size(); i++) {
-					int curr_itinerary = itiniraries.at(1);
+					int curr_itinerary = itiniraries.at(i);
 
 					if ((curr_itinerary != prev_itinerary && 
 						prev_itinerary != START) || i==path.size()-1) {
@@ -731,8 +737,15 @@ namespace urban {
 					destin_sq
 				);
 				trips.push_back(this_trip);
+
+				// std::cout << "Stages: " << this_trip.get_stages().size() << " | ";
+				// for (auto& iti: single_path.get_itineraries()) {
+				// 	std::cout << iti << " ";
+				// }
+				// std::cout << std::endl;
 			}
 		}
+
 		return trips;
 	}
 

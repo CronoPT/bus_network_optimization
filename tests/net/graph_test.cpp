@@ -39,6 +39,26 @@ TEST_F(graph_test, add_adjacencies_test) {
 	ASSERT_EQ(adjacen[20].get_attributes().get_num(), 8);
 }
 
+TEST_F(graph_test, remove_adjacencies_test) {
+	_G.add_node(0);
+	_G.add_node(1);
+	_G.add_node(2);
+
+	_G.add_edge(0, 1, num_holder(4));
+	_G.add_edge(0, 2, num_holder(8));
+
+	auto& adjacen = _G.get_nodes()[0].get_adjacencies();
+
+	ASSERT_EQ(adjacen[10].get_attributes().get_num(), 4);
+	ASSERT_EQ(adjacen[20].get_attributes().get_num(), 8);
+
+	_G.remove_edge(0, 2, 20);
+
+	ASSERT_EQ(adjacen[10].get_attributes().get_num(), 4);
+	ASSERT_EQ(_G.get_number_of_edges(), 1);
+	ASSERT_EQ(adjacen.find(20), adjacen.end());
+}
+
 TEST_F(graph_test, dijkstra_test) {
 
 	_G.add_node(0);
@@ -109,4 +129,23 @@ TEST_F(graph_test, dijkstra_multi_test) {
 
 	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2, 3, 4}));
 	ASSERT_EQ(res.second, 15.0);
+}
+
+TEST_F(graph_test, dijkstra_multi_trick_test) {
+
+	_G.add_node(0);
+	_G.add_node(1);
+	_G.add_node(2);
+
+	_G.add_edge(0, 1, num_holder(1));
+	_G.add_edge(0, 2, num_holder(5));
+	_G.add_edge(1, 2, num_holder(1));
+
+
+	auto res = _G.dijkstra(0, 2, [](net::edge<num_holder>& e) -> float {
+		return (float) e.get_attributes().get_num();
+	});
+
+	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2}));
+	ASSERT_EQ(res.second, 2.0);
 }

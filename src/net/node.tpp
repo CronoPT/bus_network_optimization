@@ -55,6 +55,11 @@ namespace net {
 		_adjacencies[key] = edge;
 	}
 
+	template<typename V, typename E>
+	void node<V, E>::remove_adjacency(int id) {
+		_adjacencies.erase(id);
+	}
+
 } // namespace net
 
 #endif

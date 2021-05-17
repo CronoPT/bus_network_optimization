@@ -14,10 +14,6 @@ namespace transit_problem {
 	class min_total_length: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(urban::bus_network& sol) const {
-			if (!sol.evaluated()) {
-				sol.evaluate();
-			}
-
 			return sol.get_total_length();
 		}
 	};
@@ -28,10 +24,6 @@ namespace transit_problem {
 	class min_unsatisfied_demand: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(urban::bus_network& sol) const {
-			if (!sol.evaluated()) {
-				sol.evaluate();
-			}
-
 			return sol.get_unsatisfied_demand();
 		}
 	};
@@ -55,10 +47,6 @@ namespace transit_problem {
 	class min_in_vehicle_time: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(urban::bus_network& sol) const {
-			if (!sol.evaluated()) {
-				sol.evaluate();
-			}
-
 			return sol.get_in_vehicle_time();
 		}
 	};
@@ -71,10 +59,6 @@ namespace transit_problem {
 	class min_transfers: public genetic::cost_function<urban::bus_network> {
 		public:
 		float compute(urban::bus_network& sol) const {
-			if (!sol.evaluated()) {
-				sol.evaluate();
-			}
-
 			return sol.get_transfers();
 		}
 	};

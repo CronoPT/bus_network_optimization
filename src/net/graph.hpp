@@ -35,6 +35,12 @@ namespace net {
 		void add_edge(int origin_id, int destin_id);
 		void add_edge(int origin_id, int destin_id, E attributes);
 
+		void remove_edge(
+			int origin_id, 
+			int destin_id, 
+			int id
+		);
+
 		int get_number_of_nodes();
 		int get_number_of_edges();
 
