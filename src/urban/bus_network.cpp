@@ -5,6 +5,19 @@
 
 namespace urban {
 
+	/**
+	 * This function isn't even a part of the bus_network class.
+	 * It's purpose it's to compute the time a given path takes
+	 * in the road network (uses the maxspeed parameter).
+	 * We have to use this function because the paths themselves
+	 * are shortest paths between bus stops but computed in terms
+	 * of distance. 
+	 * 
+	 * 	@param path_report: the cost distance and path of the target 
+	 * for which we want to compute the travel time.
+	 * 	
+	 * 	@return the time it takes to traverse the path in seconds.
+	*/
 	float compute_path_time(
 		std::pair<std::vector<int>, float>& path_report
 	) {
@@ -34,6 +47,16 @@ namespace urban {
 		return time;
 	}
 
+	/**
+	 * The main constructor for the bus_network class.
+	 * It adds every bus stop as a node to the underlying
+	 * graph and then computes the edges between those
+	 * nodes given the sequence of stops in a set of
+	 * routes.
+	 * 
+	 * 	@param routes: the set of routes that comprise the
+	 * network.
+	*/
 	bus_network::bus_network(std::vector<route>& routes):
 	 _evaluated(false),
 	 _statics_computed(false),
@@ -46,15 +69,16 @@ namespace urban {
 	 _longest_route(0),
 	 _routes(),
 	 graph() {
+
 		if (!_stops_loaded) {
+			/* Loads the json file to all bus_networks only once */
 			std::ifstream input_file(configs::stop_locations);
 			_bus_stops = nlohmann::json::parse(input_file);
 			_stops_loaded = true;
 		}
 
-		// std::cout << "Bad alloc, where are you? 1" << std::endl;
-
 		for (auto& stop: bus_network::_bus_stops) {
+			/* Add bus stops as nodes */
 			add_node(stop["stop_id"], bus_node(
 				stop["stop_id"],
 				stop["point"][0],
@@ -62,18 +86,21 @@ namespace urban {
 			));
 		}
 
-		// std::cout << "Bad alloc, where are you? 2" << std::endl;
-
 		for (auto& route: routes) {
-			// std::cout << "--------------------------" << std::endl;
+			/* Add edges based on stop sequences */
 			add_route(route);
-			// std::cout << "Vat is happening?" << std::endl;
 		}
 
-
-		// std::cout << "Bad alloc, where are you? 3" << std::endl;
 	}
 
+	/**
+	 * Adds all the edges implied by a given route.
+	 * Remember, the cost of the edges is in seconds
+	 * and it is the time it takes to go between
+	 * two stops through the road network.
+	 * 
+	 * 	@param r: the route to build around
+	*/
 	void bus_network::embed_route(route& r) {
 		int route_id   = r.get_route_id();
 		auto& sequence = r.get_stop_sequence();
@@ -103,6 +130,11 @@ namespace urban {
 		}
 	}
 
+	/**
+	 * This is an empty constructor for when
+	 * the bus_networks need to be stored in
+	 * standard library containers.
+	*/
 	bus_network::bus_network():
 	 _evaluated(false),
 	 _statics_computed(false),
@@ -116,89 +148,132 @@ namespace urban {
 	 _routes(),
 	 graph() { /* Do Nothing */ }
 
+	/**
+	 * Some bus_network attributes are the product
+	 * of relatively expensive computations, so the
+	 * evaluations of those attributes is done in a
+	 * lazy fation. That's why most getters have an
+	 * if statment before actually returning the 
+	 * attribute (it needs to be computed first).
+	 * 
+	 * In this laxy evaluation we distinguish two types.
+	 * - Dynamic Evaluations: need to use the road
+	 * and the whole transportation infrastructure to
+	 * be computed. More expensive.
+	 * - Static Evaluations: computed without the need
+	 * to resort to any other structure. Faster.
+	*/
+
 	bool bus_network::evaluated() const {
 		return _evaluated;
 	}
 
+	/** Needs Dynamic Evaluations */
 	float bus_network::get_transfers() {
 		if (!_evaluated) {
 			evaluate();
 		}
-		// std::cout << "Get Transfers" << std::endl;
 		return _transfers;
 	}
 
+	/** Needs Dynamic Evaluations */
 	float bus_network::get_in_vehicle_time() {
 		if (!_evaluated) {
 			evaluate();
 		}
-		// std::cout << "In Vehicle" << std::endl;
 		return _in_vehicle_time;
 	}
 
+	/** Needs Static Evaluations */
 	float bus_network::get_total_length() {
 		if (!_statics_computed) {
 			static_computes();
 		}
-		// std::cout << "Total Length" << std::endl;
 		return _total_length;
 	}
 
+	/** Needs Dynamic Evaluations */
 	float bus_network::get_unsatisfied_demand() {
 		if (!_evaluated) {
 			evaluate();
 		}
-		// std::cout << "Unsatisfied Demand" << std::endl;
 		return _unsatisfied_demand;
 	}
 
+	/** No need for lazy computations */
 	int bus_network::get_number_routes() const {
-		// std::cout << "Get Number of Routes" << std::endl;
 		return _routes.size();
 	}
 
+	/** Needs Dynamic Evaluations */
 	int bus_network::get_shortest_route() {
 		if (!_statics_computed) {
 			static_computes();
 		}
-		// std::cout << "Get Shortest Route" << std::endl;
 		return _shortest_route;
 	}
 
+	/** Needs Static Evaluations */
 	int bus_network::get_longest_route() {
 		if (!_statics_computed) {
 			static_computes();
 		}
-		// std::cout << "Get Longest Route" << std::endl;
 		return _longest_route;
 	}
 
+	/** No need for lazy computations */
 	const std::vector<route> bus_network::get_routes() const {
 		return _routes;
 	}
 
+	/**
+	 * A bus_network should be a read-only object. However,
+	 * in a genetic algorithm, adding and removing routes
+	 * is part of the mutation process.This function adds
+	 * a new route, then signals the object that a new
+	 * evaluation is needed since the network changed.
+	 * 
+	 * @param new_route: the route to add to the network
+	*/
 	void bus_network::add_route(route& new_route) {
-		// std::cout << "Bad alloc, where are you? 4" << std::endl;
+		/* Add needed edges */
 		embed_route(new_route);
-		// std::cout << "Bad alloc, where are you? 5" << std::endl;
+
+		/* Add the route to the vector of routes */
 		_routes.push_back(new_route);
-		// std::cout << "Bad alloc, where are you? 6" << std::endl;
+
+		/* Add the route id to the route id set */
 		_route_check.insert(new_route.get_route_id());
-		// std::cout << "Bad alloc, where are you? 7" << std::endl;
+
+		/* Flag changes in the object */
 		_evaluated = false;
 		_statics_computed = false;
-		// std::cout << "Bad alloc, where are you? 8" << std::endl;
 	}
 
+	/**
+	 * A bus_network should be a read-only object. However,
+	 * in a genetic algorithm, adding and removing routes
+	 * is part of the mutation process.This function removes
+	 * an existing route, then signals the object that a new
+	 * evaluation is needed since the network changed.
+	 * 
+	 * @param position: the position, in the vector of routes,
+	 * of the route to remove. This parameter is an index and
+	 * not a route identifier because this is being used as part
+	 * of a genetic algorithm. An identifier varient can be
+	 * developed.
+	*/
 	void bus_network::delete_route(int position) {
 		auto& to_delete = _routes.at(position);
-		int id = to_delete.get_route_id();
+		int route_id = to_delete.get_route_id();
 		int origin_stop = -1;
 		for (auto destin_stop: to_delete.get_stop_sequence()) {
+			/* Remove all the edges that exist because of this route */
 			if (origin_stop != -1) {
 				int link_id = -1;
 				for (auto& adj: get_nodes()[origin_stop].get_adjacencies()) {
-					if (adj.second.get_attributes().get_route_id() == id &&
+					/* Find link that represents this particular connection */
+					if (adj.second.get_attributes().get_route_id() == route_id &&
 					 adj.second.get_destin() == destin_stop) {
 						link_id = adj.second.get_id();
 						break;
@@ -213,17 +288,36 @@ namespace urban {
 			origin_stop = destin_stop;
 		}
 		
+		/* Remove the route from the vector of routes */
 		_routes.erase(_routes.begin()+position);
-		auto it = _route_check.find(id);
-		_route_check.erase(id);
+
+		/* Remove the route id from the route id set */
+		auto it = _route_check.find(route_id);
+		_route_check.erase(it);
+
+		/* Flag changes in the object */
 		_evaluated = false;
 		_statics_computed = false;
 	}
 
+	/**
+	 * A simple function to quickly verify if a bus_network
+	 * already has a certain route in its configuration.
+	 * 
+	 * 	@param route_id: the route whose presence we check for
+	 * 
+	 * 	@return whether the route exists in this network or not
+	*/
 	bool bus_network::has_route(int route_id) {
 		return _route_check.find(route_id) != _route_check.end();
 	}
 
+	/**
+	 * Make the Static Evalutions mentioned above.
+	 * Computes the total length of the bus_network
+	 * as well as the shortest and longest route
+	 * (in terms of number of stops).
+	*/
 	void bus_network::static_computes() {
 		_total_length = 0;
 		_shortest_route = std::numeric_limits<int>::max();
@@ -242,6 +336,7 @@ namespace urban {
 
 			int origin_stop = -1;
 			for (auto destin_stop: sequence) {
+				/* Compute total length of the network */
 				if (origin_stop != -1) {
 					auto path_report = osm_net::osm_net::instance()->dijkstra(
 						origin_stop,
@@ -260,9 +355,21 @@ namespace urban {
 		}
 
 		_number_routes = _routes.size();
+
+		/* Flag the Static Computations as being done */
 		_statics_computed = true;
 	}
 
+	/**
+	 * Make the Dynamic Evalutions mentioned above.
+	 * Computes the unsatisfied demand, the average 
+	 * number of transfers per passenger and the
+	 * total in-vehicle-time amongst all the 
+	 * passengers. Uses the urban::grid to predict
+	 * how the network would be used by the passengers
+	 * travelling between the different od-pairs 
+	 * present in the urban::odx_matrix.
+	*/
 	void bus_network::evaluate() {
 		_unsatisfied_demand = 0;
 		_transfers = 0;
@@ -319,6 +426,8 @@ namespace urban {
 
 		_transfers /= total_passengers;
 		_unsatisfied_demand /= total_passengers;
+
+		/* Flag the Dynamic Computations as being done */
 		_evaluated = true;
 
 		// std::cout << "{transfers: "  << _transfers;
@@ -327,13 +436,25 @@ namespace urban {
 		// std::cout << ", routes: " << _routes.size() << "}" << std::endl;
 	}
 
+	/**
+	 * Print a small summary of the network to the console.
+	*/
 	std::ostream& operator<<(std::ostream& os, const bus_network& s) {
 		os << "Bus Network: { number_routes: ";
 		os << s.get_number_routes() << "}\n";
 		return os;
 	}
 
+	/**
+	 * In the beginning the file with the stop locations
+	 * still needs to be loaded.
+	*/
 	bool bus_network::_stops_loaded = false;
+
+	/** 
+	 * Initialize the object that will holf all the
+	 * stop locations with an empty json object.
+	*/
 	nlohmann::json bus_network::_bus_stops = nlohmann::json();
 
 } // namespace urban

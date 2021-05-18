@@ -15,12 +15,15 @@ TEST(remove_route_test, remove_route_simple_test) {
 	auto route_id  = route_del.get_route_id();
 
 	std::cout << "1" << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Lisbon Bus Routes: " << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
+	std::cout << "Lisbon Bus Shortest Route: " << urban::lisbon_bus::instance()->get_shortest_route() << std::endl;
+	std::cout << "Lisbon Bus Longest Route: " << urban::lisbon_bus::instance()->get_longest_route() << std::endl;
+	std::cout << "Lisbon Bus Total Length: " << urban::lisbon_bus::instance()->get_total_length() << std::endl;
+	std::cout << "Lisbon Bus N. Edges: " << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Edges: " << urban::metro_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Nodes: " << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Walk N. Edges: " << urban::walking_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Walk N. Nodes: " << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
 
 	urban::lisbon_bus::instance()->delete_route(0);
 
@@ -30,22 +33,28 @@ TEST(remove_route_test, remove_route_simple_test) {
 	ASSERT_GE(urban::lisbon_bus::instance()->get_transfers(), transfers);
 
 	std::cout << "2" << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Lisbon Bus Routes: " << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
+	std::cout << "Lisbon Bus Shortest Route: " << urban::lisbon_bus::instance()->get_shortest_route() << std::endl;
+	std::cout << "Lisbon Bus Longest Route: " << urban::lisbon_bus::instance()->get_longest_route() << std::endl;
+	std::cout << "Lisbon Bus Total Length: " << urban::lisbon_bus::instance()->get_total_length() << std::endl;
+	std::cout << "Lisbon Bus N. Edges: " << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Edges: " << urban::metro_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Nodes: " << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Walk N. Edges: " << urban::walking_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Walk N. Nodes: " << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
 
 	urban::lisbon_bus::instance()->add_route(route_del);
 
 	std::cout << "3" << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
-	std::cout << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_edges() << std::endl;
-	std::cout << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Lisbon Bus Routes: " << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
+	std::cout << "Lisbon Bus Shortest Route: " << urban::lisbon_bus::instance()->get_shortest_route() << std::endl;
+	std::cout << "Lisbon Bus Longest Route: " << urban::lisbon_bus::instance()->get_longest_route() << std::endl;
+	std::cout << "Lisbon Bus Total Length: " << urban::lisbon_bus::instance()->get_total_length() << std::endl;
+	std::cout << "Lisbon Bus N. Edges: " << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Edges: " << urban::metro_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Metro N. Nodes: " << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
+	std::cout << "Walk N. Edges: " << urban::walking_network::instance()->get_number_of_edges() << std::endl;
+	std::cout << "Walk N. Nodes: " << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
 	
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_transfers(), transfers);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_in_vehicle_time(), in_vehicle);
