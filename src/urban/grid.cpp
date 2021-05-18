@@ -633,6 +633,9 @@ namespace urban {
 	network_usage grid::predict_all_od_pairs(
 		bus_network& bus
 	) {
+		
+		std::string name__ = "cenas" + std::to_string(counter__) + ".txt"; 
+		grid::file__ = std::ofstream(name__);
 
 		auto result = network_usage();
 		int total_sq = get_total_squares();
@@ -659,6 +662,9 @@ namespace urban {
 				print_progress_bar(counter, total_sq);
 			}
 		}
+
+		grid::file__.close();
+		grid::counter__ += 1;
 		return result;
 	}
 
@@ -738,16 +744,23 @@ namespace urban {
 				);
 				trips.push_back(this_trip);
 
-				// std::cout << "Stages: " << this_trip.get_stages().size() << " | ";
-				// for (auto& iti: single_path.get_itineraries()) {
-				// 	std::cout << iti << " ";
-				// }
-				// std::cout << std::endl;
+				grid::file__ << "Stages: " << this_trip.get_stages().size() << " | ";
+				grid::file__ << "(" << origin_sq.first << "," << origin_sq.second;
+				grid::file__ << ") -> (" << destin_sq.first << ",";
+				grid::file__ << destin_sq.second << ") | ";
+				for (auto& iti: single_path.get_itineraries()) {
+					grid::file__ << iti << " ";
+				}
+				grid::file__ << "\n";
+				
 			}
 		}
 
 		return trips;
 	}
+
+	int grid::counter__ = 0;
+	std::ofstream grid::file__ = std::ofstream("README.md");
 
 	grid* grid::_instance = nullptr;
 

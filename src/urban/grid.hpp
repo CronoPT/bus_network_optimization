@@ -56,6 +56,9 @@ namespace urban {
 	*/
 	class grid {
 
+		static int counter__;
+		static std::ofstream file__;
+
 		static grid* _instance;
 
 		const int _divisions = configs::divisions;

@@ -39,7 +39,7 @@ TEST_F(graph_test, add_adjacencies_test) {
 	ASSERT_EQ(adjacen[20].get_attributes().get_num(), 8);
 }
 
-TEST_F(graph_test, remove_adjacencies_test) {
+TEST_F(graph_test, remove_adjacencies_simple_test) {
 	_G.add_node(0);
 	_G.add_node(1);
 	_G.add_node(2);
@@ -146,6 +146,49 @@ TEST_F(graph_test, dijkstra_multi_trick_test) {
 		return (float) e.get_attributes().get_num();
 	});
 
+	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2}));
+	ASSERT_EQ(res.second, 2.0);
+}
+
+TEST_F(graph_test, remove_adjacencies_test) {
+	_G.add_node(0);
+	_G.add_node(1);
+	_G.add_node(2);
+	_G.add_node(3);
+
+	_G.add_edge(0, 1, num_holder(1));
+	_G.add_edge(0, 2, num_holder(6));
+	_G.add_edge(1, 2, num_holder(1));
+	_G.add_edge(0, 3, num_holder(2));
+	_G.add_edge(3, 2, num_holder(2));
+
+	auto& adjacen = _G.get_nodes()[0].get_adjacencies();
+
+	auto res = _G.dijkstra(0, 2, [](net::edge<num_holder>& e) -> float {
+		return (float) e.get_attributes().get_num();
+	});
+	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2}));
+	ASSERT_EQ(res.second, 2.0);
+
+	_G.remove_edge(0, 1, 10);
+	res = _G.dijkstra(0, 2, [](net::edge<num_holder>& e) -> float {
+		return (float) e.get_attributes().get_num();
+	});
+	ASSERT_EQ(res.first, std::vector<int>({0, 3, 2}));
+	ASSERT_EQ(res.second, 4.0);
+
+	_G.remove_edge(0, 3, 30);
+	res = _G.dijkstra(0, 2, [](net::edge<num_holder>& e) -> float {
+		return (float) e.get_attributes().get_num();
+	});
+	ASSERT_EQ(res.first, std::vector<int>({0, 2}));
+	ASSERT_EQ(res.second, 6.0);
+
+	_G.add_edge(0, 3, num_holder(2));
+	_G.add_edge(0, 1, num_holder(1));
+	res = _G.dijkstra(0, 2, [](net::edge<num_holder>& e) -> float {
+		return (float) e.get_attributes().get_num();
+	});
 	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2}));
 	ASSERT_EQ(res.second, 2.0);
 }

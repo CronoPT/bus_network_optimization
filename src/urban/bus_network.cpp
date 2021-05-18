@@ -102,32 +102,20 @@ namespace urban {
 	 * 	@param r: the route to build around
 	*/
 	void bus_network::embed_route(route& r) {
-		int route_id   = r.get_route_id();
-		auto& sequence = r.get_stop_sequence();
 
-		int origin_stop = -1;
-		for (auto destin_stop: sequence) {
-			if (origin_stop != -1) {
-				auto path_report = osm_net::osm_net::instance()->dijkstra(
-					origin_stop,
-					destin_stop,
-					[](net::edge<osm_net::osm_edge>& e) -> float {
-						auto length = e.get_attributes().get_length();
-						auto speed  = e.get_attributes().get_max_speed();
-						return (float) length;
-					}
-				);
-
-				auto travel_time = compute_path_time(path_report);
-				add_edge(origin_stop, destin_stop, bus_edge(
-					origin_stop, 
-					destin_stop, 
-					route_id, 
-					travel_time
-				));
-			}
-			origin_stop = destin_stop;
+		for (auto& e: r.get_edge_info()) {
+			add_edge(
+				e.get_origin(),
+				e.get_destin(),
+				bus_edge(
+					e.get_origin(),
+					e.get_destin(),
+					r.get_route_id(),
+					e.get_time()
+				)
+			);
 		}
+
 	}
 
 	/**
@@ -239,6 +227,8 @@ namespace urban {
 		/* Add needed edges */
 		embed_route(new_route);
 
+		_total_length += new_route.get_route_length();
+
 		/* Add the route to the vector of routes */
 		_routes.push_back(new_route);
 
@@ -266,27 +256,27 @@ namespace urban {
 	void bus_network::delete_route(int position) {
 		auto& to_delete = _routes.at(position);
 		int route_id = to_delete.get_route_id();
-		int origin_stop = -1;
-		for (auto destin_stop: to_delete.get_stop_sequence()) {
-			/* Remove all the edges that exist because of this route */
-			if (origin_stop != -1) {
-				int link_id = -1;
-				for (auto& adj: get_nodes()[origin_stop].get_adjacencies()) {
-					/* Find link that represents this particular connection */
-					if (adj.second.get_attributes().get_route_id() == route_id &&
-					 adj.second.get_destin() == destin_stop) {
-						link_id = adj.second.get_id();
-						break;
-					}
+
+		for (auto& e: to_delete.get_edge_info()) {
+			int origin_stop = e.get_origin();
+			int destin_stop = e.get_destin();
+			int link_id = -1;
+			for (auto& adj: get_nodes()[origin_stop].get_adjacencies()) {
+				/* Find link that represents this particular connection */
+				if (adj.second.get_attributes().get_route_id() == route_id &&
+					adj.second.get_destin() == destin_stop) {
+					link_id = adj.second.get_id();
+					break;
 				}
-				remove_edge(
-					origin_stop, 
-					destin_stop,
-					link_id
-				);
 			}
-			origin_stop = destin_stop;
+			remove_edge(
+				origin_stop, 
+				destin_stop,
+				link_id
+			);
 		}
+
+		_total_length -= to_delete.get_route_length();
 		
 		/* Remove the route from the vector of routes */
 		_routes.erase(_routes.begin()+position);
@@ -319,7 +309,6 @@ namespace urban {
 	 * (in terms of number of stops).
 	*/
 	void bus_network::static_computes() {
-		_total_length = 0;
 		_shortest_route = std::numeric_limits<int>::max();
 		_longest_route  = std::numeric_limits<int>::min();
 
@@ -332,25 +321,6 @@ namespace urban {
 			}
 			if (route.size() < _shortest_route) {
 				_shortest_route = route.size();
-			}
-
-			int origin_stop = -1;
-			for (auto destin_stop: sequence) {
-				/* Compute total length of the network */
-				if (origin_stop != -1) {
-					auto path_report = osm_net::osm_net::instance()->dijkstra(
-						origin_stop,
-						destin_stop,
-						[](net::edge<osm_net::osm_edge>& e) -> float {
-							auto length = e.get_attributes().get_length();
-							auto speed  = e.get_attributes().get_max_speed();
-							return (float) length;
-						}
-					);
-
-					_total_length += path_report.second;
-				}
-				origin_stop = destin_stop;
 			}
 		}
 
@@ -397,10 +367,10 @@ namespace urban {
 
 			if (use.get_stages().size() == 0) {
 				// if (_routes.size() == 309) {
-				std::cout << "Found no path between: (";
-				std::cout << origin.first << "," << origin.second << ") -> (";
-				std::cout << destin.first << "," << destin.second << ")";
-				std::cout << std::endl;
+				// std::cout << "Found no path between: (";
+				// std::cout << origin.first << "," << origin.second << ") -> (";
+				// std::cout << destin.first << "," << destin.second << ")";
+				// std::cout << std::endl;
 				// }
 				_unsatisfied_demand += passengers;
 				no_trips += 1;

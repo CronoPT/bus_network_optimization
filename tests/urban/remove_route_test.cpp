@@ -14,6 +14,8 @@ TEST(remove_route_test, remove_route_simple_test) {
 	auto route_del = urban::lisbon_bus::instance()->get_routes().at(0);
 	auto route_id  = route_del.get_route_id();
 
+	std::cout << "Removed route n. " << route_id << std::endl;
+
 	std::cout << "1" << std::endl;
 	std::cout << "Lisbon Bus Routes: " << urban::lisbon_bus::instance()->get_number_routes() << std::endl;
 	std::cout << "Lisbon Bus Shortest Route: " << urban::lisbon_bus::instance()->get_shortest_route() << std::endl;
@@ -55,11 +57,11 @@ TEST(remove_route_test, remove_route_simple_test) {
 	std::cout << "Metro N. Nodes: " << urban::metro_network::instance()->get_number_of_nodes() << std::endl;
 	std::cout << "Walk N. Edges: " << urban::walking_network::instance()->get_number_of_edges() << std::endl;
 	std::cout << "Walk N. Nodes: " << urban::walking_network::instance()->get_number_of_nodes() << std::endl;
-	
+	std::cout << "Diff: " << (urban::lisbon_bus::instance()->get_total_length()-total_len) << std::endl;
+
+	ASSERT_EQ(urban::lisbon_bus::instance()->get_total_length(), total_len);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_transfers(), transfers);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_in_vehicle_time(), in_vehicle);
-	std::cout << "Diff: " << (urban::lisbon_bus::instance()->get_total_length()-total_len) << std::endl;
-	ASSERT_EQ(urban::lisbon_bus::instance()->get_total_length(), total_len);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_unsatisfied_demand(), un_demand);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_number_routes(), nu_routes);
 	ASSERT_EQ(urban::lisbon_bus::instance()->get_shortest_route(), shortest);
