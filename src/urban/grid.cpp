@@ -266,7 +266,7 @@ namespace urban {
 	std::vector<single_path_report> grid::best_path_between_all(
 		std::pair<int, int> origin, 
 		bus_network& bus
-		) {
+	) {
 		
 		auto& origin_square = _squares[origin.first][origin.second]; 
 
@@ -409,7 +409,8 @@ namespace urban {
 					int    v_i  = _node_to_index[v];
 
 					if (queue.contains(v)) {
-						float alt = dist[u_i] + edge.get_attributes().get_time_taken();
+						float alt = dist[u_i] + edge.get_attributes().get_time_taken() +
+						            transfer_penalty;
 						if (alt < dist[v_i] && prev_itinerary[v_i]!=WALK) {
 							dist[v_i] = alt;
 							prev[v_i] = u;
@@ -420,7 +421,8 @@ namespace urban {
 						}
 					} else if (explo.find(v) == explo.end()) {
 						/* v hasn't been visited before */
-						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken();
+						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
+						            transfer_penalty;
 						prev[v_i] = u;
 						mode[v_i] = _node_modes[v];
 						prev_mode[v_i] = WALK;
@@ -481,7 +483,8 @@ namespace urban {
 					int    v_i  = _node_to_index[v];
 
 					if (queue.contains(v)) {
-						float alt = dist[u_i] + edge.get_attributes().get_time_taken();
+						float alt = dist[u_i] + edge.get_attributes().get_time_taken() + 
+						            transfer_penalty;
 						if (alt < dist[v_i] && prev_itinerary[v_i]!=WALK) {
 							dist[v_i] = alt;
 							prev[v_i] = u;
@@ -492,7 +495,8 @@ namespace urban {
 						}
 					} else if (explo.find(v) == explo.end()) {
 						/* v hasn't been visited before */
-						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken();
+						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
+						            transfer_penalty;
 						prev[v_i] = u;
 						mode[v_i] = _node_modes[v];
 						prev_mode[v_i] = WALK;
@@ -692,8 +696,13 @@ namespace urban {
 		//TODO - fix this!
 		auto trips = std::vector<trip>();
 		for (auto& single_path: report) {
-			auto time = single_path.get_cost();
 			auto destin_sq = single_path.get_destin();
+
+			if (!odx_matrix::instance()->travel_needed_between(
+				origin_sq, destin_sq
+			)) { continue; }
+
+			auto time = single_path.get_cost();
 			const auto& itiniraries = single_path.get_itineraries(); 
 			const auto& path = single_path.get_stopations();
 			const auto& costs = single_path.get_costs_until();
@@ -736,7 +745,8 @@ namespace urban {
 				}
 
 				auto this_trip = trip(
-					stages, 0, 
+					stages, 
+					odx_matrix::instance()->get_total(origin_sq, destin_sq), 
 					path[0], 
 					path[path.size()-1], 
 					origin_sq,
@@ -751,7 +761,17 @@ namespace urban {
 				for (auto& iti: single_path.get_itineraries()) {
 					grid::file__ << iti << " ";
 				}
+				grid::file__ << " | Passengers: "; 
+				grid::file__ << odx_matrix::instance()->get_total(origin_sq, destin_sq);
 				grid::file__ << "\n";
+				for (auto& node: single_path.get_stopations()) {
+					grid::file__ << node << " ";
+				}
+				grid::file__ << "\n";
+				for (auto& c: single_path.get_costs_until()) {
+					grid::file__ << c << " ";
+				}
+				grid::file__ << "\n\n";
 				
 			}
 		}

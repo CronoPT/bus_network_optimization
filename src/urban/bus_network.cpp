@@ -6,48 +6,6 @@
 namespace urban {
 
 	/**
-	 * This function isn't even a part of the bus_network class.
-	 * It's purpose it's to compute the time a given path takes
-	 * in the road network (uses the maxspeed parameter).
-	 * We have to use this function because the paths themselves
-	 * are shortest paths between bus stops but computed in terms
-	 * of distance. 
-	 * 
-	 * 	@param path_report: the cost distance and path of the target 
-	 * for which we want to compute the travel time.
-	 * 	
-	 * 	@return the time it takes to traverse the path in seconds.
-	*/
-	float compute_path_time(
-		std::pair<std::vector<int>, float>& path_report
-	) {
-		float time  = 0; 
-		auto& path = path_report.first; 
-		int origin = -1;
-		for (auto destin: path) {
-			if (origin != -1) {
-				auto& adjs = osm_net::osm_net::instance()->get_nodes()[origin].get_adjacencies();
-
-				float min_cost = std::numeric_limits<float>::max();
-				int min_key = -1;
-				for (auto& adj: adjs) {
-					if (adj.second.get_destin() == destin) {
-						if (adj.second.get_attributes().get_length() < min_cost) {
-							min_cost = adj.second.get_attributes().get_length();
-							min_key  = adj.first;
-						}
-					}
-				}
-				float length = adjs[min_key].get_attributes().get_length();
-				float speed  = adjs[min_key].get_attributes().get_max_speed();
-				time += (length / (speed / 3.6));
-			}	
-			origin = destin;
-		}
-		return time;
-	}
-
-	/**
 	 * The main constructor for the bus_network class.
 	 * It adds every bus stop as a node to the underlying
 	 * graph and then computes the edges between those
@@ -174,9 +132,6 @@ namespace urban {
 
 	/** Needs Static Evaluations */
 	float bus_network::get_total_length() {
-		if (!_statics_computed) {
-			static_computes();
-		}
 		return _total_length;
 	}
 
@@ -210,7 +165,7 @@ namespace urban {
 	}
 
 	/** No need for lazy computations */
-	const std::vector<route> bus_network::get_routes() const {
+	const std::vector<route>& bus_network::get_routes() const {
 		return _routes;
 	}
 
@@ -367,10 +322,10 @@ namespace urban {
 
 			if (use.get_stages().size() == 0) {
 				// if (_routes.size() == 309) {
-				// std::cout << "Found no path between: (";
-				// std::cout << origin.first << "," << origin.second << ") -> (";
-				// std::cout << destin.first << "," << destin.second << ")";
-				// std::cout << std::endl;
+				std::cout << "Found no path between: (";
+				std::cout << origin.first << "," << origin.second << ") -> (";
+				std::cout << destin.first << "," << destin.second << ")";
+				std::cout << std::endl;
 				// }
 				_unsatisfied_demand += passengers;
 				no_trips += 1;

@@ -50,7 +50,7 @@ namespace urban {
 		int  get_number_routes() const;
 		int  get_shortest_route();
 		int  get_longest_route();
-		const std::vector<route> get_routes() const;
+		const std::vector<route>& get_routes() const;
 
 		void add_route(route& new_route);
 		void delete_route(int position);

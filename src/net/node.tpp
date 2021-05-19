@@ -45,7 +45,7 @@ namespace net {
 	std::vector<edge<E>> node<V, E>::get_out_edges() {
 		auto edge_vec = std::vector<edge<E>>();
 		for (auto& edge_info: _adjacencies) {
-			edge_vec.push_back(edge_info.first);
+			edge_vec.push_back(edge_info.second);
 		}
 		return edge_vec;
 	}

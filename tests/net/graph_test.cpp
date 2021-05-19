@@ -191,4 +191,15 @@ TEST_F(graph_test, remove_adjacencies_test) {
 	});
 	ASSERT_EQ(res.first, std::vector<int>({0, 1, 2}));
 	ASSERT_EQ(res.second, 2.0);
+
+	int total_adjs = 0;
+	int total_out_edges = 0;
+	for (auto& node_p: _G.get_nodes()) {
+		auto node = node_p.second;
+		total_adjs += node.get_adjacencies().size();
+		total_out_edges += node.get_out_edges().size();
+	}
+	ASSERT_EQ(_G.get_number_of_edges(), total_adjs);
+	ASSERT_EQ(_G.get_number_of_edges(), total_out_edges);
+
 }

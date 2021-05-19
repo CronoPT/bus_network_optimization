@@ -50,6 +50,7 @@ namespace urban {
 			std::pair<int, int> destin, 
 			odx_pair_info info
 		);
+		bool exists_destin(std::pair<int, int> destin);
 	};
 
 	class odx_matrix {
@@ -75,6 +76,7 @@ namespace urban {
 			odx_pair_info info
 		);
 		std::vector<std::pair<std::pair<int,int>, std::pair<int,int>>>& get_all_pairs();
+		bool travel_needed_between(std::pair<int, int> origin, std::pair<int, int> destin);
 	};
 
 } // namespace urban

@@ -25,8 +25,8 @@ namespace urban {
 
 	#define WALK  -2
 	#define START -1
-	#define BUS   2
-	#define METRO 3
+	#define BUS   -3
+	#define METRO -4
 
 	/**
 	 * A class to hold information about what

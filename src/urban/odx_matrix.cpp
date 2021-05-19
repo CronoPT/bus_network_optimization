@@ -104,6 +104,16 @@ namespace urban {
 		_destins[i][j] = info;
 	}
 
+	bool odx_entry::exists_destin(std::pair<int, int> destin) {
+		auto destin_i = destin.first;
+		auto destin_j = destin.second;
+		bool exists_column = _destins.find(destin_i) != _destins.end();
+		if (!exists_column) { return false; }
+		bool exists_square = _destins.find(destin_i)->second.find(destin_j) != 
+		                     _destins.find(destin_i)->second.end();
+		return exists_square;
+	}
+
 
 	odx_matrix::odx_matrix(): _origins(), _all_pairs() { 
 		std::ifstream input_file(configs::odx_matrix_data);
@@ -199,6 +209,20 @@ namespace urban {
 		std::pair<std::pair<int,int>, std::pair<int,int>>
 	>& odx_matrix::get_all_pairs() {
 		return _all_pairs;
+	}
+
+	bool odx_matrix::travel_needed_between(
+		std::pair<int, int> origin, 
+		std::pair<int, int> destin
+	) {
+		auto origin_i = origin.first;
+		auto origin_j = origin.second;
+		bool exists_column = _origins.find(origin_i) != _origins.end();
+		if (!exists_column) { return false; }
+		bool exists_square = _origins.find(origin_i)->second.find(origin_j) != 
+		                     _origins.find(origin_i)->second.end();
+		if (!exists_square) { return false; }
+		return _origins[origin_i][origin_j].exists_destin(destin);
 	}
 
 	odx_matrix* odx_matrix::_instance = nullptr;
