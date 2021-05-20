@@ -26,22 +26,19 @@ namespace urban {
 	 _shortest_route(0),
 	 _longest_route(0),
 	 _routes(),
+	 _stop_in_routes(),
 	 graph() {
 
 		if (!_stops_loaded) {
 			/* Loads the json file to all bus_networks only once */
 			std::ifstream input_file(configs::stop_locations);
-			_bus_stops = nlohmann::json::parse(input_file);
+			nlohmann::json json = nlohmann::json::parse(input_file);
+			for (auto& item: json) {
+				_bus_stops[item["stop_id"]] = std::pair<double, double>(
+					item["point"][0], item["point"][1]
+				);
+			} 
 			_stops_loaded = true;
-		}
-
-		for (auto& stop: bus_network::_bus_stops) {
-			/* Add bus stops as nodes */
-			add_node(stop["stop_id"], bus_node(
-				stop["stop_id"],
-				stop["point"][0],
-				stop["point"][1]
-			));
 		}
 
 		for (auto& route: routes) {
@@ -61,19 +58,57 @@ namespace urban {
 	*/
 	void bus_network::embed_route(route& r) {
 
+		int route_id = r.get_route_id();
+
 		for (auto& e: r.get_edge_info()) {
+			embed_node(e.get_origin(), route_id);
+			embed_node(e.get_destin(), route_id);
+
+			int o_node_id = node_id(e.get_origin(), route_id);
+			int d_node_id = node_id(e.get_destin(), route_id);
+
 			add_edge(
-				e.get_origin(),
-				e.get_destin(),
+				o_node_id,
+				d_node_id,
 				bus_edge(
 					e.get_origin(),
 					e.get_destin(),
-					r.get_route_id(),
+					route_id,
 					e.get_time()
 				)
 			);
 		}
 
+	}
+
+	void bus_network::embed_node(int stop_id, int route_id) {
+		int id = node_id(stop_id, route_id);
+
+		if (!has_node(id)) {
+			add_node(id, bus_node(
+				stop_id,
+				_bus_stops[stop_id].first,
+				_bus_stops[stop_id].second
+			));
+		}
+
+		for (int r: _stop_in_routes[stop_id]) {
+			int other_id = node_id(stop_id, r);
+			add_edge(id, other_id, bus_edge(
+				stop_id,
+				stop_id,
+				-1,
+				10*60
+			));
+			add_edge(other_id, id, bus_edge(
+				stop_id,
+				stop_id,
+				-1,
+				10*60
+			));
+		}
+
+		_stop_in_routes[stop_id].insert(route_id);
 	}
 
 	/**
@@ -92,6 +127,7 @@ namespace urban {
 	 _shortest_route(0),
 	 _longest_route(0),
 	 _routes(),
+	 _stop_in_routes(),
 	 graph() { /* Do Nothing */ }
 
 	/**
@@ -215,20 +251,28 @@ namespace urban {
 		for (auto& e: to_delete.get_edge_info()) {
 			int origin_stop = e.get_origin();
 			int destin_stop = e.get_destin();
+
+			int o_node_id = node_id(origin_stop, route_id);
+			int d_node_id = node_id(destin_stop, route_id);
+
 			int link_id = -1;
-			for (auto& adj: get_nodes()[origin_stop].get_adjacencies()) {
+			for (auto& adj: get_nodes()[o_node_id].get_adjacencies()) {
 				/* Find link that represents this particular connection */
 				if (adj.second.get_attributes().get_route_id() == route_id &&
-					adj.second.get_destin() == destin_stop) {
+					adj.second.get_destin() == d_node_id) {
 					link_id = adj.second.get_id();
 					break;
 				}
 			}
 			remove_edge(
-				origin_stop, 
-				destin_stop,
+				o_node_id, 
+				d_node_id,
 				link_id
 			);
+		}
+
+		for (int stop: to_delete.get_stop_sequence()) {
+			delete_node(stop, route_id);
 		}
 
 		_total_length -= to_delete.get_route_length();
@@ -243,6 +287,43 @@ namespace urban {
 		/* Flag changes in the object */
 		_evaluated = false;
 		_statics_computed = false;
+	}
+
+	void bus_network::delete_node(int stop_id, int route_id) {
+		int id = node_id(stop_id, route_id);
+
+		_stop_in_routes[stop_id].erase(route_id);
+
+		for (int r: _stop_in_routes[stop_id]) {
+			int other_id = node_id(stop_id, r);
+			int link_id = -1;
+			for (auto& adj: get_nodes()[id].get_adjacencies()) {
+				/* Find link that represents this particular connection */
+				if (adj.second.get_destin() == other_id) {
+					link_id = adj.second.get_id();
+					break;
+				}
+			}
+			remove_edge(
+				id, 
+				other_id,
+				link_id
+			);
+
+			link_id = -1;
+			for (auto& adj: get_nodes()[other_id].get_adjacencies()) {
+				/* Find link that represents this particular connection */
+				if (adj.second.get_destin() == id) {
+					link_id = adj.second.get_id();
+					break;
+				}
+			}
+			remove_edge(
+				other_id, 
+				id,
+				link_id
+			);
+		}
 	}
 
 	/**
@@ -361,6 +442,18 @@ namespace urban {
 		// std::cout << ", routes: " << _routes.size() << "}" << std::endl;
 	}
 
+	int bus_network::node_id(int stop_id, int route_id) {
+		const int base = 100000;
+		return route_id*base + stop_id;
+	}
+
+	std::pair<int, int> bus_network::node_id(int node_id) {
+		const int base = 100000;
+		int stop_id  = node_id % base;
+		int route_id = node_id / base;
+		return std::pair<int, int>(stop_id, route_id); 
+	}	
+
 	/**
 	 * Print a small summary of the network to the console.
 	*/
@@ -380,7 +473,8 @@ namespace urban {
 	 * Initialize the object that will holf all the
 	 * stop locations with an empty json object.
 	*/
-	nlohmann::json bus_network::_bus_stops = nlohmann::json();
+	std::unordered_map<int, std::pair<double, double>> 
+		bus_network::_bus_stops = std::unordered_map<int, std::pair<double, double>>();
 
 } // namespace urban
 

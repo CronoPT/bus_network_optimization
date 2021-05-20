@@ -40,9 +40,12 @@ namespace net {
 			int destin_id, 
 			int id
 		);
+		void remove_node(int node_id);
 
 		int get_number_of_nodes();
 		int get_number_of_edges();
+		bool has_node(int node_id);
+		bool has_edge_between(int n1, int n2);
 
 		std::unordered_map<int, node<V, E>>& get_nodes();
 		std::unordered_map<int, edge<E>>& get_edges();

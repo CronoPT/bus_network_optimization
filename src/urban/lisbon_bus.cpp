@@ -12,7 +12,7 @@ namespace urban {
 		std::cout << "Number routes: " << json_routes.size() << std::endl;
 
 		std::vector<route> routes;
-		int route_id = 0;
+		int route_id = 1;
 		for (auto& json_route: json_routes) {
 			auto route_stops = std::vector<int>();
 			for (auto stop: json_route["stops"]) {

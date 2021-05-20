@@ -86,6 +86,16 @@ namespace net {
 	}
 
 	template<typename V, typename E>
+	void graph<V, E>::remove_node(int node_id) {
+		/**
+		 * WARNING: the edge clean up must be
+		 * performed by the user for the time
+		 * being
+		*/
+		_nodes.erase(node_id);
+	}
+
+	template<typename V, typename E>
 	int graph<V, E>::get_number_of_nodes() {
 		return _nodes.size();
 	}
@@ -93,6 +103,21 @@ namespace net {
 	template<typename V, typename E>
 	int graph<V, E>::get_number_of_edges() {
 		return _edges.size();
+	}
+
+	template<typename V, typename E>
+	bool graph<V, E>::has_node(int node_id) {
+		return _nodes.find(node_id) != _nodes.end();
+	}
+
+	template<typename V, typename E>
+	bool graph<V, E>::has_edge_between(int n1, int n2) {
+		auto& adjs = _nodes[n1].get_adjacencies();
+		for (auto& e: adjs) {
+			auto& link = e.second;
+			if (link.get_destin() == n2) { return true; }
+		}
+		return false;
 	}
 
 	template<typename V, typename E>
