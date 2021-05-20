@@ -60,9 +60,11 @@ namespace urban {
 
 		// Place every bus node in the grid and initialize
 		// the respective auxiliary structures.
-		for (auto& b_node: lisbon_bus::instance()->get_nodes()) {
-			auto& attr = b_node.second.get_attributes(); 
-			auto sq = coordinates_to_squares(attr.get_lon(), attr.get_lat());
+		for (auto& bus_stop: bus_network::get_stops()) {
+			auto stop_id = bus_stop.first;
+			auto lon = bus_stop.second.first;
+			auto lat = bus_stop.second.second; 
+			auto sq = coordinates_to_squares(lon, lat);
 
 			if (!exists_square(sq.first, sq.second)) {
 				_squares[sq.first][sq.second] = square(
@@ -70,9 +72,7 @@ namespace urban {
 				);
 			}
 			
-			_squares[sq.first][sq.second].add_bus(attr.get_stop_id());
-			_node_to_index[b_node.first] = _total_nodes++;
-			_node_modes[b_node.first] = BUS;
+			_squares[sq.first][sq.second].add_bus(stop_id);
 		}
 
 		// Place every metro node in the grid and initialize
@@ -87,20 +87,17 @@ namespace urban {
 				);
 			}
 
-			_squares[sq.first][sq.second].add_metro(attr.get_station_id());
-			_node_to_index[m_node.first] = _total_nodes++;
-			_node_modes[m_node.first] = METRO;	
+			_squares[sq.first][sq.second].add_metro(attr.get_station_id());	
 		}
 
 		// The auxiliary structures for the path finding algorithm
 		// are initialized here. There is no need to realocate
 		// memory each and every time we want to compute the 
 		// shortest paths.
-		dist  = std::vector<float>(_total_nodes, 0);
-		prev  = std::vector<int>(_total_nodes, 0);
-		mode  = std::vector<int>(_total_nodes, 0);
-		prev_mode = std::vector<int>(_total_nodes, 0); 
-		prev_itinerary = std::vector<int>(_total_nodes, 0);
+		// dist  = std::vector<float>(_total_nodes, 0);
+		// prev  = std::vector<int>(_total_nodes, 0);
+		// mode  = std::vector<int>(_total_nodes, 0);
+		// prev_itinerary = std::vector<int>(_total_nodes, 0);
 
 	}
 
@@ -267,6 +264,10 @@ namespace urban {
 		std::pair<int, int> origin, 
 		bus_network& bus
 	) {
+		std::unordered_map<int, float> dist;
+		std::unordered_map<int, int>   prev;
+		std::unordered_map<int, int>   prev_mode;
+		std::unordered_map<int, int>   prev_itinerary;
 		
 		auto& origin_square = _squares[origin.first][origin.second]; 
 
@@ -298,23 +299,19 @@ namespace urban {
 
 		// considering bus stops as starting points
 		for (auto origin_point: origin_square.get_bus()) {
-			int origin_point_i = _node_to_index[origin_point];
-			prev[origin_point_i] = undefined;
-			dist[origin_point_i] = 0.0;
-			mode[origin_point_i] = BUS;
-			prev_mode[origin_point_i] = START;
-			prev_itinerary[origin_point_i] = START;
-			queue.push(origin_point, 0.0);
+			for (auto variant: bus.get_stop_variants(origin_point)) {
+				prev[variant] = undefined;
+				dist[variant] = 0.0;
+				prev_itinerary[variant] = START;
+				queue.push(variant, 0.0);
+			}
 		}
 
 		// considering metro stations as starting points
 		for (auto origin_point: origin_square.get_metro()) {
-			int origin_point_i = _node_to_index[origin_point];
-			prev[origin_point_i] = undefined;
-			dist[origin_point_i] = 0.0;
-			mode[origin_point_i] = METRO;
-			prev_mode[origin_point_i] = START;
-			prev_itinerary[origin_point_i] = START;
+			prev[origin_point] = undefined;
+			dist[origin_point] = 0.0;
+			prev_itinerary[origin_point] = START;
 			queue.push(origin_point, 0.0);
 		}
 
@@ -324,10 +321,10 @@ namespace urban {
 			explo.insert(u);
 
 			std::pair<int, int> i_j;
-			if (_node_modes[u] == BUS) {
+			if (!metro_network::instance()->has_node(u)) { // u is a bus node
 				auto& u_node = bus.get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
-			} else if (_node_modes[u] == METRO) {
+			} else if (metro_network::instance()->has_node(u)) { // us is a metro node
 				auto& u_node = metro_network::instance()->get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
 			}
@@ -348,6 +345,8 @@ namespace urban {
 				break;
 			}
 			
+			// std::cout << "Looping" << std::endl;
+
 			/**
 			 * There are two options for a node, it is either a bus node
 			 * or a metro node. Then, in either case, we have to check
@@ -357,47 +356,34 @@ namespace urban {
 			 * repetition for the metro case and the bus case, and then
 			 * for the walking case in both modes of transportation
 			*/
-			int u_i = _node_to_index[u];
-			if (mode[u_i] == BUS) { // the node popped is from the bus network
+			if (!metro_network::instance()->has_node(u)) { // the node popped is from the bus network
 				auto& u_node_bus  = bus.get_nodes()[u];
-				auto& u_node_walk = walking_network::instance()->get_nodes()[u];
+				auto  u_pair  = bus_network::node_id(u);
+				auto  u_stop  = u_pair.first;
+				auto  u_route = u_pair.second;
+				auto& u_node_walk = walking_network::instance()->get_nodes()[u_stop];
 
 				// checking for connectivity through the bus network
 				for (auto& edge_info: u_node_bus.get_adjacencies()) {
 					auto   key  = edge_info.first;
 					auto&  edge = edge_info.second;
 					auto   v    = edge.get_destin(); 
-					int    v_i  = _node_to_index[v];
 
 					if (queue.contains(v)) {
 						float alt;
-						if (needs_penalty_bus(edge, prev_itinerary[u_i])) {
-							alt = dist[u_i] + edge.get_attributes().get_time_taken() +
-							      transfer_penalty;
-						} else {
-							alt = dist[u_i] + edge.get_attributes().get_time_taken();
-						}
-						if (alt < dist[v_i]) {
-							dist[v_i] = alt;
-							prev[v_i] = u;
-							mode[v_i] = BUS;
-							prev_mode[v_i] = BUS;
-							prev_itinerary[v_i] = edge.get_attributes().get_route_id();
+						alt = dist[u] + edge.get_attributes().get_time_taken();
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							prev_itinerary[v] = edge.get_attributes().get_route_id();
 							queue.update(v, alt);
 						}
 					} else if (explo.find(v) == explo.end()) {
 						/* v hasn't been visited before */
-						if (needs_penalty_bus(edge, prev_itinerary[u_i])) {
-							dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
-							      transfer_penalty;
-						} else {
-							dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken();
-						}
-						prev[v_i] = u;
-						mode[v_i] = BUS;
-						prev_mode[v_i] = BUS;
-						prev_itinerary[v_i] = edge.get_attributes().get_route_id();
-						queue.push(v, dist[v_i]);
+						dist[v] = dist[u] + edge.get_attributes().get_time_taken();
+						prev[v] = u;
+						prev_itinerary[v] = edge.get_attributes().get_route_id();
+						queue.push(v, dist[v]);
 					}
 				}
 
@@ -406,72 +392,89 @@ namespace urban {
 					auto   key  = edge_info.first;
 					auto&  edge = edge_info.second;
 					auto   v    = edge.get_destin();
-					int    v_i  = _node_to_index[v];
 
-					if (queue.contains(v)) {
-						float alt = dist[u_i] + edge.get_attributes().get_time_taken() +
-						            transfer_penalty;
-						if (alt < dist[v_i] && prev_itinerary[v_i]!=WALK) {
-							dist[v_i] = alt;
-							prev[v_i] = u;
-							mode[v_i] = _node_modes[v];
-							prev_mode[v_i] = WALK;
-							prev_itinerary[v_i] = WALK;
-							queue.update(v, alt);
+					if (!metro_network::instance()->has_node(v)) {
+						/**
+						 * Accounts for the fact that now, every stop
+						 * in the bus network has various node mappings,
+						 * one for each route the stop is serving. 
+						*/
+						for (int v_variant: bus.get_stop_variants(v)) {
+							if (queue.contains(v_variant)) {
+								float alt = dist[u] + edge.get_attributes().get_time_taken() +
+											transfer_penalty;
+								if (alt < dist[v_variant] && prev_itinerary[v_variant]!=WALK) {
+									dist[v_variant] = alt;
+									prev[v_variant] = u;
+									prev_itinerary[v_variant] = WALK;
+									queue.update(v_variant, alt);
+								}
+							} else if (explo.find(v_variant) == explo.end()) {
+								/* v hasn't been visited before */
+								dist[v_variant] = dist[u] + edge.get_attributes().get_time_taken() +
+											      transfer_penalty;
+								prev[v_variant] = u;
+								prev_itinerary[v_variant] = WALK;
+								queue.push(v_variant, dist[v_variant]);
+							}
 						}
-					} else if (explo.find(v) == explo.end()) {
-						/* v hasn't been visited before */
-						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
-						            transfer_penalty;
-						prev[v_i] = u;
-						mode[v_i] = _node_modes[v];
-						prev_mode[v_i] = WALK;
-						prev_itinerary[v_i] = WALK;
-						queue.push(v, dist[v_i]);
+					} else {
+						if (queue.contains(v)) {
+							float alt = dist[u] + edge.get_attributes().get_time_taken() +
+										transfer_penalty;
+							if (alt < dist[v] && prev_itinerary[v]!=WALK) {
+								dist[v] = alt;
+								prev[v] = u;
+								prev_itinerary[v] = WALK;
+								queue.update(v, alt);
+							}
+						} else if (explo.find(v) == explo.end()) {
+							/* v hasn't been visited before */
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
+									  transfer_penalty;
+							prev[v] = u;
+							prev_itinerary[v] = WALK;
+							queue.push(v, dist[v]);
+						}
 					}
 				}
 
-			} else if (mode[u_i] == METRO) { // the node popped is from the metro network
+			} else { // the node popped is from the metro network
 				auto& u_node_metro = metro_network::instance()->get_nodes()[u];
 				auto& u_node_walk  = walking_network::instance()->get_nodes()[u];
 
-				// checking for connectivity through the bus network
+				// checking for connectivity through the metro network
 				for (auto& edge_info: u_node_metro.get_adjacencies()) {
 					auto   key  = edge_info.first;
 					auto&  edge = edge_info.second;
 					auto   v    = edge.get_destin();
-					int    v_i  = _node_to_index[v]; 
 
 					if (queue.contains(v)) {
 						float alt;
-						if (needs_penalty_metro(edge, prev_itinerary[u_i])) {
-							alt = dist[u_i] + edge.get_attributes().get_time_taken() +
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							alt = dist[u] + edge.get_attributes().get_time_taken() +
 							      transfer_penalty;
 						} else {
-							alt = dist[u_i] + edge.get_attributes().get_time_taken();
+							alt = dist[u] + edge.get_attributes().get_time_taken();
 						}
-						if (alt < dist[v_i]) {
-							dist[v_i] = alt;
-							prev[v_i] = u;
-							mode[v_i] = METRO;
-							prev_mode[v_i] = METRO;
-							prev_itinerary[v_i] = edge.get_attributes().get_line_color();
+						if (alt < dist[v]) {
+							dist[v] = alt;
+							prev[v] = u;
+							prev_itinerary[v] = edge.get_attributes().get_line_color();
 							queue.update(v, alt);
 						}
 					} else if (explo.find(v) == explo.end()) {
 						/* v hasn't been visited before */
-						if (needs_penalty_metro(edge, prev_itinerary[u_i])) {
-							dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
+						if (needs_penalty_metro(edge, prev_itinerary[u])) {
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken() +
 							          transfer_penalty;
 						} else {
-							dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken();
+							dist[v] = dist[u] + edge.get_attributes().get_time_taken();
 						}
 						
-						prev[v_i] = u;
-						mode[v_i] = METRO;
-						prev_mode[v_i] = METRO;
-						prev_itinerary[v_i] = edge.get_attributes().get_line_color();
-						queue.push(v, dist[v_i]);
+						prev[v] = u;
+						prev_itinerary[v] = edge.get_attributes().get_line_color();
+						queue.push(v, dist[v]);
 					}
 				}
 
@@ -480,36 +483,37 @@ namespace urban {
 					auto   key  = edge_info.first;
 					auto&  edge = edge_info.second;
 					auto   v    = edge.get_destin();
-					int    v_i  = _node_to_index[v];
 
-					if (queue.contains(v)) {
-						float alt = dist[u_i] + edge.get_attributes().get_time_taken() + 
-						            transfer_penalty;
-						if (alt < dist[v_i] && prev_itinerary[v_i]!=WALK) {
-							dist[v_i] = alt;
-							prev[v_i] = u;
-							mode[v_i] = _node_modes[v];
-							prev_mode[v_i] = WALK;
-							prev_itinerary[v_i] = WALK;
-							queue.update(v, alt);
+					/**
+					 * Metro only connects, through the walking network,
+					 * to bus stops. Now we have to account for each and
+					 * every node that corresponds to a stop and route
+					 * pair.
+					*/
+					for (int v_variant: bus.get_stop_variants(v)) {
+						if (queue.contains(v_variant)) {
+							float alt = dist[u] + edge.get_attributes().get_time_taken() + 
+										transfer_penalty;
+							if (alt < dist[v_variant] && prev_itinerary[v_variant]!=WALK) {
+								dist[v_variant] = alt;
+								prev[v_variant] = u;
+								prev_itinerary[v_variant] = WALK;
+								queue.update(v_variant, alt);
+							}
+						} else if (explo.find(v_variant) == explo.end()) {
+							/* v hasn't been visited before */
+							dist[v_variant] = dist[u] + edge.get_attributes().get_time_taken() +
+										      transfer_penalty;
+							prev[v_variant] = u;
+							prev_itinerary[v_variant] = WALK;
+							queue.push(v_variant, dist[v_variant]);
 						}
-					} else if (explo.find(v) == explo.end()) {
-						/* v hasn't been visited before */
-						dist[v_i] = dist[u_i] + edge.get_attributes().get_time_taken() +
-						            transfer_penalty;
-						prev[v_i] = u;
-						mode[v_i] = _node_modes[v];
-						prev_mode[v_i] = WALK;
-						prev_itinerary[v_i] = WALK;
-						queue.push(v, dist[v_i]);
 					}
 				}
 			}
 		}
 
-		// if (queue.empty()) {
-		// 	return std::vector<single_path_report>();
-		// }
+		// std::cout << "Stopped Looping" << std::endl;
 
 		// This will build the paths from the prev vector.
 		// A path is built for each square, hence the complex
@@ -526,15 +530,13 @@ namespace urban {
 				auto i_stk = std::stack<int>();
 				auto c_stk = std::stack<float>();
 				int u      = line.second;
-				int u_i    = _node_to_index[u]; 
-				float cost = dist[u_i];
-				if (prev[u_i]!=undefined) {
+				float cost = dist[u];
+				if (prev[u]!=undefined) {
 					while (u != undefined) {
 						stk.push(u);
-						i_stk.push(prev_itinerary[u_i]);
-						c_stk.push(dist[u_i]);
-						u = prev[u_i];
-						u_i = _node_to_index[u];	
+						i_stk.push(prev_itinerary[u]);
+						c_stk.push(dist[u]);
+						u = prev[u];
 					} 
 				}
 

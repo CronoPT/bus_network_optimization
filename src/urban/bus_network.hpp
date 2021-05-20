@@ -37,6 +37,8 @@ namespace urban {
 		static bool _stops_loaded;
 		static std::unordered_map<int, std::pair<double, double>> _bus_stops;
 
+		static void load_stops();
+
 		public:
 		bus_network(std::vector<route>& routes);
 		bus_network();
@@ -59,11 +61,14 @@ namespace urban {
 		void delete_node(int stop_id, int route_id);
 		bool has_route(int route_id);
 
+		std::vector<int> get_stop_variants(int stop_id);
+
 		void static_computes();
 		void evaluate();
 
 		static int node_id(int stop_id, int route_id);
 		static std::pair<int, int> node_id(int node_id);
+		static std::unordered_map<int, std::pair<double, double>> get_stops();
 
 		friend std::ostream& operator<<(std::ostream& os, const bus_network& a); 
 

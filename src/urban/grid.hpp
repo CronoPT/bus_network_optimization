@@ -80,11 +80,10 @@ namespace urban {
 
 		// Auxiliary structures to the path finding algorithm.
 		// Very similar structures to those in Dijkstra's.
-		std::vector<float> dist;
-		std::vector<int>   prev;
-		std::vector<int>   mode;
-		std::vector<int>   prev_mode;
-		std::vector<int>   prev_itinerary;
+		// std::vector<float> dist;
+		// std::vector<int>   prev;
+		// std::vector<int>   prev_mode;
+		// std::vector<int>   prev_itinerary;
 		
 		grid();
 

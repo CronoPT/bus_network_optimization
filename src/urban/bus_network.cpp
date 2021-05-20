@@ -31,14 +31,7 @@ namespace urban {
 
 		if (!_stops_loaded) {
 			/* Loads the json file to all bus_networks only once */
-			std::ifstream input_file(configs::stop_locations);
-			nlohmann::json json = nlohmann::json::parse(input_file);
-			for (auto& item: json) {
-				_bus_stops[item["stop_id"]] = std::pair<double, double>(
-					item["point"][0], item["point"][1]
-				);
-			} 
-			_stops_loaded = true;
+			load_stops();
 		}
 
 		for (auto& route: routes) {
@@ -90,25 +83,26 @@ namespace urban {
 				_bus_stops[stop_id].first,
 				_bus_stops[stop_id].second
 			));
-		}
+		
 
-		for (int r: _stop_in_routes[stop_id]) {
-			int other_id = node_id(stop_id, r);
-			add_edge(id, other_id, bus_edge(
-				stop_id,
-				stop_id,
-				-1,
-				10*60
-			));
-			add_edge(other_id, id, bus_edge(
-				stop_id,
-				stop_id,
-				-1,
-				10*60
-			));
-		}
+			for (int r: _stop_in_routes[stop_id]) {
+				int other_id = node_id(stop_id, r);
+				add_edge(id, other_id, bus_edge(
+					stop_id,
+					stop_id,
+					-1,
+					10*60
+				));
+				add_edge(other_id, id, bus_edge(
+					stop_id,
+					stop_id,
+					-1,
+					10*60
+				));
+			}
 
-		_stop_in_routes[stop_id].insert(route_id);
+			_stop_in_routes[stop_id].insert(route_id);
+		}
 	}
 
 	/**
@@ -324,6 +318,8 @@ namespace urban {
 				link_id
 			);
 		}
+
+		remove_node(id);
 	}
 
 	/**
@@ -336,6 +332,14 @@ namespace urban {
 	*/
 	bool bus_network::has_route(int route_id) {
 		return _route_check.find(route_id) != _route_check.end();
+	}
+
+	std::vector<int> bus_network::get_stop_variants(int stop_id) {
+		auto res = std::vector<int>();
+		for (auto r: _stop_in_routes[stop_id]) {
+			res.push_back(node_id(stop_id, r));
+		}
+		return res;
 	}
 
 	/**
@@ -453,6 +457,24 @@ namespace urban {
 		int route_id = node_id / base;
 		return std::pair<int, int>(stop_id, route_id); 
 	}	
+
+	std::unordered_map<int, std::pair<double, double>> bus_network::get_stops() {
+		if (!_stops_loaded) {
+			load_stops();
+		}
+		return _bus_stops;
+	}
+
+	void bus_network::load_stops() {
+		std::ifstream input_file(configs::stop_locations);
+		nlohmann::json json = nlohmann::json::parse(input_file);
+		for (auto& item: json) {
+			_bus_stops[item["stop_id"]] = std::pair<double, double>(
+				item["point"][0], item["point"][1]
+			);
+		} 
+		_stops_loaded = true;
+	}
 
 	/**
 	 * Print a small summary of the network to the console.
