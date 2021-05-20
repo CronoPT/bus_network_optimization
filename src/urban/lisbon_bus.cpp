@@ -9,8 +9,6 @@ namespace urban {
 		std::ifstream input_file(configs::stop_sequences);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 
-		std::cout << "Number routes: " << json_routes.size() << std::endl;
-
 		std::vector<route> routes;
 		int route_id = 1;
 		for (auto& json_route: json_routes) {
@@ -21,9 +19,7 @@ namespace urban {
 			routes.push_back(route(route_id, route_stops));
 			route_id += 1;
 		}
-
-		std::cout << "Routes: " << json_routes.size() << std::endl;
-
+		
 		return bus_network(routes);
 	}
 	

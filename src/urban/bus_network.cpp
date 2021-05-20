@@ -406,12 +406,6 @@ namespace urban {
 			}
 
 			if (use.get_stages().size() == 0) {
-				// if (_routes.size() == 309) {
-				std::cout << "Found no path between: (";
-				std::cout << origin.first << "," << origin.second << ") -> (";
-				std::cout << destin.first << "," << destin.second << ")";
-				std::cout << std::endl;
-				// }
 				_unsatisfied_demand += passengers;
 				no_trips += 1;
 
@@ -428,22 +422,11 @@ namespace urban {
 			}
 		}
 
-		std::cout << "Total Passengers: " << total_passengers << std::endl;
-		std::cout << "No trips: " << _unsatisfied_demand << std::endl;
-		std::cout << "No trips (pairs): " << no_trips << std::endl;
-		std::cout << "Raw transfers: " << _transfers << std::endl;
-		std::cout << "Transfers (no multi): " << total << std::endl;
-
 		_transfers /= total_passengers;
 		_unsatisfied_demand /= total_passengers;
 
 		/* Flag the Dynamic Computations as being done */
 		_evaluated = true;
-
-		// std::cout << "{transfers: "  << _transfers;
-		// std::cout << ", un_demand: " << _unsatisfied_demand;
-		// std::cout << ", total_passengers: " << total_passengers;
-		// std::cout << ", routes: " << _routes.size() << "}" << std::endl;
 	}
 
 	int bus_network::node_id(int stop_id, int route_id) {

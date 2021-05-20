@@ -6,8 +6,8 @@ namespace net {
 	template<typename V, typename E>
 	graph<V, E>::graph(): 
 	 _nodes(), _edges(), _node_to_index(),
-	 _total_nodes(0), dist(), prev(),
-	 _nodes_added(true) {
+	 _total_nodes(0), _dist(), _prev(),
+	 _extra(), _nodes_added(true) {
 		/* Do Nothing */
 	}
 
@@ -121,6 +121,58 @@ namespace net {
 	}
 
 	template<typename V, typename E>
+	inline void graph<V, E>::mark_dist(int node_id, float distance) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		_dist[index] = distance;
+	}
+
+	template<typename V, typename E>
+	inline void graph<V, E>::mark_prev(int node_id, int prev) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		_prev[index] = prev;
+	}
+
+	template<typename V, typename E>
+	inline void graph<V, E>::mark_extra(int node_id, int ex) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		_extra[index] = ex;
+	}
+
+	template<typename V, typename E>
+	inline float graph<V, E>::get_dist(int node_id) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		return _dist[index];
+	}
+
+	template<typename V, typename E>
+	inline int graph<V, E>::get_prev(int node_id) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		return _prev[index];
+	}
+
+	template<typename V, typename E>
+	inline int graph<V, E>::get_extra(int node_id) {
+		add_nodes_check();
+		int index = _node_to_index[node_id];
+		return _extra[index];
+	}
+
+	template<typename V, typename E>
+	inline void graph<V, E>::add_nodes_check() {
+		if (_nodes_added) {
+			_dist  = std::vector<float>(_total_nodes, 0);
+			_prev  = std::vector<int>(_total_nodes, 0);
+			_extra = std::vector<int>(_total_nodes, 0);
+			_nodes_added = false;
+		}
+	}
+
+	template<typename V, typename E>
 	std::unordered_map<int, node<V, E>>& graph<V, E>::get_nodes() {
 		return _nodes;
 	}
@@ -136,11 +188,7 @@ namespace net {
 		int destin_id,
 		float (*weight)(edge<E>&)
 	) {
-		if (_nodes_added) {
-			dist = std::vector<float>(_total_nodes, 0);
-			prev = std::vector<int>(_total_nodes, 0);
-			_nodes_added = false;
-		}
+		add_nodes_check();
 
 		auto queue = net::priority_queue<int>();
 		auto explo = std::set<int>();
@@ -148,8 +196,8 @@ namespace net {
 		const int undefined = -1;
 
 		auto i_origin = _node_to_index[origin_id];
-		prev[i_origin] = undefined;
-		dist[i_origin] = 0.0;
+		_prev[i_origin] = undefined;
+		_dist[i_origin] = 0.0;
 		queue.push(origin_id, 0.0);
 
 		while (!queue.empty()) {
@@ -168,31 +216,31 @@ namespace net {
 				auto   v_i  = _node_to_index[v];
 
 				if (queue.contains(v)) {
-					float alt = dist[u_i] + weight(edge);
-					if (alt < dist[v_i]) {
-						dist[v_i] = alt;
-						prev[v_i] = u;
+					float alt = _dist[u_i] + weight(edge);
+					if (alt < _dist[v_i]) {
+						_dist[v_i] = alt;
+						_prev[v_i] = u;
 						queue.update(v, alt);
 					}
 				} else if (explo.find(v) == explo.end()) {
 					/* v hasn't been visited before */
-					dist[v_i] = dist[u_i] + weight(edge);
-					prev[v_i] = u;
-					queue.push(v, dist[v_i]);
+					_dist[v_i] = _dist[u_i] + weight(edge);
+					_prev[v_i] = u;
+					queue.push(v, _dist[v_i]);
 				}
 			}
 
 		}
 
 		auto i_destin = _node_to_index[destin_id];
-		float cost = dist[i_destin];
+		float cost = _dist[i_destin];
 		auto stk   = std::stack<int>();
 		int  u   = destin_id;
 		int  u_i = _node_to_index[u];
-		if (prev[u_i]!=undefined || u==origin_id) {
+		if (_prev[u_i]!=undefined || u==origin_id) {
 			while (u != undefined) {
 				stk.push(u);
-				u   = prev[u_i];
+				u   = _prev[u_i];
 				u_i = _node_to_index[u]; 
 			} 
 		}
