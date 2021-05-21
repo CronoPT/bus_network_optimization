@@ -56,9 +56,6 @@ namespace urban {
 	*/
 	class grid {
 
-		static int counter__;
-		static std::ofstream file__;
-
 		static grid* _instance;
 
 		const int _divisions = configs::divisions;
@@ -80,10 +77,6 @@ namespace urban {
 
 		// Auxiliary structures to the path finding algorithm.
 		// Very similar structures to those in Dijkstra's.
-		// std::vector<float> dist;
-		// std::vector<int>   prev;
-		// std::vector<int>   prev_mode;
-		// std::vector<int>   prev_itinerary;
 		
 		grid();
 
@@ -106,16 +99,18 @@ namespace urban {
 		int get_total_squares();
 		void print_report(
 			std::pair<int, int> origin, 
-			std::vector<single_path_report> report
+			std::vector<single_path_report>& report
 		);
 		network_usage predict_all_od_pairs(
 			bus_network& bus
 		);
 		std::vector<trip> trip_from_report(
 			std::pair<int, int> origin,
-			std::vector<single_path_report> report,
+			std::vector<single_path_report>& report,
 			bus_network& bus
 		);
+
+		inline static bool is_metro_node(int node);
 	};
 
 } // namespace urban

@@ -27,6 +27,7 @@ namespace urban {
 	 _longest_route(0),
 	 _routes(),
 	 _stop_in_routes(),
+	 _stop_ids(),
 	 graph() {
 
 		if (!_stops_loaded) {
@@ -102,6 +103,7 @@ namespace urban {
 			}
 
 			_stop_in_routes[stop_id].insert(route_id);
+			_stop_ids[stop_id].push_back(id);
 		}
 	}
 
@@ -287,6 +289,12 @@ namespace urban {
 		int id = node_id(stop_id, route_id);
 
 		_stop_in_routes[stop_id].erase(route_id);
+		auto it = std::find(
+			_stop_ids[stop_id].begin(), 
+			_stop_ids[stop_id].begin(), 
+			id
+		);
+		_stop_ids[stop_id].erase(it);
 
 		for (int r: _stop_in_routes[stop_id]) {
 			int other_id = node_id(stop_id, r);
@@ -334,12 +342,8 @@ namespace urban {
 		return _route_check.find(route_id) != _route_check.end();
 	}
 
-	std::vector<int> bus_network::get_stop_variants(int stop_id) {
-		auto res = std::vector<int>();
-		for (auto r: _stop_in_routes[stop_id]) {
-			res.push_back(node_id(stop_id, r));
-		}
-		return res;
+	std::vector<int>& bus_network::get_stop_variants(int stop_id) {
+		return _stop_ids[stop_id];
 	}
 
 	/**

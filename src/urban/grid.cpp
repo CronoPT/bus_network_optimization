@@ -316,10 +316,10 @@ namespace urban {
 			explo.insert(u);
 
 			std::pair<int, int> i_j;
-			if (!metro_network::instance()->has_node(u)) { // u is a bus node
+			if (!is_metro_node(u)) { // u is a bus node
 				auto& u_node = bus.get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
-			} else if (metro_network::instance()->has_node(u)) { // us is a metro node
+			} else { // us is a metro node
 				auto& u_node = metro_network::instance()->get_nodes()[u].get_attributes();
 				i_j = coordinates_to_squares(u_node.get_lon(), u_node.get_lat());
 			}
@@ -339,8 +339,6 @@ namespace urban {
 			if (total_paths_computed == total_paths) {
 				break;
 			}
-			
-			// std::cout << "Looping" << std::endl;
 
 			/**
 			 * There are two options for a node, it is either a bus node
@@ -351,7 +349,7 @@ namespace urban {
 			 * repetition for the metro case and the bus case, and then
 			 * for the walking case in both modes of transportation
 			*/
-			if (!metro_network::instance()->has_node(u)) { // the node popped is from the bus network
+			if (!is_metro_node(u)) { // the node popped is from the bus network
 				auto& u_node_bus  = bus.get_nodes()[u];
 				auto  u_pair  = bus_network::node_id(u);
 				auto  u_stop  = u_pair.first;
@@ -388,7 +386,7 @@ namespace urban {
 					auto&  edge = edge_info.second;
 					auto   v    = edge.get_destin();
 
-					if (!metro_network::instance()->has_node(v)) { // bus to bus
+					if (!is_metro_node(u)) { // bus to bus
 						/**
 						 * Accounts for the fact that now, every stop
 						 * in the bus network has various node mappings,
@@ -396,8 +394,8 @@ namespace urban {
 						*/
 						for (int v_variant: bus.get_stop_variants(v)) {
 							if (queue.contains(v_variant)) {
-								float alt = bus.get_dist(u) + edge.get_attributes().get_time_taken() +
-											transfer_penalty;
+								float alt = bus.get_dist(u) + edge.get_attributes().get_time_taken() 
+											+ transfer_penalty;
 								if (alt < bus.get_dist(v_variant) && bus.get_extra(v_variant)!=WALK) {
 									bus.mark_dist(v_variant, alt);
 									bus.mark_prev(v_variant, u);
@@ -406,8 +404,9 @@ namespace urban {
 								}
 							} else if (explo.find(v_variant) == explo.end()) {
 								/* v hasn't been visited before */
-								bus.mark_dist(v_variant, bus.get_dist(u)+edge.get_attributes().get_time_taken()+
-											             transfer_penalty);
+								bus.mark_dist(v_variant, bus.get_dist(u)
+									+ edge.get_attributes().get_time_taken()
+									+ transfer_penalty);
 
 								bus.mark_prev(v_variant, u);
 								bus.mark_extra(v_variant, WALK);
@@ -416,8 +415,8 @@ namespace urban {
 						}
 					} else { // bus to metro
 						if (queue.contains(v)) {
-							float alt = bus.get_dist(u) + edge.get_attributes().get_time_taken() +
-										transfer_penalty;
+							float alt = bus.get_dist(u) + edge.get_attributes().get_time_taken() 
+										+ transfer_penalty;
 							if (alt < metro_network::instance()->get_dist(v) && 
 							 metro_network::instance()->get_extra(v)!=WALK) {
 								metro_network::instance()->mark_dist(v, alt);
@@ -428,8 +427,8 @@ namespace urban {
 						} else if (explo.find(v) == explo.end()) {
 							/* v hasn't been visited before */
 							metro_network::instance()->mark_dist(v,
-								bus.get_dist(u) + edge.get_attributes().get_time_taken() +
-								transfer_penalty
+								bus.get_dist(u) + edge.get_attributes().get_time_taken() 
+								+ transfer_penalty
 							);
 							metro_network::instance()->mark_prev(v, u);
 							metro_network::instance()->mark_extra(v, WALK);
@@ -537,7 +536,7 @@ namespace urban {
 				auto c_stk = std::stack<float>();
 				int u      = line.second;
 				float cost;
-				if (metro_network::instance()->has_node(u)) {
+				if (is_metro_node(u)) {
 					cost = metro_network::instance()->get_dist(u);
 				} else { cost = bus.get_dist(u); }
 
@@ -545,7 +544,7 @@ namespace urban {
 				if (cost!=0.0) {
 					while (u != undefined) {
 						stk.push(u);
-						if (metro_network::instance()->has_node(u)) {
+						if (is_metro_node(u)) {
 							i_stk.push(metro_network::instance()->get_extra(u));
 							c_stk.push(metro_network::instance()->get_dist(u));
 							u = metro_network::instance()->get_prev(u);
@@ -628,7 +627,7 @@ namespace urban {
 	 * 
 	 * 	@return void
 	*/
-	void grid::print_report(std::pair<int, int> origin, std::vector<single_path_report> report) {
+	void grid::print_report(std::pair<int, int> origin, std::vector<single_path_report>& report) {
 		int i = origin.first;
 		int j = origin.second;
 		for (auto& individual_report: report) {
@@ -656,10 +655,6 @@ namespace urban {
 	network_usage grid::predict_all_od_pairs(
 		bus_network& bus
 	) {
-		
-		std::string name__ = "cenas" + std::to_string(counter__) + ".txt"; 
-		grid::file__ = std::ofstream(name__);
-
 		auto result = network_usage();
 		int total_sq = get_total_squares();
 		int counter  = 0;
@@ -685,8 +680,6 @@ namespace urban {
 			}
 		}
 
-		grid::file__.close();
-		grid::counter__ += 1;
 		return result;
 	}
 
@@ -708,10 +701,9 @@ namespace urban {
 	*/
 	std::vector<trip>  grid::trip_from_report(
 		std::pair<int, int> origin_sq,
-		std::vector<single_path_report> report,
+		std::vector<single_path_report>& report,
 		bus_network& bus
 	) {
-		//TODO - fix this!
 		auto trips = std::vector<trip>();
 		for (auto& single_path: report) {
 			auto destin_sq = single_path.get_destin();
@@ -771,25 +763,6 @@ namespace urban {
 					destin_sq
 				);
 				trips.push_back(this_trip);
-
-				grid::file__ << "Stages: " << this_trip.get_stages().size() << " | ";
-				grid::file__ << "(" << origin_sq.first << "," << origin_sq.second;
-				grid::file__ << ") -> (" << destin_sq.first << ",";
-				grid::file__ << destin_sq.second << ") | ";
-				for (auto& iti: single_path.get_itineraries()) {
-					grid::file__ << iti << " ";
-				}
-				grid::file__ << " | Passengers: "; 
-				grid::file__ << odx_matrix::instance()->get_total(origin_sq, destin_sq);
-				grid::file__ << "\n";
-				for (auto& node: single_path.get_stopations()) {
-					grid::file__ << node << " ";
-				}
-				grid::file__ << "\n";
-				for (auto& c: single_path.get_costs_until()) {
-					grid::file__ << c << " ";
-				}
-				grid::file__ << "\n\n";
 				
 			}
 		}
@@ -797,8 +770,9 @@ namespace urban {
 		return trips;
 	}
 
-	int grid::counter__ = 0;
-	std::ofstream grid::file__ = std::ofstream("README.md");
+	inline bool grid::is_metro_node(int node) {
+		return (node>=0 && node<100);
+	}
 
 	grid* grid::_instance = nullptr;
 

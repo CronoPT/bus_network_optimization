@@ -14,6 +14,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
+#include <algorithm>
 #include "configs.hpp"
 #include "grid.hpp"
 
@@ -33,6 +34,7 @@ namespace urban {
 		std::vector<route> _routes;
 		std::set<int> _route_check;
 		std::unordered_map<int, std::set<int>> _stop_in_routes;
+		std::unordered_map<int, std::vector<int>> _stop_ids;
 
 		static bool _stops_loaded;
 		static std::unordered_map<int, std::pair<double, double>> _bus_stops;
@@ -61,7 +63,7 @@ namespace urban {
 		void delete_node(int stop_id, int route_id);
 		bool has_route(int route_id);
 
-		std::vector<int> get_stop_variants(int stop_id);
+		std::vector<int>& get_stop_variants(int stop_id);
 
 		void static_computes();
 		void evaluate();
