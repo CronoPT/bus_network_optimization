@@ -21,6 +21,8 @@ namespace genetic {
 		this->compute_costs();
 		std::cout << "[NSGA] Costs for Initial Population Done" << std::endl;
 
+		this->log_beginning();
+
 		int iteration = 0;
 		float cost_diff = min_improv+0.1;
 		int insig_iters = 0;
@@ -58,18 +60,30 @@ namespace genetic {
 			[](solution<T> sol){ return sol.get_rank()==0; }
 		);
 
+		logger::instance()->persist();
+
 		return result;
 	}
 
 	template<typename T>
 	void nsga<T>::iteration() {
 		this->assign_fitness();
+		std::cout << "[Seg Debug] Assign Fitness OK" << std::endl;
 		this->reproduce();
+		std::cout << "[Seg Debug] Reproduce OK" << std::endl;
 		this->mutate();
+		std::cout << "[Seg Debug] Mutate OK" << std::endl;
 		this->compute_costs();
+		std::cout << "[Seg Debug] Compute Costs OK" << std::endl;
 		this->nondominated_sorting();
+		std::cout << "[Seg Debug] Nondominated Sorting OK" << std::endl;
 		this->crowding_distance_sorting();
+		std::cout << "[Seg Debug] Crowding Distance Sorting OK" << std::endl;
 		this->clip_population();
+		std::cout << "[Seg Debug] Clip Population OK" << std::endl;
+		
+		this->log_iteration();
+		std::cout << "[Seg Debug] Log Iteration OK" << std::endl;
 	}
 
 	template<typename T>
@@ -212,6 +226,24 @@ namespace genetic {
 				solution.get_fitness()/total_fitness
 			);
 		}
+	}
+
+	template<typename T>
+	void nsga<T>::log_beginning() {
+		logger::instance()->mark_pop_size(this->get_population().size());
+		logger::instance()->mark_crossover_prob(this->get_crossover_prob());
+		logger::instance()->mark_mutation_prob(this->get_mutation_prob());
+		log_iteration();
+	}
+
+	template<typename T>
+	void nsga<T>::log_iteration() {
+		for (auto& solution: this->get_population().get_solutions()) {
+			auto report = this->get_problem()->compute_cost(solution.get_item());
+			auto costs  = report.first;
+			logger::instance()->add_individual(costs);
+		}
+		logger::instance()->end_iteration();
 	}
 
 } // namespace genetic

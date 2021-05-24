@@ -23,7 +23,7 @@ namespace transit_problem {
 			           shortest >= tndp_configs::min_route_length;
 			return max && min;
 		}
-
+		
 		float transgression(urban::bus_network& sol) const {
 			if (satisfied(sol)) {
 				return 0;

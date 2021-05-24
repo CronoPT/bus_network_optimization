@@ -5,8 +5,8 @@
 
 namespace transit_problem {
 
-	const int tndp_configs::max_route_length  = 55;
-	const int tndp_configs::min_route_length  = 10;
+	const int tndp_configs::max_route_length  = 60;
+	const int tndp_configs::min_route_length  = 1;
 	const int tndp_configs::max_number_routes = 400;
 	const int tndp_configs::min_number_routes = 200;
 	const float tndp_configs::max_transfers   = 1;
@@ -19,7 +19,7 @@ namespace transit_problem {
 		"54E", "12E", "18E", "24E",
 		"25E", "28E"
 	};
-	
+
 	// const int tndp_configs::max_route_length  = 15;
 	// const int tndp_configs::min_route_length  = 4;
 	// const int tndp_configs::max_number_routes = 30;

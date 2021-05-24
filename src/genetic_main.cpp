@@ -44,7 +44,4 @@ int main() {
 
 	delete GA;
 	delete problem;
-
-	urban::lisbon_bus::instance()->evaluate();
-
 }

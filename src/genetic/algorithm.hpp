@@ -37,6 +37,9 @@ namespace genetic {
 			void mutate();
 			void clip_population();
 
+			float get_crossover_prob() const;
+			float get_mutation_prob() const;
+
 			solution<T> get_best_solution(); 
 			void print_population();
 			population<T>& get_population();

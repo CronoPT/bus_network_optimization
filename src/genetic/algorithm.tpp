@@ -86,6 +86,16 @@ namespace genetic {
 	}
 
 	template<typename T>
+	float algorithm<T>::get_crossover_prob() const {
+		return _crossover_prob;
+	}
+
+	template<typename T>
+	float algorithm<T>::get_mutation_prob() const {
+		return _mutation_prob;
+	}
+
+	template<typename T>
 	solution<T> algorithm<T>::get_best_solution() {
 		return _population.get_nth_best(0);
 	}

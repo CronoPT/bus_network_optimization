@@ -21,7 +21,7 @@ namespace transit_problem {
 
 	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population() {
 		auto pop = std::vector<genetic::solution<urban::bus_network>>();
-		const int pop_size = 5;
+		const int pop_size = 10;
 
 		std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
 		std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;
@@ -46,7 +46,8 @@ namespace transit_problem {
 				tndp_configs::max_number_routes-route_pool::instance()->get_number_mandatory()
 			);
 			std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
-			std::cout << " generating net with " << net_size;
+			std::cout << " generating net with " << net_size
+				+ route_pool::instance()->get_number_mandatory();
 			std::cout << " routes" << std::endl;
 			auto set = std::set<int>();
 			for (int j=0; j<net_size; j++) {
@@ -139,17 +140,17 @@ namespace transit_problem {
 		item.add_route(to_add);
 
 		//adding
-		if (do_route_addition()) {
+		if (do_route_addition() && item.get_number_routes()<tndp_configs::max_number_routes) {
 			int new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
 			while (!item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
 				new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
 			}
-			const auto& new_route = route_pool::instance()->at(route_index);
+			const auto& new_route = route_pool::instance()->at(new_route_index);
 			item.add_route(new_route);
 		}
 
 		//removing a random route
-		if (do_route_deletion()) {
+		if (do_route_deletion() && item.get_number_routes()>tndp_configs::min_number_routes) {
 			int to_delete_index = generate_number_between(
 				route_pool::instance()->get_number_mandatory(), 
 				item.get_number_routes()-1

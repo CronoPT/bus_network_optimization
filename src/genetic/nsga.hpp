@@ -3,6 +3,7 @@
 
 #include "algorithm.hpp"
 #include "cost_function.hpp"
+#include "logger.hpp"
 #include <limits>
 #include <algorithm>
 
@@ -24,7 +25,9 @@ namespace genetic {
 			void assign_fitness() override;
 			void nondominated_sorting();
 			void crowding_distance_sorting();
-			
+
+			void log_beginning();
+			void log_iteration();
 	};
 
 } // namespace genetic

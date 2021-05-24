@@ -230,6 +230,12 @@ namespace genetic {
 		for (auto cost: s._costs)
 			os << cost << " ";
 
+		os << "\n\ttransgressions: ";
+
+		for (auto trans: s._transgressions) {
+			os << trans << " ";
+		}
+
 		os << "\n\tdomination count: " << s._domination_count
 		   << "\n\tdominates: ";
 
