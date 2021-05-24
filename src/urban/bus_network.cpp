@@ -50,7 +50,7 @@ namespace urban {
 	 * 
 	 * 	@param r: the route to build around
 	*/
-	void bus_network::embed_route(route& r) {
+	void bus_network::embed_route(const route& r) {
 
 		int route_id = r.get_route_id();
 
@@ -210,7 +210,7 @@ namespace urban {
 	 * 
 	 * @param new_route: the route to add to the network
 	*/
-	void bus_network::add_route(route& new_route) {
+	void bus_network::add_route(const route& new_route) {
 		/* Add needed edges */
 		embed_route(new_route);
 

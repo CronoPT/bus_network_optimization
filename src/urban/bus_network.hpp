@@ -45,7 +45,7 @@ namespace urban {
 		bus_network(std::vector<route>& routes);
 		bus_network();
 
-		void embed_route(route& r);
+		void embed_route(const route& r);
 		void embed_node(int stop_id, int route_id);
 
 		bool evaluated() const;
@@ -58,7 +58,7 @@ namespace urban {
 		int  get_longest_route();
 		const std::vector<route>& get_routes() const;
 
-		void add_route(route& new_route);
+		void add_route(const route& new_route);
 		void delete_route(int position);
 		void delete_node(int stop_id, int route_id);
 		bool has_route(int route_id);

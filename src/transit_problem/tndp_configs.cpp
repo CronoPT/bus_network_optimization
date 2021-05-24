@@ -14,6 +14,12 @@ namespace transit_problem {
 		"../data/json/clustered_routes_stop_sequence.json"; 
 	const std::string tndp_configs::ge_routes = 
 		"../data/json/route_pool.json";
+	const std::vector<std::string> tndp_configs::tram_routes = {
+		"15E", "51E", "52E", "53E",
+		"54E", "12E", "18E", "24E",
+		"25E", "28E"
+	};
+	
 	// const int tndp_configs::max_route_length  = 15;
 	// const int tndp_configs::min_route_length  = 4;
 	// const int tndp_configs::max_number_routes = 30;

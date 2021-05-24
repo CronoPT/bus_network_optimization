@@ -15,6 +15,7 @@ namespace transit_problem {
 		static route_pool* _instance;
 
 		std::vector<urban::route> _routes;
+		std::vector<urban::route> _mandatory_routes;
 		
 		route_pool();
 
@@ -22,6 +23,9 @@ namespace transit_problem {
 		static route_pool* instance();
 		int size() const;
 		urban::route at(int i) const;
+		const std::vector<urban::route>& 
+			get_mandatory_routes() const;
+		int get_number_mandatory() const; 
 
 	};
 

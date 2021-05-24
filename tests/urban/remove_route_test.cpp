@@ -2,7 +2,26 @@
 #include <lisbon_bus.hpp>
 #include <bus_network.hpp>
 
+#include <configs.hpp>
+
 TEST(remove_route_test, remove_route_simple_test) {
+
+	std::cout << urban::lisbon_bus::instance()->get_number_of_nodes() << std::endl;
+	std::cout << urban::lisbon_bus::instance()->get_number_of_edges() << std::endl;
+
+	std::ifstream input_file(urban::configs::stop_sequences);
+	nlohmann::json json_routes = nlohmann::json::parse(input_file);
+	int edges = 0;
+	for (auto& json_route: json_routes) {
+		edges += json_route["stops"].size()-1;
+	}
+	std::ifstream input_file_2(urban::configs::stop_locations);
+	nlohmann::json json_stops = nlohmann::json::parse(input_file_2);
+	int nodes_ = json_stops.size();
+
+	std::cout << nodes_ << std::endl;
+	std::cout << edges << std::endl;
+
 	auto nodes      = urban::lisbon_bus::instance()->get_number_of_nodes();
 	auto transfers  = urban::lisbon_bus::instance()->get_transfers();
 	auto in_vehicle = urban::lisbon_bus::instance()->get_in_vehicle_time();

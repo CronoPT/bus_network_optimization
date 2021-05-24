@@ -10,6 +10,7 @@
 #include <cost_function.hpp>
 #include <vector>
 #include <random>
+#include <cstdlib>
 #include <osm_net.hpp>
 
 #include "tndp_configs.hpp"

@@ -2,6 +2,7 @@
 #define __TNDP_CONFIGS_HPP__
 
 #include <string>
+#include <vector>
 
 namespace transit_problem {
 
@@ -14,6 +15,7 @@ namespace transit_problem {
 		static const float max_transfers;
 		static const std::string  ge_routes;
 		static const std::string  og_routes;
+		static const std::vector<std::string> tram_routes;
 	};
 
 } // namespace transit_problem

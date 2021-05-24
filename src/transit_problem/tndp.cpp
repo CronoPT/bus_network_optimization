@@ -5,6 +5,13 @@
 
 namespace transit_problem {
 
+	int generate_number_between(int low, int high) {
+		std::random_device rd;     // only used once to initialise (seed) engine
+		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+		std::uniform_int_distribution<int> dist(low, high);
+		return dist(rng);
+	}
+
 	tndp::tndp(
 		genetic::constraint_set<urban::bus_network> constraints, 
 	    genetic::cost_function_set<urban::bus_network> cost_functions
@@ -15,16 +22,6 @@ namespace transit_problem {
 	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population() {
 		auto pop = std::vector<genetic::solution<urban::bus_network>>();
 		const int pop_size = 5;
-
-		std::random_device rd;     // only used once to initialise (seed) engine
-		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-		std::uniform_int_distribution<int> net_size_dist(
-			tndp_configs::min_number_routes,
-			tndp_configs::max_number_routes
-		);
-		std::uniform_int_distribution<int> route_dist(
-			0, route_pool::instance()->size()-1
-		);
 
 		std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
 		std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;
@@ -38,16 +35,24 @@ namespace transit_problem {
 		));
 		std::cout << "Read Lisbon Bus Network" << std::endl;
 		for (int i=1; i<pop_size; i++) {
-			int net_size = net_size_dist(rng);
+			auto routes  = std::vector<urban::route>();
+
+			for (auto& route: route_pool::instance()->get_mandatory_routes()) {
+				routes.push_back(route);
+			}
+
+			int net_size = generate_number_between(
+				tndp_configs::min_number_routes-route_pool::instance()->get_number_mandatory(),
+				tndp_configs::max_number_routes-route_pool::instance()->get_number_mandatory()
+			);
 			std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
 			std::cout << " generating net with " << net_size;
 			std::cout << " routes" << std::endl;
-			auto routes  = std::vector<urban::route>();
 			auto set = std::set<int>();
 			for (int j=0; j<net_size; j++) {
-				int route = route_dist(rng);
+				int route = generate_number_between(0, route_pool::instance()->size()-1);
 				while (set.find(route)!=set.end()) {
-					route = route_dist(rng);
+					route = generate_number_between(0, route_pool::instance()->size()-1);
 				}
 				routes.push_back(route_pool::instance()->at(route));
 				set.insert(route);
@@ -77,7 +82,8 @@ namespace transit_problem {
 		std::random_device rd;     // only used once to initialise (seed) engine
 		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
 		std::uniform_int_distribution<int> route_size_dist(
-			1, min_size-1
+			route_pool::instance()->get_number_mandatory()+1, 
+			min_size-1
 		);
 		int crossover_point = route_size_dist(rng);
 
@@ -108,8 +114,49 @@ namespace transit_problem {
 		);
 	}
 
+	bool do_route_deletion() {
+		float rand_nu = ((float) std::rand() / RAND_MAX);
+		return 0.4 >= rand_nu;
+	}
+
+	bool do_route_addition() {
+		float rand_nu = ((float) std::rand() / RAND_MAX);
+		return 0.4 >= rand_nu;
+	}
+
 	void tndp::mutate(urban::bus_network& item) const {
-		
+		//replacing a random route
+		int route_index = generate_number_between(0, route_pool::instance()->size()-1);
+		while (!item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
+			route_index = generate_number_between(0, route_pool::instance()->size()-1);
+		}
+		int to_replace = generate_number_between(
+			route_pool::instance()->get_number_mandatory(), 
+			item.get_number_routes()-1
+		);
+		item.delete_route(to_replace);
+		const auto& to_add = route_pool::instance()->at(route_index);
+		item.add_route(to_add);
+
+		//adding
+		if (do_route_addition()) {
+			int new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
+			while (!item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
+				new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
+			}
+			const auto& new_route = route_pool::instance()->at(route_index);
+			item.add_route(new_route);
+		}
+
+		//removing a random route
+		if (do_route_deletion()) {
+			int to_delete_index = generate_number_between(
+				route_pool::instance()->get_number_mandatory(), 
+				item.get_number_routes()-1
+			);
+			item.delete_route(to_delete_index);
+		}
+
 	}
 
 } // namespace transit_problem
