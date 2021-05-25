@@ -6,13 +6,13 @@ namespace genetic {
 	template<typename T>
 	bool algorithm<T>::do_crossover() {
 		float rand_nu = ((float) std::rand() / RAND_MAX);
-		return _crossover_prob >= rand_nu;
+		return genetic_configs::crossover_probability >= rand_nu;
 	}
 
 	template<typename T>
 	bool algorithm<T>::do_mutate() {
 		float rand_nu = ((float) std::rand() / RAND_MAX);
-		return _mutation_prob >= rand_nu;
+		return genetic_configs::mutation_probability >= rand_nu;
 	}
 
 	template<typename T>
@@ -30,15 +30,16 @@ namespace genetic {
 
 	template<typename T>
 	algorithm<T>::algorithm(problem<T>* problem):
-	 _population(), _problem(problem), 
-	 _crossover_prob(0.8), _mutation_prob(0.1) {
+	 _population(), _problem(problem) {
 
 	}
 
 	template<typename T>
 	void algorithm<T>::initialize_population() {
 		_population = population<T>(
-			_problem->initialize_population()
+			_problem->initialize_population(
+				genetic_configs::population_size
+			)
 		);
 		compute_costs();
 	}
@@ -83,16 +84,6 @@ namespace genetic {
 	template<typename T>
 	void algorithm<T>::clip_population() {
 		_population.clip();
-	}
-
-	template<typename T>
-	float algorithm<T>::get_crossover_prob() const {
-		return _crossover_prob;
-	}
-
-	template<typename T>
-	float algorithm<T>::get_mutation_prob() const {
-		return _mutation_prob;
 	}
 
 	template<typename T>

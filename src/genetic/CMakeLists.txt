@@ -10,7 +10,8 @@ target_sources(genetic INTERFACE
     algorithm.hpp
     classic_ga.hpp
     nsga.hpp
-    logger.hpp)
+    logger.hpp
+    genetic_configs.hpp)
 
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 

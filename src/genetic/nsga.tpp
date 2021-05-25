@@ -10,11 +10,7 @@ namespace genetic {
 	}
 
 	template<typename T>
-	std::vector<solution<T>> nsga<T>::execute(
-		int max_iterations, 
-		float min_improv,
-		int max_stalled
-	) {
+	std::vector<solution<T>> nsga<T>::execute() {
 		std::cout << "[NSGA] Algorithm Starting" << std::endl;
 		this->initialize_population();
 		std::cout << "[NSGA] Initial Population Done" << std::endl;
@@ -24,13 +20,10 @@ namespace genetic {
 		this->log_beginning();
 
 		int iteration = 0;
-		float cost_diff = min_improv+0.1;
-		int insig_iters = 0;
 
-		std::cout << "Max Stalled: " << max_stalled
-		          << "\tInsignificant Iters: " << insig_iters << std::endl;
+		std::cout << "Max Stalled: " << genetic_configs::max_stalled << std::endl;
 
-		while (iteration<max_iterations && insig_iters<max_stalled) {
+		while (iteration<genetic_configs::max_iterations) {
 			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
 
 			float best_cost = this->get_best_solution().get_total_cost();
@@ -38,19 +31,12 @@ namespace genetic {
 			this->iteration();
 			std::cout << "[NSGA] Iteration OK" << std::endl;
 			this->print_population();
-			float new_best = this->get_best_solution().get_total_cost();
-
-			cost_diff = (best_cost-new_best)/best_cost;
-			if (cost_diff < min_improv) { ++insig_iters; } 
-			else { insig_iters = 0; }
 
 			iteration += 1;
 		}
 
 		std::cout << "\nClassic GA is finished!" << std::endl;
 		std::cout << "Iterations taken: " << iteration << std::endl;
-		std::cout << "Cost diff from previous iteration: " << cost_diff
-		          << "\n" << std::endl;
 
 		std::vector<solution<T>> result;
 		std::copy_if(
@@ -231,8 +217,8 @@ namespace genetic {
 	template<typename T>
 	void nsga<T>::log_beginning() {
 		logger::instance()->mark_pop_size(this->get_population().size());
-		logger::instance()->mark_crossover_prob(this->get_crossover_prob());
-		logger::instance()->mark_mutation_prob(this->get_mutation_prob());
+		logger::instance()->mark_crossover_prob(genetic_configs::crossover_probability);
+		logger::instance()->mark_mutation_prob(genetic_configs::mutation_probability);
 		log_iteration();
 	}
 

@@ -27,7 +27,7 @@ namespace genetic {
 		public:
 			problem(constraint_set<T> constraints, cost_function_set<T> cost_functions);
 			evaluation_report<T> compute_cost(T& item);
-			virtual std::vector<solution<T>> initialize_population() = 0;
+			virtual std::vector<solution<T>> initialize_population(int pop_size) = 0;
 			virtual std::pair<T, T> crossover(T& i1, T& i2) = 0;
 			virtual void mutate(T& item) const = 0;
 			int num_constraints();

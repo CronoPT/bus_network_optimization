@@ -10,22 +10,21 @@ namespace genetic {
 	}
 
 	template<typename T>
-	std::vector<solution<T>> classic_ga<T>::execute(
-		int max_iterations, 
-		float min_improv,
-		int max_stalled
-	) {
+	std::vector<solution<T>> classic_ga<T>::execute() {
 		this->initialize_population();
 		this->compute_costs();
 
 		int iteration = 0;
-		float cost_diff = min_improv+0.1;
+		float cost_diff = genetic_configs::min_improv+0.1;
 		int insig_iters = 0;
 
-		std::cout << "Max Stalled: " << max_stalled
+		std::cout << "Max Stalled: " << genetic_configs::max_stalled
 		          << "\tInsignificant Iters: " << insig_iters << std::endl;
 
-		while (iteration<max_iterations && insig_iters<max_stalled) {
+		while (
+			iteration<genetic_configs::max_iterations && 
+			insig_iters<genetic_configs::max_stalled
+		) {
 			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
 			float best_cost = this->get_best_solution().get_total_cost();
 
@@ -33,7 +32,7 @@ namespace genetic {
 
 			float new_best = this->get_best_solution().get_total_cost();
 			cost_diff = (best_cost-new_best)/best_cost;
-			if (cost_diff < min_improv) { ++insig_iters; } 
+			if (cost_diff < genetic_configs::min_improv) { ++insig_iters; } 
 			else { insig_iters = 0; }
 
 			iteration += 1;

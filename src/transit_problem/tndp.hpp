@@ -26,7 +26,8 @@ namespace transit_problem {
 			genetic::cost_function_set<urban::bus_network> cost_functions
 		);
 
-		std::vector<genetic::solution<urban::bus_network>> initialize_population() override;
+		std::vector<genetic::solution<urban::bus_network>> 
+			initialize_population(int pop_size) override;
 		std::pair<urban::bus_network, urban::bus_network> crossover(
 			urban::bus_network& i1, urban::bus_network& i2
 		) override;

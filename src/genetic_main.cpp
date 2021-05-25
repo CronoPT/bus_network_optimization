@@ -40,7 +40,7 @@ int main() {
 
 	auto GA = new genetic::nsga<urban::bus_network>((genetic::problem<urban::bus_network>*) problem);
 
-	auto solutions = GA->execute(10, 0.0001, 30);
+	auto solutions = GA->execute();
 
 	delete GA;
 	delete problem;

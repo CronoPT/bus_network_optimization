@@ -19,9 +19,8 @@ namespace transit_problem {
 		/* Do Nothing */
 	}
 
-	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population() {
+	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population(int pop_size) {
 		auto pop = std::vector<genetic::solution<urban::bus_network>>();
-		const int pop_size = 10;
 
 		std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
 		std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;

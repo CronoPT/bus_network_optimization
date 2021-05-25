@@ -142,7 +142,7 @@ class cones_problem: genetic::problem<cone> {
 
 		}
 
-		std::vector<genetic::solution<cone>> initialize_population() override {
+		std::vector<genetic::solution<cone>> initialize_population(int pop_size) override {
 			auto pop = std::vector<genetic::solution<cone>>();
 			pop.push_back(genetic::solution<cone>(cone(1, 2)));
 			pop.push_back(genetic::solution<cone>(cone(2, 1)));
@@ -209,7 +209,7 @@ int main() {
 
 	auto GA = new genetic::nsga<cone>((genetic::problem<cone>*) problem);
 
-	auto solutions = GA->execute(1000, 0.0001, 30);
+	auto solutions = GA->execute();
 	
 	std::cout << "Best Solution(s):";
 	for (auto solution: solutions) {
@@ -228,10 +228,6 @@ int main() {
 		std::cout << " -- total_trans: " << solution.get_total_transgression();
 	}
 	std::cout << std::endl;
-
-	// std::cout << "Nodes: " << g.get_number_of_nodes()
-	//           << "\nEdges: " << g.get_number_of_edges()
-	// 		  << std::endl;
 
 	delete GA;
 	delete problem;

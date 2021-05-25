@@ -15,11 +15,7 @@ namespace genetic {
 		public:
 			nsga(problem<T>* problem);
 
-			std::vector<solution<T>> execute(
-				int max_iterations, 
-				float min_improv,
-				int max_stalled
-			) override;
+			std::vector<solution<T>> execute() override;
 			void iteration()      override;
 			void compute_costs()  override;
 			void assign_fitness() override;

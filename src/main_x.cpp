@@ -110,7 +110,7 @@ class x_problem: genetic::problem<x_bin> {
 
 		}
 
-		std::vector<genetic::solution<x_bin>> initialize_population() override {
+		std::vector<genetic::solution<x_bin>> initialize_population(int pop_size) override {
 			auto pop = std::vector<genetic::solution<x_bin>>();
 			for (int i=0; i<20; i++) {
 				pop.push_back(genetic::solution<x_bin>(x_bin(
@@ -175,7 +175,7 @@ int main() {
 
 	auto GA = new genetic::nsga<x_bin>((genetic::problem<x_bin>*) problem);
 
-	auto solutions = GA->execute(1000, 0.0001, 30);
+	auto solutions = GA->execute();
 	
 	std::cout << "Best Solution(s):";
 	int count = 1;
@@ -206,16 +206,4 @@ int main() {
 
 	delete GA;
 	delete problem;
-
-	// std::cout << std::numeric_limits<int>::max() << std::endl;
-	// std::cout << std::numeric_limits<int>::min() << std::endl;
-	// std::cout << RAND_MAX << std::endl;
-	// std::cout << "Unsigned: " << std::bitset<32>(std::numeric_limits<unsigned int>::max()) << std::endl;
-	// std::cout << "Signed:   " << std::bitset<32>(std::numeric_limits<int>::max()) << std::endl;
-	// std::cout << "Signed:   " << std::bitset<32>(std::numeric_limits<int>::min()) << std::endl;
-
-	// int a = (std::numeric_limits<int>::max()<<31);
-	// std::cout << "Var: " << a << std::endl;
-	// std::cout << "Bin var: " << std::bitset<32>(a) <<std::endl;
-
 }

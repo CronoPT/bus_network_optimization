@@ -259,7 +259,7 @@ class ciara_problem: genetic::problem<ciara> {
 
 		}
 
-		std::vector<genetic::solution<ciara>> initialize_population() override {
+		std::vector<genetic::solution<ciara>> initialize_population(int pop_size) override {
 			auto pop = std::vector<genetic::solution<ciara>>();
 			for (int i=0; i<60; i++) {
 				pop.push_back(genetic::solution<ciara>(ciara(
@@ -311,7 +311,7 @@ int main() {
 
 	auto GA = new genetic::nsga<ciara>((genetic::problem<ciara>*) problem);
 
-	auto solutions = GA->execute(1000, 0.0001, 30);
+	auto solutions = GA->execute();
 	
 	std::cout << "Best Solution(s):";
 	int count = 1;
