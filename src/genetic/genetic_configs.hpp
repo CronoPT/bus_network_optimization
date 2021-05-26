@@ -14,6 +14,7 @@ namespace genetic {
 		 * How much the best solution should improve
 		 * between iterations for the algorithm to
 		 * not consider calling convergence
+		 * Used only on the CLASSIC GA
 		*/
 		static float min_improv;
 
@@ -21,6 +22,7 @@ namespace genetic {
 		 * How many iterations without significant 
 		 * improvements the algorithm should allow
 		 * before admiting convergence.
+		 * Used only on the CLASSIC GA
 		*/
 		static int 	 max_stalled;
 	};

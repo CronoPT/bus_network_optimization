@@ -79,13 +79,10 @@ namespace transit_problem {
 		auto new_routes_1 = std::vector<urban::route>();
 		auto new_routes_2 = std::vector<urban::route>();
 
-		std::random_device rd;     // only used once to initialise (seed) engine
-		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-		std::uniform_int_distribution<int> route_size_dist(
+		int crossover_point = generate_number_between(
 			route_pool::instance()->get_number_mandatory()+1, 
-			min_size-1
+			min_size-1	
 		);
-		int crossover_point = route_size_dist(rng);
 
 		int i;
 		for (i=0 ; i<crossover_point; i++) {
@@ -127,7 +124,7 @@ namespace transit_problem {
 	void tndp::mutate(urban::bus_network& item) const {
 		//replacing a random route
 		int route_index = generate_number_between(0, route_pool::instance()->size()-1);
-		while (!item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
+		while (item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
 			route_index = generate_number_between(0, route_pool::instance()->size()-1);
 		}
 		int to_replace = generate_number_between(
@@ -141,7 +138,7 @@ namespace transit_problem {
 		//adding
 		if (do_route_addition() && item.get_number_routes()<tndp_configs::max_number_routes) {
 			int new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
-			while (!item.has_route(route_pool::instance()->at(route_index).get_route_id())) {
+			while (item.has_route(route_pool::instance()->at(new_route_index).get_route_id())) {
 				new_route_index = generate_number_between(0, route_pool::instance()->size()-1);
 			}
 			const auto& new_route = route_pool::instance()->at(new_route_index);

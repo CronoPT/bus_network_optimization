@@ -771,7 +771,8 @@ namespace urban {
 	}
 
 	inline bool grid::is_metro_node(int node) {
-		return (node>=0 && node<100);
+		// return (node>=0 && node<100);
+		return metro_network::instance()->has_node(node);
 	}
 
 	grid* grid::_instance = nullptr;

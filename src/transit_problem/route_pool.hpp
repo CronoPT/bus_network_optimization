@@ -22,7 +22,7 @@ namespace transit_problem {
 		public:
 		static route_pool* instance();
 		int size() const;
-		urban::route at(int i) const;
+		urban::route& at(int i);
 		const std::vector<urban::route>& 
 			get_mandatory_routes() const;
 		int get_number_mandatory() const; 

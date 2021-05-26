@@ -18,7 +18,7 @@ namespace transit_problem {
 		std::ifstream input_file(tndp_configs::og_routes);
 		nlohmann::json json_routes = nlohmann::json::parse(input_file);
 
-		int route_id = 0;
+		int route_id = 1;
 		for (auto& json_route: json_routes) {
 			auto route_stops = std::vector<int>();
 			for (auto stop: json_route["stops"]) {
@@ -48,7 +48,7 @@ namespace transit_problem {
 		return _routes.size(); 
 	}
 
-	urban::route route_pool::at(int i) const {
+	urban::route& route_pool::at(int i) {
 		return _routes.at(i);
 	}
 

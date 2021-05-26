@@ -211,6 +211,15 @@ namespace urban {
 	 * @param new_route: the route to add to the network
 	*/
 	void bus_network::add_route(const route& new_route) {
+		/**
+		 * This avoids having to make a great number of checks
+		 * while crossing over two bus_networks that might share
+		 * a route.
+		*/
+		if (has_route(new_route.get_route_id())) {
+			return;
+		}
+		
 		/* Add needed edges */
 		embed_route(new_route);
 
@@ -272,13 +281,12 @@ namespace urban {
 		}
 
 		_total_length -= to_delete.get_route_length();
-		
+
 		/* Remove the route from the vector of routes */
 		_routes.erase(_routes.begin()+position);
 
 		/* Remove the route id from the route id set */
-		auto it = _route_check.find(route_id);
-		_route_check.erase(it);
+		_route_check.erase(route_id);
 
 		/* Flag changes in the object */
 		_evaluated = false;
@@ -291,9 +299,21 @@ namespace urban {
 		_stop_in_routes[stop_id].erase(route_id);
 		auto it = std::find(
 			_stop_ids[stop_id].begin(), 
-			_stop_ids[stop_id].begin(), 
+			_stop_ids[stop_id].end(), 
 			id
 		);
+
+		/**
+		 * ! WARNING !
+		 * If, for some reason, the genetic operators
+		 * introduce the same route several times in
+		 * the same bus network and it is removed more 
+		 * than once, this will throw a Segmentation
+		 * Fault. The guard in the beginning of
+		 * bus_network::add_route(route) should prevent
+		 * this, but if the guard is removed, this 
+		 * line can be a source of problems.
+		*/
 		_stop_ids[stop_id].erase(it);
 
 		for (int r: _stop_in_routes[stop_id]) {
@@ -339,7 +359,7 @@ namespace urban {
 	 * 	@return whether the route exists in this network or not
 	*/
 	bool bus_network::has_route(int route_id) {
-		return _route_check.find(route_id) != _route_check.end();
+		return (_route_check.find(route_id) != _route_check.end());
 	}
 
 	std::vector<int>& bus_network::get_stop_variants(int stop_id) {

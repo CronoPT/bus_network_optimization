@@ -54,22 +54,14 @@ namespace genetic {
 	template<typename T>
 	void nsga<T>::iteration() {
 		this->assign_fitness();
-		std::cout << "[Seg Debug] Assign Fitness OK" << std::endl;
 		this->reproduce();
-		std::cout << "[Seg Debug] Reproduce OK" << std::endl;
 		this->mutate();
-		std::cout << "[Seg Debug] Mutate OK" << std::endl;
 		this->compute_costs();
-		std::cout << "[Seg Debug] Compute Costs OK" << std::endl;
 		this->nondominated_sorting();
-		std::cout << "[Seg Debug] Nondominated Sorting OK" << std::endl;
 		this->crowding_distance_sorting();
-		std::cout << "[Seg Debug] Crowding Distance Sorting OK" << std::endl;
 		this->clip_population();
-		std::cout << "[Seg Debug] Clip Population OK" << std::endl;
 		
 		this->log_iteration();
-		std::cout << "[Seg Debug] Log Iteration OK" << std::endl;
 	}
 
 	template<typename T>
