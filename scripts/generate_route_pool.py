@@ -38,6 +38,37 @@ main_stops = [
 	5826
 ]
 
+def filter_zags(route):
+	changed = True
+
+	while changed:
+		changed = False
+
+		for i in range(len(route)-2):
+			inspect = route[i:i+3]
+			if inspect[0] == inspect[-1]:
+				changed = True
+				route   = route[0:i] + route[i+2:]
+				break 
+
+	return route
+
+def filter_duplicates(lst):	
+	res = []
+	i = 1
+	while i<len(lst):
+		curr = lst[i]
+		prev = lst[i-1]
+		if curr != prev:
+			res.append(prev)
+		i+=1
+	else:
+		res.append(lst[-1])
+	return res
+
+def filter_generated_routes(lst):
+	return filter_zags(filter_duplicates(lst))
+
 def coord_to_square(lon, lat):
 	'''
 	| This function maps a coordinate pair to 
@@ -213,7 +244,7 @@ def add_k_shortest_stops():
 
 				path = [node for node in path if node in existing_stops]
 				route_pool.append(path)
-				routes.append(path)
+				routes.append(filter_generated_routes(path))
 
 			progress = index_out*len(main_stops) + index_in + 1
 			total = len(main_stops)**2
@@ -432,7 +463,7 @@ def generate_directional_routes(start, comparator):
 		# size because there were no stops satisfying the 
 		# criteria. If it is to small, drop it.
 		if len(route) > MIN_ROUTE_LEN:
-			routes.append(route)
+			routes.append(filter_generated_routes(route))
 
 		route_pool.extend(routes)
 

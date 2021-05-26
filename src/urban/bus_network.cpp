@@ -296,6 +296,14 @@ namespace urban {
 	void bus_network::delete_node(int stop_id, int route_id) {
 		int id = node_id(stop_id, route_id);
 
+		/**
+		 * This has to be here for routes that
+		 * have a repeated station. If we remove it,
+		 * the erase bellow will cause a seg fault
+		 * error.
+		*/
+		if (!has_node(id)) { return; }
+
 		_stop_in_routes[stop_id].erase(route_id);
 		auto it = std::find(
 			_stop_ids[stop_id].begin(), 
