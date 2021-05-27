@@ -35,7 +35,12 @@ main_stops = [
 	3807,
 	801,
 	10315,
-	5826
+	5826,
+	8512, 
+	1621, 
+	9609, 
+	12121,
+	8511
 ]
 
 def filter_zags(route):
@@ -383,6 +388,8 @@ def generate_directional_routes(start, comparator):
 	| comparator: a function to validate a sequence of stops.
 	'''
 	global road_network
+	global stage
+	global total_stages
 
 
 	stops = utils.json_utils.read_json_object(configs.BUS_STOPS)
@@ -392,7 +399,7 @@ def generate_directional_routes(start, comparator):
 	starting_points = start()
 
 	routes = []
-	for start in starting_points:
+	for index, start in enumerate(starting_points):
 		curr_stop = start
 		route = [curr_stop]
 		for _ in range(MAX_ROUTE_LEN):
@@ -456,9 +463,14 @@ def generate_directional_routes(start, comparator):
 					
 					# No eligeable stops in a reasonable radius,
 					# drop this route.
-					if radius > 4000:
+					if radius > 6000:
 						break
 		
+		utils.general_utils.print_progress_bar(
+			index+1, 
+			len(starting_points), 
+			suffix=f'{stage}/{total_stages}'
+		)
 		# It is possible that routes do not have the maximum
 		# size because there were no stops satisfying the 
 		# criteria. If it is to small, drop it.
@@ -466,6 +478,8 @@ def generate_directional_routes(start, comparator):
 			routes.append(filter_generated_routes(route))
 
 		route_pool.extend(routes)
+	
+	stage += 1
 
 	return routes
 
@@ -566,6 +580,9 @@ if __name__ == '__main__':
 	stop_points     = utils.json_utils.read_json_object(configs.BUS_STOPS)
 	road_points     = utils.json_utils.read_json_object(configs.NETWORK)
 	road_network    = utils.json_utils.read_network_json(configs.NETWORK)
+
+	total_stages = 4
+	stage = 1
 
 	existing_stops  = [item['stop_id'] for item in stop_points]
 

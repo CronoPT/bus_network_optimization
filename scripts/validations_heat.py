@@ -117,7 +117,7 @@ if __name__ == '__main__':
 	top_stops = [(stop, count) for stop, count in heat_stop.items()]
 	top_stops.sort(key = lambda x : x[1], reverse=True)
 
-	for info in top_stops[:10]:
+	for info in top_stops[:15]:
 		print(f'Stop: {info[0]} | Validations: {info[1]}')
 
 	fig, ax = plt.subplots(1, 2)

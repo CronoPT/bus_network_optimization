@@ -42,6 +42,55 @@ int main() {
 
 	auto solutions = GA->execute();
 
+	std::ofstream file("../data/json/run_nets.json");
+	file << "[\n";
+	for (int i=0; i<solutions.size(); i++) {
+		auto solution = solutions.at(i);
+		file << "\t{\n";
+
+		auto costs = solution.get_costs();
+		file << "\t\t\"costs\": [\n";
+		for (int j=0; j<costs.size(); j++) {
+			file << "\t\t\t" << costs.at(j); 
+			if (j < costs.size()-1) {
+				file << ",";
+			}
+			file << "\n";
+		}
+		file << "\t\t],\n";
+
+		auto routes = solution.get_item().get_routes();
+		file << "\t\t\"routes\": [\n"; 
+		for (int j=0; j<routes.size(); j++) {
+
+			auto stops = routes.at(i).get_stop_sequence();
+			file << "\t\t\t[\n";
+			for (int k=0; k<stops.size(); k++) {
+				file << "\t\t\t\t" << stops.at(k);
+
+				if (k < stops.size()-1) {
+					file << ",";
+				}
+				file << "\n";
+			}
+
+			file << "\t\t\t]";
+			if (j < routes.size()-1) {
+				file << ",";
+			}
+			file << "\n";
+		}
+		file << "\t\t]\n";
+
+		file << "\t}";
+		if (i < solutions.size()-1) {
+			file << ",";
+		}
+		file << "\n";
+
+	}
+	file << "]\n";
+
 	delete GA;
 	delete problem;
 }
