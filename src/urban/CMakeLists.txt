@@ -36,7 +36,9 @@ add_library(urban SHARED STATIC
 	odx_matrix.hpp
 	odx_matrix.cpp
 	network_usage.hpp
-	network_usage.cpp)
+	network_usage.cpp
+	frequency_set.hpp
+	frequency_set.cpp)
 
 target_link_libraries(urban INTERFACE net PUBLIC osm_net)
 

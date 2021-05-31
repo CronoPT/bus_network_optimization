@@ -31,6 +31,7 @@ namespace urban {
 		std::vector<int> _stop_sequence;
 		std::vector<edge_info> _edges;
 		float _route_length;
+		float _total_time;
 
 		public:
 		route(int route_id, std::vector<int>& stop_sequence);

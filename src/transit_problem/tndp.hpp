@@ -32,6 +32,7 @@ namespace transit_problem {
 			urban::bus_network& i1, urban::bus_network& i2
 		) override;
 		void mutate(urban::bus_network& item) const override;
+		
 	};
 
 } // namespace transit_problem

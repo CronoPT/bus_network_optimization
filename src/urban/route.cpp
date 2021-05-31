@@ -87,6 +87,7 @@ namespace urban {
 
 				_route_length += path_report.second;
 				auto travel_time = compute_path_time_v2(path_report);
+				_total_time   += travel_time;
 				_edges.push_back(edge_info(
 					origin_stop,
 					destin_stop,

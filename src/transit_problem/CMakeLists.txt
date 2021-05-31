@@ -8,7 +8,11 @@ add_library(transit_problem SHARED STATIC
 	tndp_constraints.hpp
 	tndp_objectives.hpp
 	route_pool.hpp
-	route_pool.cpp)
+	route_pool.cpp
+	tnfsp.hpp
+	tnfsp.cpp
+	tnfsp_constraints.hpp
+	tnfsp_objectives.hpp)
 
 target_link_libraries(transit_problem 
 	                  INTERFACE genetic 
