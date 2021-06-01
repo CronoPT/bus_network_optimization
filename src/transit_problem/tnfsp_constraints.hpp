@@ -4,6 +4,7 @@
 #include <cmath>
 #include <bus_network.hpp>
 #include <constraint.hpp>
+#include <frequency_set.hpp>
 #include "tnfsp_configs.hpp"
 
 namespace transit_problem {

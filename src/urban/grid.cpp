@@ -683,6 +683,22 @@ namespace urban {
 		return result;
 	}
 
+	std::vector<int> slicing(const std::vector<int>& arr, int x, int y) {
+	
+		// Starting and Ending iterators
+		auto start = arr.begin() + x;
+		auto end   = arr.begin() + y + 1;
+	
+		// To store the sliced vector
+		std::vector<int> result(y - x + 1);
+	
+		// Copy vector using copy function()
+		std::copy(start, end, result.begin());
+	
+		// Return the final sliced vector
+		return result;
+	}
+
 	/**
 	 * The output the comes out of best_path_between_all is
 	 * a bit to raw. This function essentially refines that
@@ -744,7 +760,8 @@ namespace urban {
 							path.at(i),
 							stage_type,
 							(costs.at(i)-costs.at(stage_start_i)),
-							prev_itinerary
+							prev_itinerary,
+							slicing(path, stage_start_i, i)
 						);
 						stages.push_back(this_stage);
 						stage_start   = path.at(i);

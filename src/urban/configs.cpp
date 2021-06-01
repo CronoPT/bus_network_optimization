@@ -21,6 +21,10 @@ namespace urban {
 
 	const std::string configs::odx_matrix_data = 
 		"../data/json/odx_matrix.json";
+	
+	const float configs::metro_frequency = 12; // trains per hour
+
+	const int configs::bus_capacity = 60;
 
 	// const std::string configs::stop_locations = 
 	// 	"../data/json/generated_bus_stops.json";

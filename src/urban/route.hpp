@@ -41,6 +41,7 @@ namespace urban {
 		const std::vector<int>& get_stop_sequence() const;
 		const std::vector<edge_info>& get_edge_info() const;
 		float get_route_length() const;
+		float get_total_time() const;
 		int size() const; 
 	};
 

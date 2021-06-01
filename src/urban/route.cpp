@@ -122,6 +122,10 @@ namespace urban {
 		return _route_length;
 	}
 
+	float route::get_total_time() const {
+		return _total_time;
+	}
+
 	int route::size() const { return _stop_sequence.size(); }
 
 } // namespace urban

@@ -2,13 +2,19 @@
 #define __FREQUENCY_SET_HPP__
 
 #include <vector>
+#include <cmath>
+#include <unordered_map>
 #include "bus_network.hpp"
+#include "network_usage.hpp"
+#include "odx_matrix.hpp"
 
 namespace urban {
 
 	class frequency_set {
 		
-		bus_network& _bus; // WARNING: carefull with _bus ownership  
+		bus_network& _bus; // WARNING: carefull with _bus ownership
+		network_usage _bus_usage;
+		float _operation_hours;  
 		std::vector<float> _frequencies;
 		int  _required_fleet;
 		float _highest_f;
@@ -17,11 +23,15 @@ namespace urban {
 		float _highest_load;
 		float _operator_costs;
 		bool _evaluated;
+		bool _bus_evaluated;
+
+		std::unordered_map<int, int> _route_indexes;
 
 		public:
 		frequency_set(
 			std::vector<float>& frequencies,
-			bus_network& bus
+			bus_network& bus,
+			float operation_hours
 		);
 
 		int get_required_fleet();
@@ -32,6 +42,11 @@ namespace urban {
 		float get_operator_costs();
 
 		void evaluate();
+
+		int compute_required_fleet();
+		float compute_waiting_time();
+		float compute_highest_load();
+		float compute_operator_costs();
 
 	};
 

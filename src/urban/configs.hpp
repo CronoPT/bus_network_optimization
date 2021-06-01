@@ -13,7 +13,8 @@ namespace urban {
 		static const std::string walking_network;
 		static const int divisions;
 		static const std::string odx_matrix_data;
-
+		static const float metro_frequency;
+		static const int bus_capacity;
 	};
 
 } // namspace urban

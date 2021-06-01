@@ -1,6 +1,8 @@
 #ifndef __STAGE_HPP__
 #define __STAGE_HPP__
 
+#include <vector>
+
 namespace urban {
 
 	#define BUS_STAGE 0
@@ -13,11 +15,13 @@ namespace urban {
 		int   _mode; // bus, metro or walking
 		float _time;
 		int _itinerary;
+		std::vector<int> _sequence;
 
 		public:
 		stage(
 			int origin, int destin, int mode, 
-			float time, int itinerary
+			float time, int itinerary,
+			std::vector<int> sequence
 		);
 		stage();
 
@@ -26,6 +30,7 @@ namespace urban {
 		int   get_mode()   const;
 		float get_time()   const;
 		int   get_itinerary() const;
+		const std::vector<int>& get_sequence() const;
 
 	};
 

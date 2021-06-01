@@ -7,18 +7,21 @@ namespace urban {
 
 	stage::stage(
 		int origin, int destin, int mode, 
-		float time, int itinerary
+		float time, int itinerary,
+		std::vector<int> sequence
 	):
 	 _origin(origin), _destin(destin),
 	 _mode(mode), _time(time), 
-	 _itinerary(itinerary) {
+	 _itinerary(itinerary),
+	 _sequence(sequence) {
 		/* Do Nothing */
 	}
 
 	stage::stage():
 	 _origin(-1), _destin(-1),
 	 _mode(-1), _time(-1),
-	 _itinerary(-1) {
+	 _itinerary(-1),
+	 _sequence() {
 		/* Do Nothing */
 	}
 
@@ -40,6 +43,10 @@ namespace urban {
 
 	int stage::get_itinerary() const {
 		return _itinerary;
+	}
+
+	const std::vector<int>& stage::get_sequence() const {
+		return _sequence;
 	}
 
 } //  namespace urban
