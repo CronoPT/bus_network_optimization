@@ -14,6 +14,8 @@ namespace transit_problem {
 		static const float min_frequency;
 		static const float max_load;
 		static const float frequency_step;
+		static const int operating_hours;
+		static const std::string day_time;
 	};
 
 } // namespace transit_problem

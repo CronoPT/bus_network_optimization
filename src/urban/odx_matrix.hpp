@@ -70,6 +70,7 @@ namespace urban {
 		int get_happy_hour(std::pair<int, int> origin, std::pair<int, int> destin);
 		int get_night_time(std::pair<int, int> origin, std::pair<int, int> destin);
 		int get_total(std::pair<int, int> origin, std::pair<int, int> destin);
+		int get_in_day_time(std::string day_time, std::pair<int, int> origin, std::pair<int, int> destin);
 		void add_odx_pair_info(
 			std::pair<int, int> origin, 
 			std::pair<int, int> destin, 

@@ -8,11 +8,13 @@ namespace urban {
 	frequency_set::frequency_set(
 		std::vector<float>& frequencies,
 		bus_network& bus,
-		float operation_hours
+		float operation_hours,
+		std::string day_time
 	):
 	 _bus(bus),
 	 _bus_usage(),
 	 _operation_hours(operation_hours),
+	 _day_time(day_time),
 	 _frequencies(frequencies),
 	 _required_fleet(0),
 	 _highest_f(std::numeric_limits<float>::lowest()),
@@ -140,7 +142,7 @@ namespace urban {
 			auto destin = od_pair.second;
 
 			auto& use = _bus_usage.get_usage_between(origin, destin);
-			int passengers = odx_matrix::instance()->get_total(origin, destin);
+			int passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);
 
 			if (origin.first  == destin.first && 
 			    origin.second == destin.second) { 
@@ -217,7 +219,7 @@ namespace urban {
 			auto destin = od_pair.second;
 
 			auto& use = _bus_usage.get_usage_between(origin, destin);
-			int passengers = odx_matrix::instance()->get_total(origin, destin);
+			int passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);;
 
 			if (origin.first  == destin.first && 
 			    origin.second == destin.second) { 

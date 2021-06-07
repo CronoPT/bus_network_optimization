@@ -195,6 +195,26 @@ namespace urban {
 		return _origins[i][j].get_total(destin);
 	}
 
+	int odx_matrix::get_in_day_time(
+		std::string day_time, 
+		std::pair<int, int> origin, 
+		std::pair<int, int> destin
+	) {
+		if (day_time == "morning_rush_hour") {
+			return get_morning_rush_hour(origin, destin);
+		} else if (day_time == "midday") {
+			return get_midday(origin, destin);
+		} else if (day_time == "afternoon_rush_hour") {
+			return get_afternoon_rush_hour(origin, destin);
+		} else if (day_time == "happy_hour") {
+			return get_happy_hour(origin, destin);
+		} else if (day_time == "night_time") {
+			return get_night_time(origin, destin);
+		} else {
+			return get_total(origin, destin);
+		}
+ 	}
+
 	void odx_matrix::add_odx_pair_info(
 		std::pair<int, int> origin, 
 		std::pair<int, int> destin, 

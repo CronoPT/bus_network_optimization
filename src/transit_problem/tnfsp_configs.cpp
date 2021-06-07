@@ -16,6 +16,9 @@ namespace transit_problem {
 	*/
 	const float tnfsp_configs::frequency_step = 0.25;
 
+	const int tnfsp_configs::operating_hours  = 3;
+	const std::string tnfsp_configs::day_time = "morning_rush_hour";
+
 } // namespace transit_problem
 
 #endif

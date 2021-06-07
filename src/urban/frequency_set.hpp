@@ -15,6 +15,7 @@ namespace urban {
 		bus_network& _bus; // WARNING: carefull with _bus ownership
 		network_usage _bus_usage;
 		float _operation_hours;  
+		std::string _day_time;
 		std::vector<float> _frequencies;
 		int  _required_fleet;
 		float _highest_f;
@@ -31,7 +32,8 @@ namespace urban {
 		frequency_set(
 			std::vector<float>& frequencies,
 			bus_network& bus,
-			float operation_hours
+			float operation_hours,
+			std::string day_time
 		);
 
 		int get_required_fleet();

@@ -36,7 +36,12 @@ namespace transit_problem {
 			}
 
 			population.push_back(genetic::solution<urban::frequency_set>(
-				urban::frequency_set(frequencies, _network, 24)
+				urban::frequency_set(
+					frequencies, 
+					_network, 
+					tnfsp_configs::operating_hours, 
+					tnfsp_configs::day_time
+				)
 			));
 		}
 
@@ -78,8 +83,12 @@ namespace transit_problem {
 			}		
 		}
 
-		auto new_set_1 = urban::frequency_set(new_f1, _network, 24);
-		auto new_set_2 = urban::frequency_set(new_f2, _network, 24);
+		auto new_set_1 = urban::frequency_set(
+			new_f1, _network, tnfsp_configs::operating_hours, tnfsp_configs::day_time
+		);
+		auto new_set_2 = urban::frequency_set(
+			new_f2, _network, tnfsp_configs::operating_hours, tnfsp_configs::day_time
+		);
 
 		return std::pair<urban::frequency_set, urban::frequency_set>(
 			new_set_1, new_set_2
