@@ -13,6 +13,7 @@ namespace transit_problem {
 		static const float max_frequency;
 		static const float min_frequency;
 		static const float max_load;
+		static const float frequency_step;
 	};
 
 } // namespace transit_problem

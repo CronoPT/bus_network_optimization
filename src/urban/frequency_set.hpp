@@ -40,6 +40,8 @@ namespace urban {
 		float get_waiting_time();
 		float get_highest_load();
 		float get_operator_costs();
+		const std::vector<float>& get_frequencies() const;
+		void set_frequency_at(int pos, float new_f); 
 
 		void evaluate();
 

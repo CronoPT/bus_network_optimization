@@ -14,7 +14,7 @@
 #include <osm_net.hpp>
 #include <frequency_set.hpp>
 
-#include "tndp_configs.hpp"
+#include "tnfsp_configs.hpp"
 
 namespace transit_problem {
 

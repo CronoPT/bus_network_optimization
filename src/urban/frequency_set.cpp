@@ -89,6 +89,14 @@ namespace urban {
 		return _operator_costs;
 	}
 
+	const std::vector<float>& frequency_set::get_frequencies() const {
+		return _frequencies;
+	}
+
+	void frequency_set::set_frequency_at(int pos, float new_f) {
+		_frequencies.at(pos) = new_f;
+	} 
+
 	/**
 	 * Computes the number of buses that need to be 
 	 * available for the network to be effectivelly
