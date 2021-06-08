@@ -12,7 +12,7 @@ namespace urban {
 		std::string day_time
 	):
 	 _bus(bus),
-	 _bus_usage(),
+	 _bus_usage(bus.get_usage()),
 	 _operation_hours(operation_hours),
 	 _day_time(day_time),
 	 _frequencies(frequencies),
@@ -23,7 +23,7 @@ namespace urban {
 	 _highest_load(0),
 	 _operator_costs(0),
 	 _evaluated(false),
-	 _bus_evaluated(false),
+	 _bus_evaluated(bus.evaluated()),
 	 _route_indexes() {
 		
 		if (frequencies.size() != bus.get_routes().size()) {
@@ -47,6 +47,24 @@ namespace urban {
 			_route_indexes[r.get_route_id()] = i;
 		} 
 
+	}
+
+	frequency_set::frequency_set():
+	 _bus(),
+	 _bus_usage(),
+	 _operation_hours(24),
+	 _day_time("total"),
+	 _frequencies(),
+	 _required_fleet(0),
+	 _highest_f(std::numeric_limits<float>::lowest()),
+	 _lowest_f(std::numeric_limits<float>::max()),
+	 _waiting_time(0),
+	 _highest_load(0),
+	 _operator_costs(0),
+	 _evaluated(false),
+	 _bus_evaluated(false),
+	 _route_indexes() {
+		/* Do Nothing */
 	}
 
 	void frequency_set::evaluate() {
@@ -111,7 +129,7 @@ namespace urban {
 		float total = 0;
 		for (int i=0; i<_frequencies.size(); i++) {
 			// the time it takes to traverse the whole route (in hours)
-			auto total_time = _bus.get_routes().at(i).get_total_time()/60;
+			auto total_time = _bus.get_routes().at(i).get_total_time()/3600;
 
 			// the frequency of buses in the route (in buses/hour)
 			auto frequency  = _frequencies.at(i);
@@ -120,6 +138,8 @@ namespace urban {
 			// to serve the route
 			total += frequency * total_time;
 		}
+
+		std::cout << "Required Fleet: " << total << std::endl;
 
 		return std::ceil(total);
 	}
@@ -136,7 +156,7 @@ namespace urban {
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
 		int total_passengers  = 0;
-		
+
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
@@ -153,9 +173,9 @@ namespace urban {
 				continue;
 			}
 
-			total_passengers += passengers;
+
 			for (auto& s: use.get_stages()) {
-				if (s.get_mode() != WALKING_STAGE) {
+				if (s.get_mode() != WALKING_STAGE && s.get_mode() != -1) {
 					float frequency;
 					if (s.get_mode() == METRO_STAGE) {
 						frequency = configs::metro_frequency;
@@ -164,11 +184,17 @@ namespace urban {
 						int route_index = _route_indexes[route];
 						frequency = _frequencies[route_index];
 					}
-					float average_waiting_time = 1 / (2*frequency);
-					total += average_waiting_time * passengers;
+					if (frequency > 0) {
+						total_passengers += passengers;
+						float average_waiting_time = 1 / (2*frequency);
+						total += average_waiting_time * passengers;
+					}
 				}
 			}
 		}
+
+		std::cout << "Total passengers: " << total_passengers << std::endl;
+		std::cout << "Total: " << total << std::endl;
 
 		//average waiting time amongst all passengers
 		total /= total_passengers;
@@ -291,6 +317,17 @@ namespace urban {
 			total_km += (r.get_route_length() * total_traversals) /	1000;
 		}
 		return total_km;
+	}
+
+	/**
+	 * Print a small summary of the network to the console.
+	*/
+	std::ostream& operator<<(std::ostream& os, const frequency_set& s) {
+		os << "Frequency Set: { size: ";
+		os << s.get_frequencies().size() << ", day_time: ";
+		os << s._day_time << ", operating_hours: ";
+		os << s._operation_hours << "}\n";
+		return os;
 	}
 
 } // namespace urban

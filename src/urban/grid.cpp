@@ -750,9 +750,9 @@ namespace urban {
 						int stage_type = -1;
 						if (prev_itinerary == WALK) {
 							stage_type = WALKING_STAGE;
-						} else if (final_mode == BUS) {
+						} else if (!is_metro_node(path.at(i))) {
 							stage_type = BUS_STAGE;
-						} else if (final_mode == METRO) {
+						} else {
 							stage_type = METRO_STAGE;
 						}
 						auto this_stage = stage(

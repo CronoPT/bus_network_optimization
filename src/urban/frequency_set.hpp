@@ -12,7 +12,7 @@ namespace urban {
 
 	class frequency_set {
 		
-		bus_network& _bus; // WARNING: carefull with _bus ownership
+		bus_network _bus;
 		network_usage _bus_usage;
 		float _operation_hours;  
 		std::string _day_time;
@@ -35,6 +35,7 @@ namespace urban {
 			float operation_hours,
 			std::string day_time
 		);
+		frequency_set();
 
 		int get_required_fleet();
 		float get_highest_f() const;
@@ -51,6 +52,8 @@ namespace urban {
 		float compute_waiting_time();
 		float compute_highest_load();
 		float compute_operator_costs();
+
+		friend std::ostream& operator<<(std::ostream& os, const frequency_set& a); 
 
 	};
 

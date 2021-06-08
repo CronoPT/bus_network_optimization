@@ -28,6 +28,7 @@ namespace urban {
 	 _routes(),
 	 _stop_in_routes(),
 	 _stop_ids(),
+	 _usage(),
 	 graph() {
 
 		if (!_stops_loaded) {
@@ -194,6 +195,13 @@ namespace urban {
 			static_computes();
 		}
 		return _longest_route;
+	}
+
+	network_usage bus_network::get_usage() {
+		if (!_evaluated) {
+			evaluate();
+		}
+		return _usage;
 	}
 
 	/** No need for lazy computations */
@@ -421,14 +429,14 @@ namespace urban {
 		int total = 0;
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
-		auto  usage = grid::instance()->predict_all_od_pairs(*this);
+		_usage = grid::instance()->predict_all_od_pairs(*this);
 		int total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = usage.get_usage_between(origin, destin);
+			auto& use = _usage.get_usage_between(origin, destin);
 			int passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
 

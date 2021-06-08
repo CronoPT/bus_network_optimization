@@ -11,6 +11,8 @@ add_library(transit_problem SHARED STATIC
 	route_pool.cpp
 	tnfsp.hpp
 	tnfsp.cpp
+	tnfsp_configs.hpp
+	tnfsp_configs.cpp
 	tnfsp_constraints.hpp
 	tnfsp_objectives.hpp)
 

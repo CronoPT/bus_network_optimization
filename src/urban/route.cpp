@@ -25,8 +25,13 @@ namespace urban {
 						}
 					}
 				}
+
+				// length in meters
 				float length = adjs[min_key].get_attributes().get_length();
+
+				// speed in kilometers per hour
 				float speed  = adjs[min_key].get_attributes().get_max_speed();
+
 				time += (length / (speed / 3.6));
 			}	
 			origin = destin;
@@ -70,7 +75,7 @@ namespace urban {
 
 	route::route(int route_id, std::vector<int>& stop_sequence):
 	 _route_id(route_id), _stop_sequence(stop_sequence),
-	 _edges(), _route_length(0) {
+	 _edges(), _route_length(0), _total_time(0) {
 		
 		int origin_stop = -1;
 		for (auto destin_stop: stop_sequence) {
@@ -102,7 +107,7 @@ namespace urban {
 
 	route::route():
 	 _route_id(-1), _stop_sequence(), 
-	 _edges(), _route_length(-1) {
+	 _edges(), _route_length(-1), _total_time(-1) {
 		/* Do Nothing */
 	}
 

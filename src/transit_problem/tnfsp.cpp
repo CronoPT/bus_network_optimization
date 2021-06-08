@@ -17,7 +17,7 @@ namespace transit_problem {
 	    genetic::cost_function_set<urban::frequency_set> cost_functions,
 		urban::bus_network& network
 	): problem(constraints, cost_functions), _network(network) {
-		/* Do Nothing */
+		_network.evaluate();
 	}
 
 	std::vector<genetic::solution<urban::frequency_set>> 
@@ -26,6 +26,9 @@ namespace transit_problem {
 
 		const int low  = tnfsp_configs::min_frequency / tnfsp_configs::frequency_step;
 		const int high = tnfsp_configs::max_frequency / tnfsp_configs::frequency_step;
+
+		std::cout << low << " " << high << std::endl;
+
 		for (int i=0; i<pop_size; i++) {
 			auto frequencies = std::vector<float>();
 			
