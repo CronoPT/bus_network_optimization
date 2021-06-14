@@ -7,12 +7,12 @@
 namespace urban {
 
 	odx_pair_info::odx_pair_info(
-		int morning_rush_hour,
-		int midday,
-		int afternoon_rush_hour,
-		int happy_hour,
-		int night_time,
-		int total
+		float morning_rush_hour,
+		float midday,
+		float afternoon_rush_hour,
+		float happy_hour,
+		float night_time,
+		float total
 	):
 	 _morning_rush_hour(morning_rush_hour),
 	 _midday(midday),
@@ -33,63 +33,63 @@ namespace urban {
 		/* Do Nothing*/
 	}
 
-	int odx_pair_info::get_morning_rush_hour() const {
+	float odx_pair_info::get_morning_rush_hour() const {
 		return _morning_rush_hour;
 	}
 
-	int odx_pair_info::get_midday() const {
+	float odx_pair_info::get_midday() const {
 		return _midday;
 	}
 
-	int odx_pair_info::get_afternoon_rush_hour() const {
+	float odx_pair_info::get_afternoon_rush_hour() const {
 		return _afternoon_rush_hour;
 	}
 
-	int odx_pair_info::get_happy_hour() const {
+	float odx_pair_info::get_happy_hour() const {
 		return _happy_hour;
 	}
 
-	int odx_pair_info::get_night_time() const {
+	float odx_pair_info::get_night_time() const {
 		return _night_time;
 	}
 
-	int odx_pair_info::get_total() const {
+	float odx_pair_info::get_total() const {
 		return _total;
 	}
 
 	odx_entry::odx_entry(): _destins() { /* Do Nothing */ }
 
-	int odx_entry::get_morning_rush_hour(std::pair<int, int> destin) {
+	float odx_entry::get_morning_rush_hour(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_morning_rush_hour();
 	}
 
-	int odx_entry::get_midday(std::pair<int, int> destin) {
+	float odx_entry::get_midday(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_midday();
 	}
 
-	int odx_entry::get_afternoon_rush_hour(std::pair<int, int> destin) {
+	float odx_entry::get_afternoon_rush_hour(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_afternoon_rush_hour();
 	}
 
-	int odx_entry::get_happy_hour(std::pair<int, int> destin) {
+	float odx_entry::get_happy_hour(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_happy_hour();
 	}
 
-	int odx_entry::get_night_time(std::pair<int, int> destin) {
+	float odx_entry::get_night_time(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_night_time();
 	}
 
-	int odx_entry::get_total(std::pair<int, int> destin) {
+	float odx_entry::get_total(std::pair<int, int> destin) {
 		int i = destin.first;
 		int j = destin.second;
 		return _destins[i][j].get_total();
@@ -128,12 +128,12 @@ namespace urban {
 				info["destin"].at(0),
 				info["destin"].at(1)
 			});
-			int morning_rush_hour = info["morning_rush_hour"];
-			int midday = info["midday"];
-			int afternoon_rush_hour = info["afternoon_rush_hour"];
-			int happy_hour = info["happy_hour"];
-			int night_time = info["night_time"];
-			int total = info["total"];
+			float morning_rush_hour = info["morning_rush_hour"];
+			float midday = info["midday"];
+			float afternoon_rush_hour = info["afternoon_rush_hour"];
+			float happy_hour = info["happy_hour"];
+			float night_time = info["night_time"];
+			float total = info["total"];
 			auto odx_info = odx_pair_info(
 				morning_rush_hour,
 				midday,
@@ -159,43 +159,43 @@ namespace urban {
 		return _instance;
 	}
 
-	int odx_matrix::get_morning_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_morning_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_morning_rush_hour(destin);
 	}
 
-	int odx_matrix::get_midday(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_midday(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_midday(destin);
 	}
 
-	int odx_matrix::get_afternoon_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_afternoon_rush_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_afternoon_rush_hour(destin);
 	}
 
-	int odx_matrix::get_happy_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_happy_hour(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_happy_hour(destin);
 	}
 
-	int odx_matrix::get_night_time(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_night_time(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_night_time(destin);
 	}
 
-	int odx_matrix::get_total(std::pair<int, int> origin, std::pair<int, int> destin) {
+	float odx_matrix::get_total(std::pair<int, int> origin, std::pair<int, int> destin) {
 		int i = origin.first;
 		int j = origin.second;
 		return _origins[i][j].get_total(destin);
 	}
 
-	int odx_matrix::get_in_day_time(
+	float odx_matrix::get_in_day_time(
 		std::string day_time, 
 		std::pair<int, int> origin, 
 		std::pair<int, int> destin

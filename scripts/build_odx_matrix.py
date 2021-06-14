@@ -15,6 +15,9 @@ host = '127.0.0.1'
 port = '5432'
 database = 'iludb'
 
+def is_weekend(datime):
+	return datime.weekday() >= 5;
+
 def coord_to_square(lon, lat):
 	'''
 	| This function maps a coordinate pair to 
@@ -125,6 +128,10 @@ if __name__ == '__main__':
 	flongitude = 7 
 	flatitude  = 8
 	fcarreira  = 9 
+	
+	result = [res for res in result if not is_weekend(res[idate]) and not is_weekend(res[fdate])]
+
+	not_count = 0
 
 	for res in result:
 		time_i = res[idate].time()
@@ -133,7 +140,13 @@ if __name__ == '__main__':
 		i_f, j_f = coord_to_square(res[flongitude], res[flatitude])
 		
 		odx_matrix[(i_i, j_i, i_f, j_f)]
+
+		if res[idate].date() != datetime.datetime(2019, 10, 7).date():
+			not_count += 1
 		
+		if res[fdate].date() != datetime.datetime(2019, 10, 7).date():
+			not_count += 1
+
 		if res[icarreira] not in configs.TRAM_ROUTES and res[fcarreira] not in configs.TRAM_ROUTES:
 			if time_i > MORNING_RUSH_HOUR_START and time_i < MORNING_RUSH_HOUR_END:
 				odx_matrix[(i_i, j_i, i_f, j_f)]['morning_rush_hour'] += 1
@@ -148,9 +161,28 @@ if __name__ == '__main__':
 
 			odx_matrix[(i_i, j_i, i_f, j_f)]['total'] += 1
 
+	dates = []
+	for res in result:
+		if res[idate].date() not in dates:
+			dates.append(res[idate].date())
+		if res[fdate].date() not in dates:
+			dates.append(res[fdate].date())
+
+	for key, value in odx_matrix.items():
+		value['morning_rush_hour'] /= len(dates)	
+		value['midday'] /= len(dates)
+		value['afternoon_rush_hour'] /= len(dates)	
+		value['happy_hour'] /= len(dates)	
+		value['night_time'] /= len(dates)	
+		value['total'] /= len(dates)
+
+	for date in dates:
+		print(date.strftime('%Y-%m-%d'))	
+
 	odx_matrix = [{
 		**item
 	} for key, item in odx_matrix.items() if item['total']>0]
 	
 	utils.json_utils.write_json_object(configs.ODX_MATRIX, odx_matrix)
 
+	print(f'Number of days in registrations: {len(dates)}')
