@@ -155,14 +155,14 @@ namespace urban {
 		float total = 0;
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
-		int total_passengers  = 0;
+		float total_passengers  = 0;
 
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
 			auto& use = _bus_usage.get_usage_between(origin, destin);
-			int passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);
+			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);
 
 			if (origin.first  == destin.first && 
 			    origin.second == destin.second) { 
@@ -245,7 +245,7 @@ namespace urban {
 			auto destin = od_pair.second;
 
 			auto& use = _bus_usage.get_usage_between(origin, destin);
-			int passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);;
+			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);;
 
 			if (origin.first  == destin.first && 
 			    origin.second == destin.second) { 
