@@ -430,14 +430,14 @@ namespace urban {
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
 		_usage = grid::instance()->predict_all_od_pairs(*this);
-		int total_passengers  = 0;
+		float total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
 			auto& use = _usage.get_usage_between(origin, destin);
-			int passengers = odx_matrix::instance()->get_total(origin, destin);
+			float passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
 
 			if (origin.first  == destin.first && 
