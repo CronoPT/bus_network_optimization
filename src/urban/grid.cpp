@@ -264,6 +264,14 @@ namespace urban {
 		std::pair<int, int> origin, 
 		bus_network& bus
 	) {
+
+		auto metro_dist = std::vector<float>(metro_network::instance()->get_number_of_nodes(), 0);
+		auto metro_prev = std::vector<int>(metro_network::instance()->get_number_of_nodes(), 0);
+		auto metro_extra = std::vector<int>(metro_network::instance()->get_number_of_nodes(), 0);
+		auto metro_index = [] (int node_id) -> int {
+			return metro_network::instance()->get_node_index(node_id);
+		};
+
 		auto& origin_square = _squares[origin.first][origin.second]; 
 
 		int total_paths = 0;
@@ -304,9 +312,9 @@ namespace urban {
 
 		// considering metro stations as starting points
 		for (auto origin_point: origin_square.get_metro()) {
-			metro_network::instance()->mark_prev(origin_point, undefined);
-			metro_network::instance()->mark_dist(origin_point, 0.0);
-			metro_network::instance()->mark_extra(origin_point, START);
+			metro_prev[metro_index(origin_point)] = undefined;
+			metro_dist[metro_index(origin_point)] = 0.0;
+			metro_extra[metro_index(origin_point)] = START;
 			queue.push(origin_point, 0.0);
 		}
 
@@ -417,22 +425,21 @@ namespace urban {
 						if (queue.contains(v)) {
 							float alt = bus.get_dist(u) + edge.get_attributes().get_time_taken() 
 										+ transfer_penalty;
-							if (alt < metro_network::instance()->get_dist(v) && 
-							 metro_network::instance()->get_extra(v)!=WALK) {
-								metro_network::instance()->mark_dist(v, alt);
-								metro_network::instance()->mark_prev(v, u);
-								metro_network::instance()->mark_extra(v, WALK);
+							if (alt < metro_dist[metro_index(v)] && 
+							 metro_extra[metro_index(v)]!=WALK) {
+								metro_dist[metro_index(v)] = alt;
+								metro_prev[metro_index(v)] = u;
+								metro_extra[metro_index(v)] = WALK;
 								queue.update(v, alt);
 							}
 						} else if (explo.find(v) == explo.end()) {
 							/* v hasn't been visited before */
-							metro_network::instance()->mark_dist(v,
+							metro_dist[metro_index(v)] = 
 								bus.get_dist(u) + edge.get_attributes().get_time_taken() 
-								+ transfer_penalty
-							);
-							metro_network::instance()->mark_prev(v, u);
-							metro_network::instance()->mark_extra(v, WALK);
-							queue.push(v, metro_network::instance()->get_dist(v));
+								+ transfer_penalty;
+							metro_prev[metro_index(v)] = u;
+							metro_extra[metro_index(v)] = WALK;
+							queue.push(v, metro_dist[metro_index(v)]);
 						}
 					}
 				}
@@ -449,36 +456,36 @@ namespace urban {
 
 					if (queue.contains(v)) {
 						float alt;
-						if (needs_penalty_metro(edge, metro_network::instance()->get_extra(u))) {
-							alt = metro_network::instance()->get_dist(u) 
+						if (needs_penalty_metro(edge, metro_extra[metro_index(u)])) {
+							alt = metro_dist[metro_index(u)] 
 							      + edge.get_attributes().get_time_taken() 
 								  + transfer_penalty;
 						} else {
-							alt = metro_network::instance()->get_dist(u) 
+							alt = metro_dist[metro_index(u)] 
 							      + edge.get_attributes().get_time_taken();
 						}
-						if (alt < metro_network::instance()->get_dist(v)) {
-							metro_network::instance()->mark_dist(v, alt);
-							metro_network::instance()->mark_prev(v, u);
-							metro_network::instance()->mark_extra(v, edge.get_attributes().get_line_color());
+						if (alt < metro_dist[metro_index(v)] ) {
+							metro_dist[metro_index(v)] = alt;
+							metro_prev[metro_index(v)] = u;
+							metro_extra[metro_index(v)] = edge.get_attributes().get_line_color();
 							queue.update(v, alt);
 						}
 					} else if (explo.find(v) == explo.end()) {
 						/* v hasn't been visited before */
-						if (needs_penalty_metro(edge, metro_network::instance()->get_extra(u))) {
-							metro_network::instance()->mark_dist(v,
-								metro_network::instance()->get_dist(u) 
+						if (needs_penalty_metro(edge, metro_extra[metro_index(u)])) {
+							metro_dist[metro_index(v)] =  
+								metro_dist[metro_index(u)] 
 								+ edge.get_attributes().get_time_taken() 
-								+ transfer_penalty);
+								+ transfer_penalty;
 						} else {
-							metro_network::instance()->mark_dist(v,
-								metro_network::instance()->get_dist(u) 
-								+ edge.get_attributes().get_time_taken());
+							metro_dist[metro_index(v)] =  
+								metro_dist[metro_index(u)] 
+								+ edge.get_attributes().get_time_taken();
 						}
 						
-						metro_network::instance()->mark_prev(v, u);
-						metro_network::instance()->mark_extra(v, edge.get_attributes().get_line_color());
-						queue.push(v, metro_network::instance()->get_dist(v));
+						metro_prev[metro_index(v)] = u;
+						metro_extra[metro_index(v)] = edge.get_attributes().get_line_color();
+						queue.push(v, metro_dist[metro_index(v)] );
 					}
 				}
 
@@ -496,7 +503,7 @@ namespace urban {
 					*/
 					for (int v_variant: bus.get_stop_variants(v)) {
 						if (queue.contains(v_variant)) {
-							float alt = metro_network::instance()->get_dist(u) 
+							float alt = metro_dist[metro_index(u)]  
 								        + edge.get_attributes().get_time_taken() 
 										+ transfer_penalty;
 							if (alt < bus.get_dist(v_variant) && bus.get_extra(v_variant)!=WALK) {
@@ -508,7 +515,7 @@ namespace urban {
 						} else if (explo.find(v_variant) == explo.end()) {
 							/* v hasn't been visited before */
 							bus.mark_dist(v_variant,
-								metro_network::instance()->get_dist(u) 
+								metro_dist[metro_index(u)] 
 								+ edge.get_attributes().get_time_taken() 
 								+ transfer_penalty);
 							bus.mark_prev(v_variant, u);
@@ -537,7 +544,7 @@ namespace urban {
 				int u      = line.second;
 				float cost;
 				if (is_metro_node(u)) {
-					cost = metro_network::instance()->get_dist(u);
+					cost = metro_dist[metro_index(u)];
 				} else { cost = bus.get_dist(u); }
 
 
@@ -545,9 +552,9 @@ namespace urban {
 					while (u != undefined) {
 						stk.push(u);
 						if (is_metro_node(u)) {
-							i_stk.push(metro_network::instance()->get_extra(u));
-							c_stk.push(metro_network::instance()->get_dist(u));
-							u = metro_network::instance()->get_prev(u);
+							i_stk.push(metro_extra[metro_index(u)]);
+							c_stk.push(metro_dist[metro_index(u)]);
+							u = metro_prev[metro_index(u)];
 						} else {
 							i_stk.push(bus.get_extra(u));
 							c_stk.push(bus.get_dist(u));
@@ -676,7 +683,8 @@ namespace urban {
 					trips
 				);
 				counter += 1;
-				print_progress_bar(counter, total_sq);
+				if (configs::verbose) 
+					print_progress_bar(counter, total_sq);
 			}
 		}
 

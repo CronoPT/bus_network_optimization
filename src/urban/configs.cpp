@@ -26,6 +26,8 @@ namespace urban {
 
 	const int configs::bus_capacity = 60;
 
+	const bool configs::verbose = false;
+
 	// const std::string configs::stop_locations = 
 	// 	"../data/json/generated_bus_stops.json";
 

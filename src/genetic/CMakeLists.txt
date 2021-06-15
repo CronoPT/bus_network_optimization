@@ -13,6 +13,10 @@ target_sources(genetic INTERFACE
     logger.hpp
     genetic_configs.hpp)
 
+# set(THREADS_PREFER_PTHREAD_FLAG ON)
+# find_package(Threads REQUIRED)
+# interface_link_libraries(genetic PRIVATE Threads::Threads)
+
 # set_target_properties(genetic PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(genetic INTERFACE ${PROJECT_SOURCE_DIR}/src/genetic)

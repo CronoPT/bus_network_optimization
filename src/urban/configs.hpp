@@ -15,6 +15,7 @@ namespace urban {
 		static const std::string odx_matrix_data;
 		static const float metro_frequency;
 		static const int bus_capacity;
+		static const bool verbose;
 	};
 
 } // namspace urban

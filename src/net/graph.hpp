@@ -53,8 +53,8 @@ namespace net {
 		inline void mark_extra(int node_id, int ex);
 		inline float get_dist(int node_id);
 		inline int   get_prev(int node_id);
-		inline int   get_extra(int node);
-
+		inline int   get_extra(int node_id);
+		inline int   get_node_index(int node_id);
 		inline void add_nodes_check();
 
 		std::unordered_map<int, node<V, E>>& get_nodes();

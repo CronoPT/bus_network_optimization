@@ -22,17 +22,21 @@ namespace transit_problem {
 	std::vector<genetic::solution<urban::bus_network>> tndp::initialize_population(int pop_size) {
 		auto pop = std::vector<genetic::solution<urban::bus_network>>();
 
-		std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
-		std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;
-		std::cout << "[TNDP] Max N Routes: " << tndp_configs::max_number_routes << std::endl;
-		std::cout << "[TNDP] Population Size: " << pop_size << std::endl;
-		std::cout << "[TNDP] Going into the main cycle" << std::endl;
-
+		if (tndp_configs::verbose) {
+			std::cout << "[TNDP] Pool Size: " << route_pool::instance()->size() << std::endl;
+			std::cout << "[TNDP] Min N Routes: " << tndp_configs::min_number_routes << std::endl;
+			std::cout << "[TNDP] Max N Routes: " << tndp_configs::max_number_routes << std::endl;
+			std::cout << "[TNDP] Population Size: " << pop_size << std::endl;
+			std::cout << "[TNDP] Going into the main cycle" << std::endl;
+		}
 
 		pop.push_back(genetic::solution<urban::bus_network>(
 			*urban::lisbon_bus::instance()
 		));
-		std::cout << "Read Lisbon Bus Network" << std::endl;
+
+		if (tndp_configs::verbose)
+			std::cout << "Read Lisbon Bus Network" << std::endl;
+
 		for (int i=1; i<pop_size; i++) {
 			auto routes  = std::vector<urban::route>();
 
@@ -44,10 +48,14 @@ namespace transit_problem {
 				tndp_configs::min_number_routes-route_pool::instance()->get_number_mandatory(),
 				tndp_configs::max_number_routes-route_pool::instance()->get_number_mandatory()
 			);
-			std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
-			std::cout << " generating net with " << net_size
-				+ route_pool::instance()->get_number_mandatory();
-			std::cout << " routes" << std::endl;
+
+			if (tndp_configs::verbose) {
+				std::cout << "[TNDP] Bus " << i+1 << "/" << pop_size;
+				std::cout << " generating net with " << net_size
+					+ route_pool::instance()->get_number_mandatory();
+				std::cout << " routes" << std::endl;
+			}
+
 			auto set = std::set<int>();
 			for (int j=0; j<net_size; j++) {
 				int route = generate_number_between(0, route_pool::instance()->size()-1);
@@ -62,7 +70,8 @@ namespace transit_problem {
 			));
 		}
 
-		std::cout << "[TNDP] Exiting the main cycle" << std::endl;
+		if (tndp_configs::verbose)
+			std::cout << "[TNDP] Exiting the main cycle" << std::endl;
 
 		return pop;
 	}

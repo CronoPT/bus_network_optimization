@@ -16,6 +16,7 @@ namespace transit_problem {
 		static const std::string  ge_routes;
 		static const std::string  og_routes;
 		static const std::vector<std::string> tram_routes;
+		static const bool verbose;
 	};
 
 } // namespace transit_problem

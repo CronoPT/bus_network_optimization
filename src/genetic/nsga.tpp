@@ -3,6 +3,24 @@
 
 namespace genetic {
 
+	/**
+	 * Print a simple progress bar. Used mainly to see the
+	 * progress of the path finding algorithm.
+	 * 	@param iteration: the current progress (step)
+	 * 	@param total: the total number of steps
+	 * 
+	 * 	@return void
+	*/
+	void print_progress_bar(int iteration, int total, std::string suffix) {
+		float percent = 100 * (iteration/total);
+		int filled_length = (100 * iteration) / total;
+		std::string bar = std::string(filled_length, '=') + 
+		                  std::string(100 - filled_length, '-');
+		std::cout << "|" << bar << "| ";
+		std::cout << iteration << "/" << total << " " << suffix << " |\r" << std::flush;
+		if (iteration == total) { std::cout << std::endl; } 
+	}
+
 	template<typename T>
 	nsga<T>::nsga(problem<T>* problem):
 	 algorithm<T>(problem) {
@@ -11,32 +29,61 @@ namespace genetic {
 
 	template<typename T>
 	std::vector<solution<T>> nsga<T>::execute() {
-		std::cout << "[NSGA] Algorithm Starting" << std::endl;
+		std::cout << "iterations: " << genetic_configs::max_iterations << std::endl;
+		std::cout << "population_size: " << genetic_configs::population_size << std::endl;
+		std::cout << "crossover_prob: " << genetic_configs::crossover_probability << std::endl;
+		std::cout << "mutation_prob: " << genetic_configs::mutation_probability << std::endl;
+
+		if (genetic_configs::verbose)
+			std::cout << "[NSGA] Algorithm Starting" << std::endl;
+
 		this->initialize_population();
-		std::cout << "[NSGA] Initial Population Done" << std::endl;
+
+		if(genetic_configs::verbose)
+			std::cout << "[NSGA] Initial Population Done" << std::endl;
+
 		this->compute_costs();
-		std::cout << "[NSGA] Costs for Initial Population Done" << std::endl;
+
+		if(genetic_configs::verbose)
+			std::cout << "[NSGA] Costs for Initial Population Done" << std::endl;
 
 		this->log_beginning();
 
 		int iteration = 0;
 
-		std::cout << "Max Stalled: " << genetic_configs::max_stalled << std::endl;
+		if (genetic_configs::verbose)
+			std::cout << "Max Stalled: " << genetic_configs::max_stalled << std::endl;
 
 		while (iteration<genetic_configs::max_iterations) {
-			std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
+			if (genetic_configs::verbose) {
+				std::cout << "\n<<<<<<<<NEW POPULATION>>>>>>>>" << std::endl;
+				std::cout << "[NSGA] Best solution total cost OK" << std::endl;
+			} else {
+				int iterations_left = (genetic_configs::max_iterations-1)-iteration;
+				float minutes_left = (((float)genetic_configs::population_size/(float)genetic_configs::number_threads) 
+				                     * 15 * iterations_left) / 60;
+				// std::stringstream ss;
+				std::string suffix = "Expected time remaining " + std::to_string((int)std::ceil(minutes_left));
+				// ss << "Expected time remaining " << std::ceil(minutes_left);
+				// ss >> suffix;
+				print_progress_bar(iteration+1, genetic_configs::max_iterations, suffix);
+			}
 
-			float best_cost = this->get_best_solution().get_total_cost();
-			std::cout << "[NSGA] Best solution total cost OK" << std::endl;
 			this->iteration();
-			std::cout << "[NSGA] Iteration OK" << std::endl;
-			this->print_population();
+
+			if (genetic_configs::verbose) {
+				std::cout << "[NSGA] Iteration OK" << std::endl;
+				this->print_population();
+			}
 
 			iteration += 1;
 		}
 
-		std::cout << "\nClassic GA is finished!" << std::endl;
-		std::cout << "Iterations taken: " << iteration << std::endl;
+		if (genetic_configs::verbose) {
+			std::cout << "\nClassic GA is finished!" << std::endl;
+			std::cout << "Iterations taken: " << iteration << std::endl;
+		}
+
 
 		std::vector<solution<T>> result;
 		std::copy_if(
@@ -157,7 +204,31 @@ namespace genetic {
 	}
 
 	template<typename T>
-	void nsga<T>::compute_costs() {
+	void evaluation_thread(nsga<T>* algorithm, int thread_id) {
+		for (int i=thread_id; i<algorithm->get_population().size(); i+=genetic_configs::number_threads) {
+			auto& solution = algorithm->get_population().get_solutions().at(i);
+			auto report = algorithm->get_problem()->compute_cost(solution.get_item());
+			auto costs  = report.first;
+			auto trans  = report.second;
+
+			float total_cost = 0.0;
+			for (auto cost: costs)
+				total_cost += cost;
+			
+			float total_tran = 0.0;
+			for (auto tra: trans) {
+				total_tran += tra;
+			}
+
+			solution.set_costs(costs);
+			solution.set_transgressions(trans);
+			solution.set_total_cost(total_cost);
+			solution.set_total_transgression(total_tran);
+		}
+	}
+
+	template<typename T>
+	void nsga<T>::compute_costs_single_thread() {
 		for (auto& solution: this->get_population().get_solutions()) {
 			auto report = this->get_problem()->compute_cost(solution.get_item());
 			auto costs  = report.first;
@@ -176,6 +247,27 @@ namespace genetic {
 			solution.set_transgressions(trans);
 			solution.set_total_cost(total_cost);
 			solution.set_total_transgression(total_tran);
+		}
+	}
+
+	template<typename T>
+	void nsga<T>::compute_costs_multi_threads() {
+		auto threads = std::vector<std::thread>();
+		for (int i=0; i<genetic_configs::number_threads; i++) {
+			threads.push_back(std::thread(evaluation_thread<T>, this, i));
+		}
+
+		for (int i=0; i<genetic_configs::number_threads; i++) {
+			threads.at(i).join();
+		}
+	}
+
+	template<typename T>
+	void nsga<T>::compute_costs() {
+		if (genetic_configs::threaded) {
+			compute_costs_multi_threads();
+		} else {
+			compute_costs_single_thread();
 		}
 	}
 

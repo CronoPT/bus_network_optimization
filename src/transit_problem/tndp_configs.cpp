@@ -19,6 +19,7 @@ namespace transit_problem {
 		"54E", "12E", "18E", "24E",
 		"25E", "28E"
 	};
+	const bool tndp_configs::verbose = false;
 
 	// const int tndp_configs::max_route_length  = 10;
 	// const int tndp_configs::min_route_length  = 4;

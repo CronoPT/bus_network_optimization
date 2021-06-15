@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include "genetic_configs.hpp"
 
 namespace genetic {
 

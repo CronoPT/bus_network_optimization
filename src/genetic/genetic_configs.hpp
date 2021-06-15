@@ -1,6 +1,8 @@
 #ifndef __GENETIC_CONFIGS_HPP__
 #define __GENETIC_CONFIGS_HPP__
 
+#include <string>
+
 namespace genetic {
 
 	class genetic_configs {
@@ -25,6 +27,12 @@ namespace genetic {
 		 * Used only on the CLASSIC GA
 		*/
 		static int 	 max_stalled;
+
+		static std::string summary_file;
+
+		static bool verbose;
+		static bool threaded;
+		static int number_threads;
 	};
 
 } // namespace genetic

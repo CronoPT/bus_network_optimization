@@ -6,6 +6,8 @@
 #include "logger.hpp"
 #include <limits>
 #include <algorithm>
+#include <thread>
+#include <sstream>
 
 namespace genetic {
 
@@ -24,6 +26,9 @@ namespace genetic {
 
 			void log_beginning();
 			void log_iteration();
+
+			void compute_costs_single_thread();
+			void compute_costs_multi_threads();
 	};
 
 } // namespace genetic

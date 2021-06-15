@@ -43,10 +43,11 @@ namespace genetic {
 	}
 
 	void logger::persist() {
-		std::ofstream file("../data/json/run.json");
+		std::ofstream file(genetic_configs::summary_file);
 
 		file << "{\n";
 
+		file << "\t\"iterations\": " << genetic_configs::max_iterations << ",\n";
 		file << "\t\"population_size\": " << _pop_size << ",\n";
 		file << "\t\"mutation_probability\": "  << _mutation_prob  << ",\n";
 		file << "\t\"crossover_probability\": " << _crossover_prob << ",\n";

@@ -163,6 +163,12 @@ namespace net {
 	}
 
 	template<typename V, typename E>
+	inline int graph<V, E>::get_node_index(int node_id) {
+		add_nodes_check();
+		return _node_to_index[node_id];
+	}
+
+	template<typename V, typename E>
 	inline void graph<V, E>::add_nodes_check() {
 		if (_nodes_added) {
 			_dist  = std::vector<float>(_total_nodes, 0);
