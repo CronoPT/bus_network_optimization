@@ -215,3 +215,6 @@ TRAM_ROUTES = [
 	# '25E',
 	# '28E'
 ]
+
+WALKS_LINES  = '../data/geojson/walk_lines.geojson'
+WALKS_POINTS = '../data/geojson/walk_points.geojson'
