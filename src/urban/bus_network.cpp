@@ -197,7 +197,7 @@ namespace urban {
 		return _longest_route;
 	}
 
-	network_usage bus_network::get_usage() {
+	network_usage& bus_network::get_usage() {
 		if (!_evaluated) {
 			evaluate();
 		}
@@ -515,7 +515,7 @@ namespace urban {
 	bool bus_network::_stops_loaded = false;
 
 	/** 
-	 * Initialize the object that will holf all the
+	 * Initialize the object that will hold all the
 	 * stop locations with an empty json object.
 	*/
 	std::unordered_map<int, std::pair<double, double>> 

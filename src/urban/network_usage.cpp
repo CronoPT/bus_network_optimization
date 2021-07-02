@@ -2,6 +2,7 @@
 #define __NETWORK_USAGE_CPP__
 
 #include "network_usage.hpp"
+#include <iostream>
 
 namespace urban {
 

@@ -7,7 +7,7 @@ namespace urban {
 
 	trip::trip(
 		std::vector<stage>& stages,
-		int passengers,
+		float passengers,
 		int origin,
 		int destin,
 		std::pair<int, int> origin_square,
@@ -19,12 +19,15 @@ namespace urban {
 	 _destin(destin),
 	 _transfers(0),
 	 _origin_square(origin_square),
-	 _destin_square(destin_square) {
+	 _destin_square(destin_square),
+	 _time(0) {
 		
 		for (auto& s: stages) {
 			if (s.get_mode() != WALKING_STAGE) {
 				_transfers += 1;
 			}
+
+			_time += s.get_time();
 		}
 
 		// Discounting the first boarding which 
@@ -42,7 +45,8 @@ namespace urban {
 	 _destin(-1),
 	 _transfers(-1),
 	 _origin_square({-1, -1}),
-	 _destin_square({-1, -1}) {
+	 _destin_square({-1, -1}),
+	 _time(-1) {
 		/* Do Nothing */
 	}
 
@@ -50,7 +54,7 @@ namespace urban {
 		return _stages;
 	}
 
-	int trip::get_passengers() const {
+	float trip::get_passengers() const {
 		return _passengers;
 	}
 
@@ -72,6 +76,10 @@ namespace urban {
 
 	std::pair<int, int> trip::get_destin_square() const {
 		return _destin_square;
+	}
+
+	float trip::get_time() const {
+		return _time;
 	}
 
 } // namespace urban
