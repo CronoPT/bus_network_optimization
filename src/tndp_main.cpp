@@ -63,7 +63,7 @@ int main() {
 		file << "\t\t\"routes\": [\n"; 
 		for (int j=0; j<routes.size(); j++) {
 
-			auto stops = routes.at(i).get_stop_sequence();
+			auto stops = routes.at(j).get_stop_sequence();
 			file << "\t\t\t[\n";
 			for (int k=0; k<stops.size(); k++) {
 				file << "\t\t\t\t" << stops.at(k);

@@ -21,7 +21,7 @@ urban::bus_network read_generate_bus() {
 	std::ifstream input_file("../data/json/run_nets.json");
 	nlohmann::json json = nlohmann::json::parse(input_file);
 	
-	int index = 1; // number of the generated route
+	int index = 0; // number of the generated route
 	std::vector<urban::route> routes;
 	int route_id = 1;
 	for (auto& json_route: json[index]["routes"]) {
@@ -40,8 +40,28 @@ int main() {
 	urban::bus_network original_bus = *urban::lisbon_bus::instance();
 	urban::bus_network generate_bus = read_generate_bus();
 
-	std::cout << original_bus.get_unsatisfied_demand() << std::endl;
-	std::cout << generate_bus.get_unsatisfied_demand() << std::endl;
+
+	std::cout << "[O] Total Length: " << original_bus.get_total_length() << std::endl;
+	std::cout << "[O] Unsatisfied: "  << original_bus.get_unsatisfied_demand() << std::endl;
+	std::cout << "[O] In Vehicle: "   << original_bus.get_in_vehicle_time() << std::endl;
+	std::cout << "[O] Transfers: "    << original_bus.get_transfers() << std::endl;
+	std::cout << "[O] Num Nodes: "    << original_bus.get_number_of_nodes() << std::endl;
+	std::cout << "[O] Num Edges: "    << original_bus.get_number_of_edges() << std::endl;
+	std::cout << "[O] Num Routes: "   << original_bus.get_number_routes() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "<><><><>" << std::endl;
+
+	std::cout << "[G] Total Length: " << generate_bus.get_total_length() << std::endl;
+	std::cout << "[G] Unsatisfied: "  << generate_bus.get_unsatisfied_demand() << std::endl;
+	std::cout << "[G] In Vehicle: "   << generate_bus.get_in_vehicle_time() << std::endl;
+	std::cout << "[G] Transfers: "    << generate_bus.get_transfers() << std::endl;
+	std::cout << "[G] Num Nodes: "    << generate_bus.get_number_of_nodes() << std::endl;
+	std::cout << "[G] Num Edges: "    << generate_bus.get_number_of_edges() << std::endl;
+	std::cout << "[G] Num Routes: "   << generate_bus.get_number_routes() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "________" << std::endl;
 
 	urban::network_usage original_use = original_bus.get_usage();
 	urban::network_usage generate_use = generate_bus.get_usage();
@@ -57,18 +77,21 @@ int main() {
 		auto origin = pair.first;
 		auto destin = pair.second;
 
-		if (origin == destin) {
-			i = i+1;
-			continue;
-		}
-
 		urban::trip original_trip = original_use.get_usage_between(origin, destin);
 		urban::trip generate_trip = generate_use.get_usage_between(origin, destin); 
 
 		float passengers = urban::odx_matrix::instance()->get_total(origin, destin);
 		total_passengers += passengers;
-		if (passengers == 0) {
-			i = i+1;
+
+		if (origin.first  == destin.first &&
+		    origin.second == destin.second) {
+			i += 1;
+			continue;
+		}
+
+		if (generate_trip.get_stages().size() == 0) {
+			i += 1;
+			unsatisfied += passengers;
 			continue;
 		}
 
@@ -78,8 +101,9 @@ int main() {
 		float original_time = original_trip.get_time();
 		float generate_time = generate_trip.get_time();
 
-		if (generate_trip.get_stages().size() == 0) {
-			unsatisfied += passengers;
+		if (passengers == 0) {
+			i += 1;
+			continue;
 		}
 
 		file << "\t{\n";
