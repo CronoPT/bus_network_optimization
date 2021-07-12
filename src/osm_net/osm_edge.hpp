@@ -27,6 +27,7 @@ namespace osm_net {
 			float get_length()  const;
 			int get_max_speed() const;
 			const coord_sequence& get_geometry() const;
+			bool has_geometry() const;
 	};
 
 } // namespace osm_net

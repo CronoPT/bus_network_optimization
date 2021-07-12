@@ -51,6 +51,10 @@ namespace osm_net {
 		return _geometry;
 	}
 
+	bool osm_edge::has_geometry() const {
+		return _geometry.size() > 0;
+	}
+
 	// const std::string& osm_edge::get_name() const {
 	// 	return _name;
 	// }

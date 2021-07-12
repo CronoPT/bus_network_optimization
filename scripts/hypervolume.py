@@ -21,7 +21,7 @@ def plot_set(ax, file_set, title):
 		for iteration in run_summary['summary']:
 			hypervolumes.append(hv.calc(np.array(iteration)))
 
-		hypervolumes = hypervolumes[:120]
+		# hypervolumes = hypervolumes[:120]
 
 		ax.plot(
 			range(len(hypervolumes)), 

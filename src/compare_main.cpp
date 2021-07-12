@@ -13,15 +13,74 @@
 #include <odx_matrix.hpp>
 #include <tndp.hpp>
 #include <route_pool.hpp>
+#include <limits>
+#include <sstream>
 
 #include <chrono>
 #include <iostream>
 
-urban::bus_network read_generate_bus() {
+osm_net::coord_sequence filter_coord_sequence(osm_net::coord_sequence& sequence) {
+	auto filtered = osm_net::coord_sequence();
+
+	auto prev_pair = std::pair<double, double>(-1, -1);
+	for (auto& pair: sequence) {
+		if (pair.first  == prev_pair.first &&
+		    pair.second == prev_pair.second) {
+			prev_pair = pair;
+			continue;
+		}
+		filtered.push_back(pair);
+		prev_pair = pair; 
+	}
+
+	return filtered;
+}
+
+osm_net::coord_sequence get_line_from_path(std::vector<int>& path) {
+	auto& nodes = osm_net::osm_net::instance()->get_nodes();
+	auto coordinates = osm_net::coord_sequence();
+
+	int origin = -1;
+	for (int destin : path) {
+		if (origin != -1) {
+			auto& node = nodes[origin];
+
+			float min_length = std::numeric_limits<float>::max();
+			net::edge<osm_net::osm_edge> min_edge;
+			for (auto& adj: node.get_adjacencies()) {
+				float length = adj.second.get_attributes().get_length();
+				if (adj.second.get_destin() == destin && length < min_length) {
+					min_length = length;
+					min_edge   = adj.second; 
+				}
+			}
+
+			if (min_edge.get_attributes().has_geometry()) {
+				auto& geo = min_edge.get_attributes().get_geometry();
+				coordinates.insert(coordinates.end(), geo.begin(), geo.end());
+			} else {
+				auto pair = std::pair<double, double>(
+					nodes[origin].get_attributes().get_lon(),
+					nodes[origin].get_attributes().get_lat()
+				);
+				coordinates.push_back(pair);
+				pair = std::pair<double, double>(
+					nodes[destin].get_attributes().get_lon(),
+					nodes[destin].get_attributes().get_lat()
+				);
+				coordinates.push_back(pair);
+			}
+		}
+		origin = destin;
+	}
+
+	return coordinates;
+}
+
+urban::bus_network read_generate_bus(int index) {
 	std::ifstream input_file("../data/json/run_nets.json");
 	nlohmann::json json = nlohmann::json::parse(input_file);
 	
-	int index = 0; // number of the generated route
 	std::vector<urban::route> routes;
 	int route_id = 1;
 	for (auto& json_route: json[index]["routes"]) {
@@ -37,9 +96,10 @@ urban::bus_network read_generate_bus() {
 }
 
 int main() {
-	urban::bus_network original_bus = *urban::lisbon_bus::instance();
-	urban::bus_network generate_bus = read_generate_bus();
+	int index = 0; // number of the generated route
 
+	urban::bus_network original_bus = *urban::lisbon_bus::instance();
+	urban::bus_network generate_bus = read_generate_bus(index);
 
 	std::cout << "[O] Total Length: " << original_bus.get_total_length() << std::endl;
 	std::cout << "[O] Unsatisfied: "  << original_bus.get_unsatisfied_demand() << std::endl;
@@ -69,7 +129,10 @@ int main() {
 	float total_passengers = 0;
 	float unsatisfied = 0;
 
-	std::ofstream file("../data/json/comparison.json");
+	std::ostringstream stream;
+	stream << "../data/json/comparisons/comparison-" << index << ".json";
+	std::string file_name = stream.str();
+	std::ofstream file(file_name);
 	int i = 0;
 	int size = urban::odx_matrix::instance()->get_all_pairs().size();
 	file << "[\n";
@@ -122,6 +185,61 @@ int main() {
 		i = i+1;
 	}
 	file << "]\n";
+	file.close();
+
+	auto lines = std::vector<osm_net::coord_sequence>();
+	for (auto& route: generate_bus.get_routes()) {
+		auto this_line = osm_net::coord_sequence();
+		int origin_stop = -1;
+		for (auto destin_stop: route.get_stop_sequence()) {
+			if (origin_stop != -1) {
+				auto path_report = osm_net::osm_net::instance()->dijkstra(
+					origin_stop,
+					destin_stop,
+					[](net::edge<osm_net::osm_edge>& e) -> float {
+						auto length = e.get_attributes().get_length();
+						auto speed  = e.get_attributes().get_max_speed();
+						return (float) length;
+					}
+				);
+
+				auto& path = path_report.first;
+				osm_net::coord_sequence coords = get_line_from_path(path);
+				this_line.insert(this_line.end(), coords.begin(), coords.end());
+			}
+			origin_stop = destin_stop;
+		}
+		this_line = filter_coord_sequence(this_line);
+		lines.push_back(this_line);
+	}
+
+	stream.str("");
+	stream.clear();
+	stream << "../data/geojson/results/network-" << index << ".geojson";
+	file_name = stream.str();
+	file = std::ofstream(file_name);
+
+	file << "{\n";
+	file << "\t\"type\":\"MultiLineString\",\n";
+	file << "\t\"coordinates\": [\n";
+	for (int i=0; i<lines.size(); i++) {
+		auto line = lines.at(i);
+		file << "\t\t[\n";
+		for (int j=0; j<line.size(); j++) {
+			auto pair = line.at(j);
+			file << "\t\t\t[";
+			file << pair.first << ", " << pair.second;
+			file << "]";
+			if (j < line.size()-1) { file << ","; }
+			file << "\n";
+		}
+		file << "\t\t]";
+		if (i < lines.size()-1) { file << ","; }
+		file << "\n";
+	}
+	file << "\t]\n";
+	file << "}\n";
+	file.close();
 
 	std::cout << (unsatisfied / total_passengers) << std::endl;
 	std::cout << generate_bus.get_unsatisfied_demand() << std::endl;
