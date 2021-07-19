@@ -3,6 +3,8 @@ import utils.json_utils
 import matplotlib.pyplot as plt
 import random 
 
+INDEX = 0
+
 def do_transfers(json):
 	transfers   = {}
 	for obj in json:
@@ -25,7 +27,8 @@ def do_transfers(json):
 	plt.bar(transfers.keys(), transfers.values(), color=colors, width=0.95)
 	plt.ylabel('Passenger Count')
 	plt.xlabel('Transfer difference from the original network (m)')
-	plt.savefig(f'../data/images/network-{0}-transfers.png', bbox_inches='tight', dpi=400)
+	plt.xticks([n for n in transfers.keys() if n%1 == 0])
+	plt.savefig(f'../data/images/network-{INDEX}-transfers.png', bbox_inches='tight', dpi=400)
 	plt.show()
 
 def do_travel_time(json):
@@ -55,11 +58,12 @@ def do_travel_time(json):
 	plt.ylabel('Passenger Count')
 	plt.xlabel('Travel time difference from the original network (m)')
 	plt.xticks(ticks)
-	plt.savefig(f'../data/images/network-{0}-time.png', bbox_inches='tight', dpi=400)
+	plt.savefig(f'../data/images/network-{INDEX}-time.png', bbox_inches='tight', dpi=400)
 	plt.show()
 			
 if __name__ == '__main__':
-	json = utils.json_utils.read_json_object('../data/json/comparison.json')
+	json = utils.json_utils.read_json_object(f'../data/json/comparisons/comparison-{INDEX}.json')
+	plt.rcParams['font.size'] = '12'
 
 	do_transfers(json)
 	do_travel_time(json)

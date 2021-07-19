@@ -82,6 +82,64 @@ namespace urban {
 		return _time;
 	}
 
+	float trip::get_walking_time() const {
+		float total;
+		for (auto& stage: _stages) {
+			if (stage.get_mode() == WALKING_STAGE) {
+				total += stage.get_time();
+			}
+		}
+		return total;
+	}
+
+	int trip::get_number_modes() const {
+		bool has_walk  = false;
+		bool has_metro = false;
+		bool has_bus   = false;
+		for (auto& stage: _stages) {
+			if (stage.get_mode() == WALKING_STAGE) {
+				has_walk = true;
+			} else if (stage.get_mode() == METRO_STAGE) {
+				has_metro = true;
+			} else if (stage.get_mode() == BUS_STAGE) {
+				has_bus = true;
+			}
+		}
+
+		int modes = 0;
+		if (has_walk)  modes += 1;
+		if (has_metro) modes += 1;
+		if (has_bus)   modes += 1;
+		return modes;
+	}
+
+	bool trip::uses_walk() const {
+		for (auto& stage: _stages) {
+			if (stage.get_mode() == WALKING_STAGE) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool trip::uses_metro() const {
+		for (auto& stage: _stages) {
+			if (stage.get_mode() == METRO_STAGE) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool trip::uses_bus() const {
+		for (auto& stage: _stages) {
+			if (stage.get_mode() == BUS_STAGE) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 } // namespace urban
 
 #endif

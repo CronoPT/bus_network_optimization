@@ -1,8 +1,8 @@
 import utils.json_utils
 import matplotlib.pyplot as plt
 
-indexes   = [0, 24, 49, 99, 124, 149, 174, 199]
-highlight = 0
+indexes   = [0, 24, 49, 74, 99, 124, 149, 174, 199]
+highlight = 199
 lisbon_costs = [
 	3.56122e+06, # total length
 	5.77707e-06, # unsatisfied demand
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	in_vehicle   = 2
 	transfers    = 3
 
-	fig, axs = plt.subplots(4, 1, figsize=(5, 16))
+	fig, axs = plt.subplots(1, 4, figsize=(24, 5))
 
 	for i in range(4):
 		x = ["lisbon"]

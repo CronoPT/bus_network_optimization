@@ -35,6 +35,11 @@ namespace urban {
 		std::pair<int, int> get_origin_square() const;
 		std::pair<int, int> get_destin_square() const;
 		float get_time() const;
+		float get_walking_time() const;
+		int   get_number_modes() const;
+		bool  uses_walk() const;
+		bool  uses_metro() const;
+		bool  uses_bus() const;
 
 	};
 

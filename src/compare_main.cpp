@@ -96,7 +96,7 @@ urban::bus_network read_generate_bus(int index) {
 }
 
 int main() {
-	int index = 0; // number of the generated route
+	int index = 0; // number of the generated network
 
 	urban::bus_network original_bus = *urban::lisbon_bus::instance();
 	urban::bus_network generate_bus = read_generate_bus(index);
@@ -164,6 +164,9 @@ int main() {
 		float original_time = original_trip.get_time();
 		float generate_time = generate_trip.get_time();
 
+		float walking_time = generate_trip.get_walking_time();
+		int   used_modes   = generate_trip.get_number_modes();  
+
 		if (passengers == 0) {
 			i += 1;
 			continue;
@@ -178,7 +181,12 @@ int main() {
 		file << "\t\t\"original_transfers\": " << original_transfers << ",\n";
 		file << "\t\t\"generate_transfers\": " << generate_transfers << ",\n";
 		file << "\t\t\"original_travel_time\": " << original_time << ",\n";
-		file << "\t\t\"generate_travel_time\": " << generate_time << "\n";
+		file << "\t\t\"generate_travel_time\": " << generate_time << ",\n";
+		file << "\t\t\"generate_walking_time\": " << walking_time << ",\n";
+		file << "\t\t\"generate_uses_walking\": " << (generate_trip.uses_walk() ? "true":"false") << ",\n";
+		file << "\t\t\"generate_uses_metro\": " << (generate_trip.uses_metro() ? "true":"false") << ",\n";
+		file << "\t\t\"generate_uses_bus\": " << (generate_trip.uses_bus() ? "true":"false") << ",\n";
+		file << "\t\t\"generate_modes\": " << used_modes << "\n";
 		file << "\t}";
 		if (i<size-1) { file << ","; }
 		file << "\n";
