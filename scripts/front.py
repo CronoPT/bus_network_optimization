@@ -4,13 +4,20 @@ import matplotlib.pyplot as plt
 OBJECTIVES = 4
 LABELS = ['Total Length', 'Unsatisfied Demand', 'In Vehicle Time', 'Average Transfers']
 
+lisbon_costs = [
+	3.56122e+06, # total length (in meters)
+	5.77707e-06, # unsatisfied demand 
+	1.39027e+07, # in vehicle time (in seconds)
+	0.0305169    # average transfers ()
+]
+
 if __name__ == '__main__':
 	json = utils.json_utils.read_json_object('../data/json/runs/tnfsp.json')
 	json = json['summary'][-1]
 
 	fig, axs = plt.subplots(OBJECTIVES, OBJECTIVES, figsize=(10, 10), sharex='col', sharey='row')
 	
-	pad = 5
+	# pad = 5
 	# for ax, col in zip(axs[0], LABELS):
 	# 	ax.annotate(col, xy=(0.5, 1), xytext=(0, pad),
 	# 				xycoords='axes fraction', textcoords='offset points',
@@ -27,6 +34,7 @@ if __name__ == '__main__':
 			if i > j:
 				x = [n[j] for n in json]
 				axs[i, j].scatter(x, y)
+				axs[i, j].scatter([lisbon_costs[j]], [lisbon_costs[i]])
 				continue
 			elif i == j:
 				axs[i, j].annotate(LABELS[i], (0.5, 0.5), xycoords='axes fraction',

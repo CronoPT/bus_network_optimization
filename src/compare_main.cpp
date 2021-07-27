@@ -164,8 +164,11 @@ int main() {
 		float original_time = original_trip.get_time();
 		float generate_time = generate_trip.get_time();
 
-		float walking_time = generate_trip.get_walking_time();
-		int   used_modes   = generate_trip.get_number_modes();  
+		float original_walking_time = original_trip.get_walking_time();
+		int   original_used_modes   = original_trip.get_number_modes();
+
+		float generate_walking_time = generate_trip.get_walking_time();
+		int   generate_used_modes   = generate_trip.get_number_modes();  
 
 		if (passengers == 0) {
 			i += 1;
@@ -182,11 +185,16 @@ int main() {
 		file << "\t\t\"generate_transfers\": " << generate_transfers << ",\n";
 		file << "\t\t\"original_travel_time\": " << original_time << ",\n";
 		file << "\t\t\"generate_travel_time\": " << generate_time << ",\n";
-		file << "\t\t\"generate_walking_time\": " << walking_time << ",\n";
+		file << "\t\t\"original_walking_time\": " << original_walking_time << ",\n";
+		file << "\t\t\"generate_walking_time\": " << generate_walking_time << ",\n";
+		file << "\t\t\"original_uses_walking\": " << (original_trip.uses_walk() ? "true":"false") << ",\n";
 		file << "\t\t\"generate_uses_walking\": " << (generate_trip.uses_walk() ? "true":"false") << ",\n";
+		file << "\t\t\"original_uses_metro\": " << (original_trip.uses_metro() ? "true":"false") << ",\n";
 		file << "\t\t\"generate_uses_metro\": " << (generate_trip.uses_metro() ? "true":"false") << ",\n";
+		file << "\t\t\"original_uses_bus\": " << (original_trip.uses_bus() ? "true":"false") << ",\n";
 		file << "\t\t\"generate_uses_bus\": " << (generate_trip.uses_bus() ? "true":"false") << ",\n";
-		file << "\t\t\"generate_modes\": " << used_modes << "\n";
+		file << "\t\t\"original_modes\": " << original_used_modes << ",\n";
+		file << "\t\t\"generate_modes\": " << generate_used_modes << "\n";
 		file << "\t}";
 		if (i<size-1) { file << ","; }
 		file << "\n";
