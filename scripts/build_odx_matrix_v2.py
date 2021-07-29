@@ -1,6 +1,7 @@
 import psycopg2
 import configs
 import utils.json_utils
+import utils.general_utils
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,11 +76,13 @@ def coord_to_square(lon, lat):
 	return x, y
 
 def id_to_coord(id, bus_map, mtr_map):
-	print(id, type(id))
+	# print(id, type(id))
 	if id in bus_map:
 		return bus_map[id]
-	else:
+	elif id in mtr_map:
 		return mtr_map[id]
+	else:
+		return None
 
 if __name__ == '__main__':
 
@@ -96,7 +99,7 @@ if __name__ == '__main__':
 	min_lat = np.inf
 	max_lon = -np.inf
 	min_lon = np.inf
-	_DIVISIONS = 30
+	_DIVISIONS = 25
 	
 	MORNING_RUSH_HOUR_START = datetime.datetime.strptime(
 		configs.MORNING_RUSH_HOUR_START, '%H:%M'
@@ -148,14 +151,22 @@ if __name__ == '__main__':
 	} for origin, destin in itertools.product(odx_matrix_pairs, odx_matrix_pairs)}
 
 	for index, row in df.iterrows():
-		if str(row['fstation']) == 'nan':
+
+		utils.general_utils.print_progress_bar(index+1, df.shape[0])
+
+		if str(row['fstation'])=='nan' or str(row['istation'])=='nan' or \
+		   str(row['fdate'])=='nan' or str(row['idate'])=='nan':
 			continue
 
-		time_i = datetime.datetime.strptime(row['idate'], '%Y-%m-%d %H:%M:%S').time() 
-		time_f = datetime.datetime.strptime(row['fdate'], '%Y-%m-%d %H:%M:%S').time() 
+		# print(f'idate:{row["idate"]} <> fdate:{row["fdate"]}')
+		time_i = datetime.datetime.strptime(row['idate'][:19], '%Y-%m-%d %H:%M:%S').time() 
+		time_f = datetime.datetime.strptime(row['fdate'][:19], '%Y-%m-%d %H:%M:%S').time() 
 
 		i_coords = id_to_coord(row['istation'], bus_map, mtr_map)
 		f_coords = id_to_coord(row['fstation'], bus_map, mtr_map)
+
+		if i_coords==None or f_coords==None:
+			continue
 
 		i_i, j_i = coord_to_square(i_coords[0], i_coords[1])
 		i_f, j_f = coord_to_square(f_coords[0], f_coords[1])
@@ -240,8 +251,8 @@ if __name__ == '__main__':
 		**item
 	} for key, item in odx_matrix.items() if item['total']>0]
 
-	print(odx_matrix)
+	# print(odx_matrix)
 	
-	# utils.json_utils.write_json_object(configs.ODX_MATRIX, odx_matrix)
+	utils.json_utils.write_json_object(configs.ODX_MATRIX, odx_matrix)
 
 	# print(f'Number of days in registrations: {len(dates)}')

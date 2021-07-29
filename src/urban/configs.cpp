@@ -17,7 +17,7 @@ namespace urban {
 	const std::string configs::walking_network = 
 		"../data/json/walks.json";
 
-	const int configs::divisions = 30;
+	const int configs::divisions = 25;
 
 	const std::string configs::odx_matrix_data = 
 		"../data/json/odx_matrix.json";
