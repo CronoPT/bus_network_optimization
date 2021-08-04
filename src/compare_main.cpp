@@ -96,7 +96,7 @@ urban::bus_network read_generate_bus(int index) {
 }
 
 int main() {
-	int index = 0; // number of the generated network
+	int index = 199; // number of the generated network
 
 	urban::bus_network original_bus = *urban::lisbon_bus::instance();
 	urban::bus_network generate_bus = read_generate_bus(index);

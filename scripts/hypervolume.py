@@ -35,32 +35,55 @@ def plot_set(ax, file_set, title):
 		ax.set_title(title)
 
 
-if __name__ == '__main__':
+def plot_individual(filename):
+	run_summary = utils.json_utils.read_json_object(filename)
 
-	mypath = '../data/json/runs/'
-	files  = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+	hypervolumes = []
+	hv = get_performance_indicator("hv", ref_point=np.array([8e+06, 1, 5e+08, 1]))
+	for iteration in run_summary['summary']:
+		hypervolumes.append(hv.calc(np.array(iteration)))
 
-	population_size = {}
-	mutation_prob   = {}
-
-	sizes = [50]
-	probs = [0.1]
-
-	for file in files:
-		run_summary = utils.json_utils.read_json_object(f'{mypath}{file}')
-
-		if run_summary['population_size'] in population_size:
-			population_size[run_summary['population_size']].append(file)
-		else:
-			population_size[run_summary['population_size']] = [file]
-
-		if run_summary['mutation_probability'] in mutation_prob:
-			mutation_prob[run_summary['mutation_probability']].append(file)
-		else:
-			mutation_prob[run_summary['mutation_probability']] = [file]
-
-	fig, axs = plt.subplots(1, 2, sharey=True, figsize=(12, 5))
-	plot_set(axs[0], population_size[50], 'Varying Mutation Prob')
-	plot_set(axs[1], mutation_prob[0.1], 'Varying Pop Size')
-	
+	plt.plot(
+		range(len(hypervolumes)), 
+		hypervolumes, 
+		label=line_name(run_summary)
+	)
+	plt.grid(b=True)
+	plt.legend()
+	plt.ylabel('Hypervolume')
+	plt.xlabel('Iterations')
 	plt.show()
+
+if __name__ == '__main__':
+	INDIVIDUAL = True
+
+	if INDIVIDUAL:
+		plot_individual('../data/json/runs/tnfsp.json')
+	else:
+		mypath = '../data/json/runs/'
+		files  = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+		population_size = {}
+		mutation_prob   = {}
+
+		sizes = [50]
+		probs = [0.1]
+
+		for file in files:
+			run_summary = utils.json_utils.read_json_object(f'{mypath}{file}')
+
+			if run_summary['population_size'] in population_size:
+				population_size[run_summary['population_size']].append(file)
+			else:
+				population_size[run_summary['population_size']] = [file]
+
+			if run_summary['mutation_probability'] in mutation_prob:
+				mutation_prob[run_summary['mutation_probability']].append(file)
+			else:
+				mutation_prob[run_summary['mutation_probability']] = [file]
+
+		fig, axs = plt.subplots(1, 2, sharey=True, figsize=(12, 5))
+		# plot_set(axs[0], population_size[50], 'Varying Mutation Prob')
+		plot_set(axs[1], mutation_prob[0.1], 'Varying Pop Size')
+		
+		plt.show()

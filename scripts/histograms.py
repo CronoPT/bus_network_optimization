@@ -17,7 +17,7 @@ def do_transfers(json):
 		if t!=0:
 			print(f'{obj["origin"]}->{obj["destin"]}: {obj["original_transfers"]} VS {obj["generate_transfers"]} with {obj["passengers"]} passengers | t={t}')
 
-	del transfers[0]
+	# del transfers[0]
 
 	colors = []
 	for key in transfers:
@@ -46,8 +46,10 @@ def do_travel_time(json):
 
 	x_pos = []
 	x_neg = []
+	x_zero = []
 	w_pos = []
 	w_neg = []
+	w_zero = []
 	c = []
 	for obj in json:
 		t = (obj['generate_travel_time'] - obj['original_travel_time'])/60
@@ -59,6 +61,9 @@ def do_travel_time(json):
 			else:
 				x_neg.append(t)
 				w_neg.append(obj['passengers'])
+		else:
+			x_zero.append(t)
+			w_zero.append(obj['passengers'])
 	# 	i = 0
 
 		if t < min_t:
@@ -144,6 +149,7 @@ def do_travel_time(json):
 	# plt.bar(times.keys(), times.values(), color=colors, width=5, align='center', edgecolor='black')
 	plt.hist(x_pos, weights=w_pos, bins=bin_edges, color='red', edgecolor='darkred')
 	plt.hist(x_neg, weights=w_neg, bins=bin_edges, color='green', edgecolor='darkgreen')
+	plt.hist(x_zero, weights=w_zero, bins=bin_edges, color='grey', edgecolor='black')
 	# plt.yscale('log', base=10)
 	plt.ylabel('Passenger Count')
 	plt.xlabel('Travel time difference from the original network (mins)')

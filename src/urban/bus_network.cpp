@@ -28,7 +28,7 @@ namespace urban {
 	 _routes(),
 	 _stop_in_routes(),
 	 _stop_ids(),
-	 _usage(),
+	//  _usage(),
 	 graph() {
 
 		if (!_stops_loaded) {
@@ -125,6 +125,8 @@ namespace urban {
 	 _longest_route(0),
 	 _routes(),
 	 _stop_in_routes(),
+	 _stop_ids(),
+	//  _usage(),
 	 graph() { /* Do Nothing */ }
 
 	/**
@@ -197,11 +199,12 @@ namespace urban {
 		return _longest_route;
 	}
 
-	network_usage& bus_network::get_usage() {
-		if (!_evaluated) {
-			evaluate();
-		}
-		return _usage;
+	network_usage bus_network::get_usage() {
+		// if (!_evaluated) {
+		// 	evaluate();
+		// }
+		// return _usage;
+		return evaluate();
 	}
 
 	/** No need for lazy computations */
@@ -420,7 +423,7 @@ namespace urban {
 	 * travelling between the different od-pairs 
 	 * present in the urban::odx_matrix.
 	*/
-	void bus_network::evaluate() {
+	network_usage bus_network::evaluate() {
 		_unsatisfied_demand = 0;
 		_transfers = 0;
 		_in_vehicle_time = 0;
@@ -429,14 +432,14 @@ namespace urban {
 		int total = 0;
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
-		_usage = grid::instance()->predict_all_od_pairs(*this);
+		auto  usage = grid::instance()->predict_all_od_pairs(*this);
 		float total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = _usage.get_usage_between(origin, destin);
+			auto& use = usage.get_usage_between(origin, destin);
 			float passengers = odx_matrix::instance()->get_total(origin, destin);
 			total_passengers += passengers;
 
@@ -467,6 +470,8 @@ namespace urban {
 
 		/* Flag the Dynamic Computations as being done */
 		_evaluated = true;
+
+		return usage;
 	}
 
 	int bus_network::node_id(int stop_id, int route_id) {

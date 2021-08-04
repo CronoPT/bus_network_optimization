@@ -5,8 +5,8 @@ namespace genetic {
 
 	float genetic_configs::mutation_probability  = 0.1;
 	float genetic_configs::crossover_probability = 1;
-	int genetic_configs::population_size = 125;
-	int genetic_configs::max_iterations  = 3;
+	int genetic_configs::population_size = 200;
+	int genetic_configs::max_iterations  = 300;
 	float genetic_configs::min_improv    = 0.0001;
 	int   genetic_configs::max_stalled   = 30;
 	std::string genetic_configs::summary_file = "../data/json/runs/tnfsp.json";

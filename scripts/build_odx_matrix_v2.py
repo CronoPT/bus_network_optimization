@@ -99,7 +99,7 @@ if __name__ == '__main__':
 	min_lat = np.inf
 	max_lon = -np.inf
 	min_lon = np.inf
-	_DIVISIONS = 25
+	_DIVISIONS = 30
 	
 	MORNING_RUSH_HOUR_START = datetime.datetime.strptime(
 		configs.MORNING_RUSH_HOUR_START, '%H:%M'

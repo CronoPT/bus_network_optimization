@@ -8,7 +8,7 @@ namespace transit_problem {
 	const int tndp_configs::max_route_length  = 60;
 	const int tndp_configs::min_route_length  = 1;
 	const int tndp_configs::max_number_routes = 400;
-	const int tndp_configs::min_number_routes = 80;
+	const int tndp_configs::min_number_routes = 200;
 	const float tndp_configs::max_transfers   = 1;
 	const std::string tndp_configs::og_routes = 
 		"../data/json/clustered_routes_stop_sequence.json"; 

@@ -35,7 +35,7 @@ namespace urban {
 		std::set<int> _route_check;
 		std::unordered_map<int, std::set<int>> _stop_in_routes;
 		std::unordered_map<int, std::vector<int>> _stop_ids;
-		network_usage _usage;
+		// network_usage _usage;
 
 
 		static bool _stops_loaded;
@@ -58,7 +58,7 @@ namespace urban {
 		int  get_number_routes() const;
 		int  get_shortest_route();
 		int  get_longest_route();
-		network_usage& get_usage();
+		network_usage get_usage();
 		const std::vector<route>& get_routes() const;
 
 		void add_route(const route& new_route);
@@ -69,7 +69,7 @@ namespace urban {
 		std::vector<int>& get_stop_variants(int stop_id);
 
 		void static_computes();
-		void evaluate();
+		network_usage evaluate();
 
 		static int node_id(int stop_id, int route_id);
 		static std::pair<int, int> node_id(int node_id);

@@ -2,7 +2,7 @@ import utils.json_utils
 import matplotlib.pyplot as plt
 
 indexes   = [0, 24, 49, 74, 99, 124, 149, 174, 199]
-highlight = 0 #'naught'
+highlight = 174 #'naught'
 lisbon_costs = [
 	3.56122e+06, # total length (in meters)
 	5.77707e-06, # unsatisfied demand 
@@ -28,8 +28,8 @@ if __name__ == '__main__':
 	in_vehicle   = 2
 	transfers    = 3
 
-	fig, axs = plt.subplots(2, 2, figsize=(13, 10))
-	# fig, axs = plt.subplots(1, 4, figsize=(24, 5))
+	# fig, axs = plt.subplots(2, 2, figsize=(13, 10))
+	fig, axs = plt.subplots(1, 4, figsize=(24, 5))
 
 	for i in range(4):
 		x = ["lisbon"]
@@ -38,8 +38,11 @@ if __name__ == '__main__':
 		[y.append(json[index]['costs'][i]) for index in indexes]
 		colors = ['gray']
 		[colors.append('orange' if index==highlight else 'cornflowerblue') for index in indexes]
-		axs[i//2, i%2].bar(x, y, color=colors)
-		axs[i//2, i%2].set_ylabel(labels[i])
-		axs[i//2, i%2].grid(axis='y')
+		# axs[i//2, i%2].bar(x, y, color=colors)
+		# axs[i//2, i%2].set_ylabel(labels[i])
+		# axs[i//2, i%2].grid(axis='y')
+		axs[i].bar(x, y, color=colors)
+		axs[i].set_ylabel(labels[i])
+		axs[i].grid(axis='y')
 
 	plt.savefig(f'../data/images/network-{highlight}-highlight.png', bbox_inches='tight', dpi=400)

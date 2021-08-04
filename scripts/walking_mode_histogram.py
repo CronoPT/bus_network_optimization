@@ -5,7 +5,7 @@ import numpy as np
 import math
 import seaborn as sns
 
-INDEX = 0
+INDEX = 99
 
 # dict: {thing:count}
 def series_from_dict(dict):
