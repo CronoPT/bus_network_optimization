@@ -31,8 +31,6 @@ namespace net {
 
 	template<typename T, typename H>
 	void heap<T, H>::min_heapify(int index) {
-		// std::cout << "min_heapify" << std::endl;
-
 		int l = left(index);
 		int r = right(index);
 		int smallest;
@@ -55,7 +53,6 @@ namespace net {
 
 	template<typename T, typename H>
 	T heap<T, H>::extract_minimum() {
-		// std::cout << "extract_minimum" << std::endl;
 		T min = _vector.at(0);
 		_indexes.erase(min);
 		_vector.at(0) = _vector.at(_heap_size-1);
@@ -68,7 +65,6 @@ namespace net {
 
 	template<typename T, typename H>
 	void heap<T, H>::insert(T element) {
-		// std::cout << "insert" << std::endl;
 		_vector.push_back(element);
 		_heap_size += 1;
 		_indexes[element] = _heap_size-1;
@@ -77,43 +73,31 @@ namespace net {
 	
 	template<typename T, typename H>
 	void heap<T, H>::decrease_key_index(int index, T element) {
-		// std::cout << "decrease_key_index" << std::endl;
 		_vector.at(index) = element; 
 
-		// std::cout << "decrease_key_index -> before while" << std::endl;
 		while (index > 0 && _vector.at(parent(index))>_vector.at(index)) {
 			_indexes[_vector.at(index)] = parent(index);
-			// std::cout << "decrease_key_index -> 1" << std::endl;
 			_indexes[_vector.at(parent(index))] = index;
-			// std::cout << "decrease_key_index -> 2" << std::endl;
 			
 			T aux = _vector.at(index);
-			// std::cout << "decrease_key_index -> 3" << std::endl;
 			_vector.at(index) = _vector.at(parent(index));
-			// std::cout << "decrease_key_index -> 4" << std::endl;
 			_vector.at(parent(index)) = aux;
-			// std::cout << "decrease_key_index -> 5" << std::endl;
 			index = parent(index);
 		}
 	}
 
 	template<typename T, typename H>
 	void heap<T, H>::decrease_key(T old_element, T element) {
-		// std::cout << "decrease_key" << std::endl;
-		// std::cout << (old_element == element) << std::endl;
-		// std::cout << (std::hash<T>()(old_element) == std::hash<T>()(element)) << std::endl;
 		decrease_key_index(_indexes[old_element], element);
 	}
 
 	template<typename T, typename H>
 	bool heap<T, H>::contains(T element) {
-		// std::cout << "contains" << std::endl;
 		return _indexes.find(element) != _indexes.end();
 	}
 
 	template<typename T, typename H>
 	const std::vector<T>& heap<T, H>::get_elements() const {
-		// std::cout << "get_elements" << std::endl;
 		return _vector;
 	}
 
