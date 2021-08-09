@@ -18,3 +18,10 @@ if __name__ == '__main__':
 	print(f'new -> {len(new_nets)}')
 
 	print(f'total_passengets -> {total}')
+
+	sizes = []
+	for obj in new_nets:
+		print(len(obj['routes']))
+		sizes.append(len(obj['routes']))
+
+	print(f'Max -> {max(sizes)}')

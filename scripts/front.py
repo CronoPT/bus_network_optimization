@@ -6,9 +6,9 @@ LABELS = ['Total Length', 'Unsatisfied Demand', 'In Vehicle Time', 'Average Tran
 
 lisbon_costs = [
 	3.56122e+06, # total length (in meters)
-	5.77707e-06, # unsatisfied demand 
-	1.39027e+07, # in vehicle time (in seconds)
-	0.0305169    # average transfers ()
+	0.00698877, # unsatisfied demand 
+	2.49523e+08, # in vehicle time (in seconds)
+	0.187626, # average transfers ()
 ]
 
 if __name__ == '__main__':
