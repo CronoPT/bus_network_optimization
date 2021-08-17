@@ -87,6 +87,11 @@ namespace genetic {
 	}
 
 	template<typename T>
+	void algorithm<T>::clip_population_back() {
+		_population.clip_back();
+	}
+
+	template<typename T>
 	solution<T> algorithm<T>::get_best_solution() {
 		return _population.get_nth_best(0);
 	}

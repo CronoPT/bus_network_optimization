@@ -14,6 +14,8 @@ def line_name(summary):
 
 def plot_set(ax, file_set, title):
 	for file in file_set:
+		if f'{mypath}{file}' in PURGE:
+			continue
 		run_summary = utils.json_utils.read_json_object(f'{mypath}{file}')
 
 		hypervolumes = []
@@ -21,7 +23,7 @@ def plot_set(ax, file_set, title):
 		for iteration in run_summary['summary']:
 			hypervolumes.append(hv.calc(np.array(iteration)))
 
-		# hypervolumes = hypervolumes[:120]
+		hypervolumes = hypervolumes[:120]
 
 		ax.plot(
 			range(len(hypervolumes)), 
@@ -55,7 +57,12 @@ def plot_individual(filename):
 	plt.show()
 
 if __name__ == '__main__':
-	INDIVIDUAL = True
+	INDIVIDUAL = False
+	PURGE = [
+		'../data/json/runs/tnfsp.json',
+		'../data/json/runs/tnfsp_80.json',
+		'../data/json/runs/tnfsp_1.json'
+	]
 
 	if INDIVIDUAL:
 		plot_individual('../data/json/runs/tnfsp.json')
@@ -83,7 +90,7 @@ if __name__ == '__main__':
 				mutation_prob[run_summary['mutation_probability']] = [file]
 
 		fig, axs = plt.subplots(1, 2, sharey=True, figsize=(12, 5))
-		# plot_set(axs[0], population_size[50], 'Varying Mutation Prob')
+		plot_set(axs[0], population_size[50], 'Varying Mutation Prob')
 		plot_set(axs[1], mutation_prob[0.1], 'Varying Pop Size')
 		
 		plt.show()

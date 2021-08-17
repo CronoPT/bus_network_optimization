@@ -16,6 +16,7 @@ namespace genetic {
 			population<T> _population;
 			problem<T>*   _problem;
 
+		protected:
 			bool do_crossover();
 			bool do_mutate();
 			int  select_solution();
@@ -27,10 +28,11 @@ namespace genetic {
 			virtual void iteration() = 0;
 			virtual void compute_costs()  = 0;
 			virtual void assign_fitness() = 0;
-			void reproduce();
-			std::pair<T, T> crossover(T i1, T i2);
+			virtual void reproduce();
+			virtual std::pair<T, T> crossover(T i1, T i2);
 			void mutate();
 			void clip_population();
+			void clip_population_back();
 
 			solution<T> get_best_solution(); 
 			void print_population();

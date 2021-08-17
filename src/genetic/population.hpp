@@ -14,6 +14,7 @@ namespace genetic {
 
 		private:
 			std::vector<solution<T>> _solutions;
+			int _original_size;
 
 		public:
 			population();
@@ -22,6 +23,7 @@ namespace genetic {
 			void add_solution(solution<T>& sol);
 			void add_solution(T& sol);
 			void clip();
+			void clip_back();
 			solution<T>& get_nth_best(int n);
 			std::vector<solution<T>>& get_solutions();
 			void reset_ranks();

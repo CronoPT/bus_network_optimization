@@ -11,7 +11,8 @@ namespace genetic {
 
 	template<typename T>
 	population<T>::population(std::vector<solution<T>>  sols):
-	 _solutions(sols) {
+	 _solutions(sols),
+	 _original_size(sols.size()) {
 		 std::sort(_solutions.begin(), _solutions.end());
 	}
 
@@ -29,7 +30,13 @@ namespace genetic {
 
 	template<typename T>
 	void population<T>::clip() {
-		// std::sort(_solutions.begin(), _solutions.end());
+		int new_size = std::ceil((float)_solutions.size()/2);
+		_solutions.resize(_original_size);
+	}
+
+	template<typename T>
+	void population<T>::clip_back() {
+		std::reverse(_solutions.begin(), _solutions.end());
 		int new_size = std::ceil((float)_solutions.size()/2);
 		_solutions.resize(new_size);
 	}

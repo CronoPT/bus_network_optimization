@@ -10,6 +10,7 @@
 #include <bus_network.hpp>
 #include <route_pool.hpp>
 #include <nsga.hpp>
+#include <classic_ga.hpp>
 
 int main() {
 
@@ -38,11 +39,19 @@ int main() {
 		cost_functs
 	);
 
-	auto GA = new genetic::nsga<urban::bus_network>((genetic::problem<urban::bus_network>*) problem);
+	auto GA = new genetic::classic_ga<urban::bus_network>(
+		(genetic::problem<urban::bus_network>*) problem, {
+			-15.851532967952707, 
+			1.0391450846092443e-06, 
+			53.132458885735744, 
+			7.747345808405972e-09, 
+			72.38214508631111
+		}
+	);
 
 	auto solutions = GA->execute();
 
-	std::ofstream file("../data/json/run_nets.json");
+	std::ofstream file("../data/json/run_nets_single.json");
 	file << "[\n";
 	for (int i=0; i<solutions.size(); i++) {
 		auto solution = solutions.at(i);
