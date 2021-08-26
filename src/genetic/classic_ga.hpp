@@ -3,6 +3,7 @@
 
 #include "algorithm.hpp"
 #include "logger.hpp"
+#include <thread>
 
 namespace genetic {
 
@@ -32,6 +33,14 @@ namespace genetic {
 
 			void log_beginning();
 			void log_iteration();
+
+			const std::vector<float>& get_weights() const;
+			const std::vector<float>& get_maxs() const;
+			const std::vector<float>& get_mins() const;
+			bool get_norm() const;
+
+			void compute_costs_single_thread();
+			void compute_costs_multi_threads();
 
 	};
 

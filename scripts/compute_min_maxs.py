@@ -38,6 +38,8 @@ if __name__ == '__main__':
 			new_costs.append((objective - min_maxs[index]['min']) / (min_maxs[index]['max'] - min_maxs[index]['min']))
 		print(new_costs)
 
+	print([obj['max'] for obj in min_maxs])
+	print([obj['min'] for obj in min_maxs])
 	
 
 

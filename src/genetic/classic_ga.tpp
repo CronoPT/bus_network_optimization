@@ -106,27 +106,35 @@ namespace genetic {
 
 	template<typename T>
 	void classic_ga<T>::compute_costs() {
-		for (auto& solution: this->get_population().get_solutions()) {
-			auto report = this->get_problem()->compute_cost(solution.get_item());
-			auto costs  = report.first;
-			auto trans  = report.second;
+		// for (auto& solution: this->get_population().get_solutions()) {
+		// 	auto report = this->get_problem()->compute_cost(solution.get_item());
+		// 	auto costs  = report.first;
+		// 	auto trans  = report.second;
 
-			float total_cost = _weights.at(0);
-			for (int i=0; i<costs.size(); i++) {
-				float cost = costs.at(i);
+		// 	float total_cost = _weights.at(0);
+		// 	for (int i=0; i<costs.size(); i++) {
+		// 		float cost = costs.at(i);
 				
-				if (_norm) {
-					cost = (cost - _mins.at(i)) / (_maxs.at(i) - _mins.at(i));
-				}
+		// 		if (_norm) {
+		// 			cost = (cost - _mins.at(i)) / (_maxs.at(i) - _mins.at(i));
+		// 		}
 
-				total_cost += _weights.at(i+1)*cost;
-			}
+		// 		total_cost += _weights.at(i+1)*cost;
+		// 	}
 				
-			for (auto tra: trans)
-				total_cost += tra;
+		// 	for (auto tra: trans)
+		// 		total_cost += tra;
 
-			solution.set_costs(costs);
-			solution.set_total_cost(total_cost);
+		// 	solution.set_costs(costs);
+		// 	solution.set_total_cost(total_cost);
+		// }
+
+
+
+		if (genetic_configs::threaded) {
+			compute_costs_multi_threads();
+		} else {
+			compute_costs_single_thread();
 		}
 	}
 
@@ -201,6 +209,92 @@ namespace genetic {
 		} else {
 			_crossover_done = false;
 			return std::pair<T, T>(i1, i2);
+		}
+	}
+
+	template<typename T>
+	const std::vector<float>& classic_ga<T>::get_weights() const {
+		return _weights;
+	}
+
+	template<typename T>
+	const std::vector<float>& classic_ga<T>::get_maxs() const {
+		return _maxs;
+	}
+
+	template<typename T>
+	const std::vector<float>& classic_ga<T>::get_mins() const {
+		return _mins;
+	}
+
+	template<typename T>
+	bool classic_ga<T>::get_norm() const {
+		return _norm;
+	}
+
+	template<typename T>
+	void evaluation_thread_classic_ga(classic_ga<T>* algorithm, int thread_id) {
+		for (int i=thread_id; i<algorithm->get_population().size(); i+=genetic_configs::number_threads) {
+			auto& solution = algorithm->get_population().get_solutions().at(i);
+			auto report = algorithm->get_problem()->compute_cost(solution.get_item());
+			auto costs  = report.first;
+			auto trans  = report.second;
+
+			float total_cost = algorithm->get_weights().at(0);
+			for (int i=0; i<costs.size(); i++) {
+				float cost = costs.at(i);
+				
+				if (algorithm->get_norm()) {
+					cost = (cost - algorithm->get_mins().at(i)) 
+						/ (algorithm->get_maxs().at(i) - algorithm->get_mins().at(i));
+				}
+
+				total_cost += algorithm->get_weights().at(i+1)*cost;
+			}
+				
+			for (auto tra: trans)
+				total_cost += tra;
+
+			solution.set_costs(costs);
+			solution.set_total_cost(total_cost);
+		}
+	}
+
+	template<typename T>
+	void classic_ga<T>::compute_costs_single_thread() {
+		for (auto& solution: this->get_population().get_solutions()) {
+			auto report = this->get_problem()->compute_cost(solution.get_item());
+			auto costs  = report.first;
+			auto trans  = report.second;
+
+			float total_cost = _weights.at(0);
+			for (int i=0; i<costs.size(); i++) {
+				float cost = costs.at(i);
+				
+				if (_norm) {
+					cost = (cost - _mins.at(i)) / (_maxs.at(i) - _mins.at(i));
+				}
+
+				total_cost += _weights.at(i+1)*cost;
+			}
+				
+			for (auto tra: trans)
+				total_cost += tra;
+
+			solution.set_costs(costs);
+			solution.set_total_cost(total_cost);
+		}
+	}
+
+	template<typename T>
+	void classic_ga<T>::compute_costs_multi_threads() {
+		auto threads = std::vector<std::thread>();
+		for (int i=0; i<genetic_configs::number_threads; i++) {
+			threads.push_back(std::thread(evaluation_thread_classic_ga<T>, this, i));
+		}
+
+		for (int i=0; i<genetic_configs::number_threads; i++) {
+			threads.at(i).join();
 		}
 	}
 

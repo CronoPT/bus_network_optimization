@@ -78,7 +78,7 @@ osm_net::coord_sequence get_line_from_path(std::vector<int>& path) {
 }
 
 urban::bus_network read_generate_bus(int index) {
-	std::ifstream input_file("../data/json/run_nets.json");
+	std::ifstream input_file("../data/json/run_nets_single_300.json");
 	nlohmann::json json = nlohmann::json::parse(input_file);
 	
 	std::vector<urban::route> routes;
@@ -96,7 +96,7 @@ urban::bus_network read_generate_bus(int index) {
 }
 
 int main() {
-	int index = 199; // number of the generated network
+	int index = 0; // number of the generated network
 
 	urban::bus_network original_bus = *urban::lisbon_bus::instance();
 	urban::bus_network generate_bus = read_generate_bus(index);
@@ -130,7 +130,7 @@ int main() {
 	float unsatisfied = 0;
 
 	std::ostringstream stream;
-	stream << "../data/json/comparisons/comparison-" << index << ".json";
+	stream << "../data/json/comparisons/comparison_single_weighted-" << index << ".json";
 	std::string file_name = stream.str();
 	std::ofstream file(file_name);
 	int i = 0;
@@ -231,7 +231,7 @@ int main() {
 
 	stream.str("");
 	stream.clear();
-	stream << "../data/geojson/results/network-" << index << ".geojson";
+	stream << "../data/geojson/results/network-weighted-" << index << ".geojson";
 	file_name = stream.str();
 	file = std::ofstream(file_name);
 
@@ -244,6 +244,7 @@ int main() {
 		for (int j=0; j<line.size(); j++) {
 			auto pair = line.at(j);
 			file << "\t\t\t[";
+			file << std::setprecision(8) << std::fixed;
 			file << pair.first << ", " << pair.second;
 			file << "]";
 			if (j < line.size()-1) { file << ","; }

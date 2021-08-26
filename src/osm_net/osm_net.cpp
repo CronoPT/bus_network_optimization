@@ -1,5 +1,7 @@
 
 #include "osm_net.hpp"
+#include <sstream>
+#include <iomanip> 
 
 namespace osm_net {
 

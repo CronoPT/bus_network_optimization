@@ -34,7 +34,7 @@ def do_transfers(json):
 	plt.xlabel('Transfer difference from the original network')
 	plt.xticks([n for n in transfers.keys() if n%1 == 0])
 	plt.grid(axis='y')
-	plt.savefig(f'../data/images/network-{INDEX}-transfers.png', bbox_inches='tight', dpi=400)
+	plt.savefig(f'../data/images/network-uniform-{INDEX}-transfers.png', bbox_inches='tight', dpi=400)
 	if SHOW:
 		plt.show()
 			
@@ -155,7 +155,7 @@ def do_travel_time(json):
 	plt.xlabel('Travel time difference from the original network (mins)')
 	plt.xticks(bin_edges)
 	plt.grid(axis='y')
-	plt.savefig(f'../data/images/network-{INDEX}-time.png', bbox_inches='tight', dpi=400)
+	plt.savefig(f'../data/images/network-uniform-{INDEX}-time.png', bbox_inches='tight', dpi=400)
 	if SHOW:
 		plt.show()
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
 	INDEX = int(sys.argv[1])
 	SHOW  = False 
 
-	json = utils.json_utils.read_json_object(f'../data/json/comparisons/comparison-{INDEX}.json')
+	json = utils.json_utils.read_json_object(f'../data/json/comparisons/comparison_single_uniform-{INDEX}.json')
 	plt.rcParams['font.size'] = '12'
 
 	tots = 0

@@ -39,14 +39,21 @@ int main() {
 		cost_functs
 	);
 
+	// auto GA = new genetic::classic_ga<urban::bus_network>(
+	// 	(genetic::problem<urban::bus_network>*) problem, {
+	// 		-15.851532967952707, 
+	// 		1.0391450846092443e-06, 
+	// 		53.132458885735744, 
+	// 		7.747345808405972e-09, 
+	// 		72.38214508631111
+	// 	}
+	// );
+
 	auto GA = new genetic::classic_ga<urban::bus_network>(
-		(genetic::problem<urban::bus_network>*) problem, {
-			-15.851532967952707, 
-			1.0391450846092443e-06, 
-			53.132458885735744, 
-			7.747345808405972e-09, 
-			72.38214508631111
-		}
+		(genetic::problem<urban::bus_network>*) problem, 
+		{0, 1, 1, 1, 1},
+		{3561220.0, 0.0884952, 281127000.0, 0.271926},
+		{1904530.0, 0.00698877, 233077000.0, 0.180342}
 	);
 
 	auto solutions = GA->execute();
