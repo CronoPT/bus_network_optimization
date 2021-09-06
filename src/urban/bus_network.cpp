@@ -199,12 +199,12 @@ namespace urban {
 		return _longest_route;
 	}
 
-	network_usage bus_network::get_usage() {
-		// if (!_evaluated) {
-		// 	evaluate();
-		// }
-		// return _usage;
-		return evaluate();
+	network_usage& bus_network::get_usage() {
+		if (!_evaluated) {
+			evaluate();
+		}
+		return _usage;
+		// return evaluate();
 	}
 
 	/** No need for lazy computations */
@@ -423,7 +423,7 @@ namespace urban {
 	 * travelling between the different od-pairs 
 	 * present in the urban::odx_matrix.
 	*/
-	network_usage bus_network::evaluate() {
+	network_usage& bus_network::evaluate() {
 		_unsatisfied_demand = 0;
 		_transfers = 0;
 		_in_vehicle_time = 0;
@@ -433,6 +433,7 @@ namespace urban {
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
 		auto  usage = grid::instance()->predict_all_od_pairs(*this);
+		_usage = grid::instance()->predict_all_od_pairs(*this);
 		float total_passengers  = 0;
 		
 		for (auto& od_pair: pairs) {
@@ -471,7 +472,7 @@ namespace urban {
 		/* Flag the Dynamic Computations as being done */
 		_evaluated = true;
 
-		return usage;
+		return _usage;
 	}
 
 	int bus_network::node_id(int stop_id, int route_id) {

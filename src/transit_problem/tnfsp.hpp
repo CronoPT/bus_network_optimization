@@ -20,13 +20,13 @@ namespace transit_problem {
 
 	class tnfsp: public genetic::problem<urban::frequency_set> {
 
-		urban::bus_network _network;
+		urban::bus_network* _network;
 
 		public:
 		tnfsp(
 			genetic::constraint_set<urban::frequency_set> constraints, 
 			genetic::cost_function_set<urban::frequency_set> cost_functions,
-			urban::bus_network& network
+			urban::bus_network* network
 		);
 
 		std::vector<genetic::solution<urban::frequency_set>> 

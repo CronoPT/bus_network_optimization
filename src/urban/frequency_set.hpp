@@ -12,8 +12,8 @@ namespace urban {
 
 	class frequency_set {
 		
-		bus_network _bus;
-		network_usage _bus_usage;
+		bus_network* _bus;
+		// network_usage _bus_usage;
 		float _operation_hours;  
 		std::string _day_time;
 		std::vector<float> _frequencies;
@@ -27,11 +27,15 @@ namespace urban {
 		bool _bus_evaluated;
 
 		std::unordered_map<int, int> _route_indexes;
+		std::unordered_map<int, std::unordered_map<
+		                   int, std::unordered_map<
+		                   int, std::unordered_map<
+		                   int, float>>>> _waiting_time_discriminated;
 
 		public:
 		frequency_set(
 			std::vector<float>& frequencies,
-			bus_network& bus,
+			bus_network* bus,
 			float operation_hours,
 			std::string day_time
 		);
@@ -52,6 +56,12 @@ namespace urban {
 		float compute_waiting_time();
 		float compute_highest_load();
 		float compute_operator_costs();
+
+
+		const std::unordered_map<int, std::unordered_map<
+		                         int, std::unordered_map<
+								 int, std::unordered_map<
+								 int, float>>>>& get_waiting_time_discriminated() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const frequency_set& a); 
 

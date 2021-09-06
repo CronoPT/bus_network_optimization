@@ -12,7 +12,7 @@ def plot_collective():
 	# no_nos = ['tndp_single_300.json']
 
 	for file in files:
-		if 'single' in file and file in no_nos:
+		if 'single' in file and file not in no_nos:
 			json = utils.json_utils.read_json_object(f'{mypath}{file}')
 
 			x = []
@@ -27,7 +27,7 @@ def plot_collective():
 
 			plt.plot(
 				x, 
-				label=labels[file] #f'crossover {json["crossover_probability"]}'
+				label=f'crossover {json["crossover_probability"]}' #label=labels[file] 
 			)
 
 	original_values = [
@@ -42,10 +42,10 @@ def plot_collective():
 		4.9452372088467484
 	]
 		
-	plt.hlines(original_values, 0, 300, colors='thistle', label='MO Function Values')
+	# plt.hlines(original_values, 0, 300, colors='thistle', label='MO Function Values')
 	plt.grid(b=True)
 	plt.legend()
-	plt.ylabel('Objetive Function Value')
+	plt.ylabel('Weighted Objetive Function Value')
 	plt.xlabel('Iterations')
 	# plt.set_title(title)
 	plt.show()

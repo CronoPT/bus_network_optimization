@@ -7,12 +7,12 @@ namespace urban {
 
 	frequency_set::frequency_set(
 		std::vector<float>& frequencies,
-		bus_network& bus,
+		bus_network* bus,
 		float operation_hours,
 		std::string day_time
 	):
 	 _bus(bus),
-	 _bus_usage(bus.get_usage()),
+	//  _bus_usage(bus.get_usage()),
 	 _operation_hours(operation_hours),
 	 _day_time(day_time),
 	 _frequencies(frequencies),
@@ -23,10 +23,11 @@ namespace urban {
 	 _highest_load(0),
 	 _operator_costs(0),
 	 _evaluated(false),
-	 _bus_evaluated(bus.evaluated()),
-	 _route_indexes() {
+	 _bus_evaluated(false),
+	 _route_indexes(), //{
+	 _waiting_time_discriminated() {
 		
-		if (frequencies.size() != bus.get_routes().size()) {
+		if (frequencies.size() != bus->get_routes().size()) {
 			throw "There must be a frequency per route in the bus network";
 		}
 
@@ -42,8 +43,8 @@ namespace urban {
 		}
 
 
-		for (int i=0; i<bus.get_routes().size(); i++) {
-			auto& r = bus.get_routes().at(i);
+		for (int i=0; i<bus->get_routes().size(); i++) {
+			auto& r = bus->get_routes().at(i);
 			_route_indexes[r.get_route_id()] = i;
 		} 
 
@@ -51,7 +52,7 @@ namespace urban {
 
 	frequency_set::frequency_set():
 	 _bus(),
-	 _bus_usage(),
+	//  _bus_usage(),
 	 _operation_hours(24),
 	 _day_time("total"),
 	 _frequencies(),
@@ -63,15 +64,16 @@ namespace urban {
 	 _operator_costs(0),
 	 _evaluated(false),
 	 _bus_evaluated(false),
-	 _route_indexes() {
+	 _route_indexes(), // {
+	 _waiting_time_discriminated() {
 		/* Do Nothing */
 	}
 
 	void frequency_set::evaluate() {
-		if (!_bus_evaluated) {
-			_bus_usage = grid::instance()->predict_all_od_pairs(_bus);
-			_bus_evaluated = true;
-		}
+		// if (!_bus_evaluated) {
+		// 	_bus_usage = _bus.get_usage();
+		// 	_bus_evaluated = true;
+		// }
 
 		_required_fleet = compute_required_fleet();
 		_waiting_time   = compute_waiting_time();
@@ -129,7 +131,7 @@ namespace urban {
 		float total = 0;
 		for (int i=0; i<_frequencies.size(); i++) {
 			// the time it takes to traverse the whole route (in hours)
-			auto total_time = _bus.get_routes().at(i).get_total_time()/3600;
+			auto total_time = _bus->get_routes().at(i).get_total_time()/3600;
 
 			// the frequency of buses in the route (in buses/hour)
 			auto frequency  = _frequencies.at(i);
@@ -139,7 +141,7 @@ namespace urban {
 			total += frequency * total_time;
 		}
 
-		std::cout << "Required Fleet: " << total << std::endl;
+		// std::cout << "Required Fleet: " << total << std::endl;
 
 		return std::ceil(total);
 	}
@@ -151,17 +153,22 @@ namespace urban {
 	 * catching a bus, should be half the time between
 	 * buses in the specific route (1/2f).
 	*/
-	float frequency_set::compute_waiting_time() {
+	float frequency_set::compute_waiting_time() {	
 		float total = 0;
 
 		auto& pairs = odx_matrix::instance()->get_all_pairs();
 		float total_passengers  = 0;
 
+		_waiting_time_discriminated = std::unordered_map<int, std::unordered_map<
+		                                                 int, std::unordered_map<
+		                                                 int, std::unordered_map<
+		                                                 int, float>>>>();
+
 		for (auto& od_pair: pairs) {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = _bus_usage.get_usage_between(origin, destin);
+			auto& use = _bus->get_usage().get_usage_between(origin, destin);
 			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);
 
 			if (origin.first  == destin.first && 
@@ -173,7 +180,7 @@ namespace urban {
 				continue;
 			}
 
-
+			float trip_total = 0;
 			for (auto& s: use.get_stages()) {
 				if (s.get_mode() != WALKING_STAGE && s.get_mode() != -1) {
 					float frequency;
@@ -188,13 +195,15 @@ namespace urban {
 						total_passengers += passengers;
 						float average_waiting_time = 1 / (2*frequency);
 						total += average_waiting_time * passengers;
+						trip_total += average_waiting_time;
 					}
 				}
 			}
+			_waiting_time_discriminated[origin.first][origin.second][destin.first][destin.second] = trip_total;
 		}
 
-		std::cout << "Total passengers: " << total_passengers << std::endl;
-		std::cout << "Total: " << total << std::endl;
+		// std::cout << "Total passengers: " << total_passengers << std::endl;
+		// std::cout << "Total: " << total << std::endl;
 
 		//average waiting time amongst all passengers
 		total /= total_passengers;
@@ -222,7 +231,7 @@ namespace urban {
 		>();
 
 		// Initialize the weird structure above
-		for (auto& r: _bus.get_routes()) {
+		for (auto& r: _bus->get_routes()) {
 			int route_id = r.get_route_id();
 			int origin   = -1;
 
@@ -244,7 +253,7 @@ namespace urban {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = _bus_usage.get_usage_between(origin, destin);
+			auto& use = _bus->get_usage().get_usage_between(origin, destin);
 			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);;
 
 			if (origin.first  == destin.first && 
@@ -309,7 +318,7 @@ namespace urban {
 	*/
 	float frequency_set::compute_operator_costs() {
 		float total_km = 0;
-		for (auto& r: _bus.get_routes()) {
+		for (auto& r: _bus->get_routes()) {
 			int route_id = r.get_route_id();
 			int route_index = _route_indexes[route_id];
 			auto frequency = _frequencies.at(route_index);
@@ -317,6 +326,13 @@ namespace urban {
 			total_km += (r.get_route_length() * total_traversals) /	1000;
 		}
 		return total_km;
+	}
+
+	const std::unordered_map<int, std::unordered_map<
+		                     int, std::unordered_map<
+							 int, std::unordered_map<
+							 int, float>>>>& frequency_set::get_waiting_time_discriminated() const {
+		return _waiting_time_discriminated;
 	}
 
 	/**

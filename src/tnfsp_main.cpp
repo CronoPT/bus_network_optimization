@@ -34,12 +34,54 @@ int main() {
 	auto problem = new transit_problem::tnfsp(
 		constraints, 
 		cost_functs,
-		*lisbon
+		lisbon
 	);
 
 	auto GA = new genetic::nsga<urban::frequency_set>((genetic::problem<urban::frequency_set>*) problem);
 
+	std::cout << "Executing" << std::endl; 
+
 	auto solutions = GA->execute();
+
+	std::ofstream file("../data/json/run_frequencies.json");
+	file << "[\n";
+	for (int i=0; i<solutions.size(); i++) {
+		auto solution = solutions.at(i);
+		file << "\t{\n";
+
+		auto costs = solution.get_costs();
+		file << "\t\t\"costs\": [\n";
+		for (int j=0; j<costs.size(); j++) {
+			file << "\t\t\t" << costs.at(j); 
+			if (j < costs.size()-1) {
+				file << ",";
+			}
+			file << "\n";
+		}
+		file << "\t\t],\n";
+
+		auto frequencies = solution.get_item().get_frequencies();
+		file << "\t\t\"frequencies\": [\n"; 
+		for (int j=0; j<frequencies.size(); j++) {
+
+			auto frequency = frequencies.at(j);
+			file << "\t\t\t" << frequency;
+			if (j < frequencies.size()-1) {
+				file << ",";
+			}
+			file << "\n";
+
+		}
+		file << "\t\t]\n";
+
+		file << "\t}";
+		if (i < solutions.size()-1) {
+			file << ",";
+		}
+		file << "\n";
+
+	}
+	file << "]\n";
 
 	delete GA;
 	delete problem;
