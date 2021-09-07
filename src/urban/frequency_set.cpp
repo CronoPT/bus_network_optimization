@@ -103,7 +103,7 @@ namespace urban {
 
 	float frequency_set::get_highest_load() {
 		if (!_evaluated) { evaluate(); }
-		return _waiting_time;
+		return _highest_load;
 	}
 
 	float frequency_set::get_operator_costs() {
@@ -134,7 +134,7 @@ namespace urban {
 			auto total_time = _bus->get_routes().at(i).get_total_time()/3600;
 
 			// the frequency of buses in the route (in buses/hour)
-			auto frequency  = _frequencies.at(i);
+			auto frequency  = _frequencies.at(_route_indexes[i]);
 
 			// multiplying both gives us the ammount of buses needed 
 			// to serve the route
@@ -142,7 +142,7 @@ namespace urban {
 		}
 
 		// std::cout << "Required Fleet: " << total << std::endl;
-
+		
 		return std::ceil(total);
 	}
 	
@@ -222,6 +222,7 @@ namespace urban {
 	 * of routes at the same time.
 	*/
 	float frequency_set::compute_highest_load() {
+		// route, stop, stop, passengers
 		auto counts = std::unordered_map<
 			int, 
 			std::unordered_map<

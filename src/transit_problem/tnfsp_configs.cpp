@@ -5,9 +5,9 @@
 
 namespace transit_problem {
 
-	const int tnfsp_configs::available_fleet = 664;
-	const int tnfsp_configs::bus_capacity = 60;
-	const float tnfsp_configs::max_frequency = 25.0;
+	const int tnfsp_configs::available_fleet = 750;
+	const int tnfsp_configs::bus_capacity = 80;
+	const float tnfsp_configs::max_frequency = 20.0;
 	const float tnfsp_configs::min_frequency = 1.0;
 	const float tnfsp_configs::max_load = 1.0;
 
@@ -16,8 +16,8 @@ namespace transit_problem {
 	*/
 	const float tnfsp_configs::frequency_step = 0.25;
 
-	const int tnfsp_configs::operating_hours  = 3;
-	const std::string tnfsp_configs::day_time = "morning_rush_hour";
+	const int tnfsp_configs::operating_hours  = 24;
+	const std::string tnfsp_configs::day_time = "total";
 
 } // namespace transit_problem
 

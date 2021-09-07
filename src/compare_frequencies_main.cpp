@@ -16,6 +16,7 @@
 #include <limits>
 #include <sstream>
 #include <frequency_set.hpp>
+#include <stdexcept>
 
 #include <chrono>
 #include <iostream>
@@ -70,6 +71,9 @@ int main() {
 	auto lisbon = urban::lisbon_bus::instance();
 	auto ori_lisbon_frequencies = read_ori_frequencies(lisbon);
 	auto new_lisbon_frequencies = read_new_frequencies(lisbon);
+	
+	std::cout << "Original operator costs: " << ori_lisbon_frequencies.get_operator_costs() << std::endl;
+	std::cout << "Original waiting time:   " << ori_lisbon_frequencies.get_waiting_time() << std::endl;
 
 	ori_lisbon_frequencies.compute_waiting_time();
 	new_lisbon_frequencies.compute_waiting_time();
@@ -77,5 +81,55 @@ int main() {
 	const auto& ori_waiting = ori_lisbon_frequencies.get_waiting_time_discriminated();
 	const auto& new_waiting = new_lisbon_frequencies.get_waiting_time_discriminated();
 
-	// std::cout << ori_waiting.at(400).at(400).at(12).at(12) << std::endl;
+	int index = 0;
+	std::ostringstream stream;
+	stream << "../data/json/comparisons/comparison_frequency-" << index << ".json";
+	std::string file_name = stream.str();
+	std::ofstream file(file_name);
+	int i = 0;
+	int size = urban::odx_matrix::instance()->get_all_pairs().size();
+	file << "[\n";
+	for (auto& pair : urban::odx_matrix::instance()->get_all_pairs()) {
+		auto origin = pair.first;
+		auto destin = pair.second;
+
+		float ori_wait;
+		float new_wait;
+		try {
+			// from hours between buses to minutes between buses (times 60)
+			ori_wait = ori_waiting.at(origin.first).at(origin.second).at(destin.first).at(destin.second)*60;
+			new_wait = new_waiting.at(origin.first).at(origin.second).at(destin.first).at(destin.second)*60;
+		} catch (const std::out_of_range& oor) {
+			continue;
+		}
+
+		float passengers = urban::odx_matrix::instance()->get_total(origin, destin);
+
+		if (origin.first  == destin.first &&
+		    origin.second == destin.second) {
+			i += 1;
+			continue;
+		}
+
+		if (passengers == 0) {
+			i += 1;
+			continue;
+		}
+
+		file << "\t{\n";
+		file << "\t\t\"origin\": [";
+		file << origin.first << ", " << origin.second << "],\n";
+		file << "\t\t\"destin\": [";
+		file << destin.first << ", " << destin.second << "],\n";
+		file << "\t\t\"passengers\": " << passengers << ",\n";
+		file << "\t\t\"original_wait\": " << ori_wait << ",\n";
+		file << "\t\t\"generate_wait\": " << new_wait << "\n";
+		file << "\t}";
+		if (i<size-1) { file << ","; }
+		file << "\n";
+		i = i+1;
+	}
+	file << "]\n";
+	file.close();
+
 }
