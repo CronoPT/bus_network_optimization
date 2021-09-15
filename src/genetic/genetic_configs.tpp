@@ -9,10 +9,10 @@ namespace genetic {
 	int genetic_configs::max_iterations  = 300;
 	float genetic_configs::min_improv    = 0.0001;
 	int   genetic_configs::max_stalled   = 30;
-	std::string genetic_configs::summary_file = "../data/json/runs/tnfsp_frequencies.json";
+	std::string genetic_configs::summary_file = "../data/json/runs/tnfsp_frequencies_single_night.json";
 	bool genetic_configs::verbose = false;
 	bool genetic_configs::threaded = false;
-	int genetic_configs::number_threads = 4;
+	int genetic_configs::number_threads = 8;
 	
 } // namespace genetic
 

@@ -10,6 +10,7 @@
 #include <grid.hpp>
 #include <route_pool.hpp>
 #include <nsga.hpp>
+#include <classic_ga.hpp>
 
 int main() {
 
@@ -37,13 +38,18 @@ int main() {
 		lisbon
 	);
 
-	auto GA = new genetic::nsga<urban::frequency_set>((genetic::problem<urban::frequency_set>*) problem);
+	auto GA = new genetic::classic_ga<urban::frequency_set>(
+		(genetic::problem<urban::frequency_set>*) problem,
+		{0, 1, 1},
+		{0.120607, 326317},
+		{0.0495152, 160220}
+	);
 
 	std::cout << "Executing" << std::endl; 
 
 	auto solutions = GA->execute();
 
-	std::ofstream file("../data/json/run_frequencies.json");
+	std::ofstream file("../data/json/run_frequencies_single_night.json");
 	file << "[\n";
 	for (int i=0; i<solutions.size(); i++) {
 		auto solution = solutions.at(i);

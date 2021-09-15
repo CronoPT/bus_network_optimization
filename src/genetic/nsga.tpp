@@ -206,11 +206,8 @@ namespace genetic {
 	template<typename T>
 	void evaluation_thread(nsga<T>* algorithm, int thread_id) {
 		for (int i=thread_id; i<algorithm->get_population().size(); i+=genetic_configs::number_threads) {
-			std::cout << "Evaluating one" << std::endl;
 			auto& solution = algorithm->get_population().get_solutions().at(i);
-			std::cout << "Got solution" << std::endl;
 			auto report = algorithm->get_problem()->compute_cost(solution.get_item());
-			std::cout << "Evaluating two" << std::endl;
 			auto costs  = report.first;
 			auto trans  = report.second;
 
