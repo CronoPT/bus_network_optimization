@@ -176,14 +176,14 @@ if __name__ == '__main__':
 	fig, axs = plt.subplots(1, 2)
 
 	for t, time in enumerate(times):
-		if t == 1:
+		if t == 0:
 			print(f'{t} {time}')
 			for i in range(2):
-				# x = ["lisbon"]
-				x = []
+				x = ["lisbon"]
+				# x = []
 				[x.append(f'f{index}') for index in indexes]
-				# y = [lisbon_costs[i]]
-				y = []
+				y = [lisbon_costs[i]]
+				# y = []
 				[y.append(times[time]['json'][index]['costs'][i]) for index in indexes]
 				colors = ['gray']
 				[colors.append('orange' if index==highlight else 'cornflowerblue') for index in indexes]

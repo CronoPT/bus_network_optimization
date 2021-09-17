@@ -12,6 +12,24 @@
 #include <nsga.hpp>
 #include <classic_ga.hpp>
 
+urban::bus_network read_generate_bus(int index) {
+	std::ifstream input_file("../data/json/run_nets_single_300.json");
+	nlohmann::json json = nlohmann::json::parse(input_file);
+	
+	std::vector<urban::route> routes;
+	int route_id = 1;
+	for (auto& json_route: json[index]["routes"]) {
+		auto route_stops = std::vector<int>();
+		for (auto stop: json_route) {
+			route_stops.push_back(stop);
+		}
+		routes.push_back(urban::route(route_id, route_stops));
+		route_id += 1;
+	}
+	
+	return urban::bus_network(routes);
+}
+
 int main() {
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr))); 
@@ -30,26 +48,27 @@ int main() {
 	cost_functs.push_back(std::make_shared<transit_problem::min_operator_costs>(
 		transit_problem::min_operator_costs()));
 
-	auto lisbon = urban::lisbon_bus::instance();
+	// auto lisbon = urban::lisbon_bus::instance();
+	auto best_bus = read_generate_bus(0);
 
 	auto problem = new transit_problem::tnfsp(
 		constraints, 
 		cost_functs,
-		lisbon
+		&best_bus //lisbon
 	);
 
 	auto GA = new genetic::classic_ga<urban::frequency_set>(
 		(genetic::problem<urban::frequency_set>*) problem,
 		{0, 1, 1},
-		{0.120607, 326317},
-		{0.0495152, 160220}
+		{0.128749, 980918},
+		{0.0532552, 501343}
 	);
 
 	std::cout << "Executing" << std::endl; 
 
 	auto solutions = GA->execute();
 
-	std::ofstream file("../data/json/run_frequencies_single_night.json");
+	std::ofstream file("../data/json/run_frequencies_single_total_best.json");
 	file << "[\n";
 	for (int i=0; i<solutions.size(); i++) {
 		auto solution = solutions.at(i);
