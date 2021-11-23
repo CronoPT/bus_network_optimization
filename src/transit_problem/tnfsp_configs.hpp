@@ -1,5 +1,5 @@
-#ifndef __TNDP_CONFIGS_HPP__
-#define __TNDP_CONFIGS_HPP__
+#ifndef __TNFSP_CONFIGS_HPP__
+#define __TNFSP_CONFIGS_HPP__
 
 #include <string>
 #include <vector>

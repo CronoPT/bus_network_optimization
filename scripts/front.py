@@ -38,8 +38,7 @@ if __name__ == '__main__':
 				continue
 			elif i == j:
 				axs[i, j].annotate(LABELS[i], (0.5, 0.5), xycoords='axes fraction',
-                    ha='center', va='center', size='large')
-			
+                    ha='center', va='center', size='large')	
 			axs[i, j].tick_params(
 				axis='both',
 				which='both',
@@ -50,9 +49,13 @@ if __name__ == '__main__':
 				labelbottom=False,
 				labelleft=False
 			)
+			axs[i, j].spines['top'].set_visible(False)
+			axs[i, j].spines['right'].set_visible(False)
+			axs[i, j].spines['bottom'].set_visible(False)
+			axs[i, j].spines['left'].set_visible(False)		
 			
 
 	
 	axs[OBJECTIVES-1, OBJECTIVES-1].set_xticks([])
 
-	plt.show() 
+	plt.savefig(f'../data/images/scatter_objectives.png', bbox_inches='tight', dpi=400)

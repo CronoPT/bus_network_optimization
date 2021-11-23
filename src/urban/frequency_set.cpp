@@ -168,7 +168,9 @@ namespace urban {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = _bus->get_usage().get_usage_between(origin, destin);
+			// auto& use = _bus->get_usage().get_usage_between(origin, destin);
+			auto usage = _bus->evaluate();
+			auto& use = usage.get_usage_between(origin, destin);
 			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);
 
 			if (origin.first  == destin.first && 
@@ -254,7 +256,9 @@ namespace urban {
 			auto origin = od_pair.first;
 			auto destin = od_pair.second;
 
-			auto& use = _bus->get_usage().get_usage_between(origin, destin);
+			// auto& use = _bus->get_usage().get_usage_between(origin, destin);
+			auto usage = _bus->evaluate();
+			auto& use = usage.get_usage_between(origin, destin);
 			float passengers = odx_matrix::instance()->get_in_day_time(_day_time, origin, destin);;
 
 			if (origin.first  == destin.first && 

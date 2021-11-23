@@ -15,6 +15,7 @@ add_executable(tnfsp_main tnfsp_main.cpp)
 add_executable(compare_main compare_main.cpp)
 add_executable(route_length_main route_length_main.cpp)
 add_executable(compare_frequencies_main compare_frequencies_main.cpp)
+add_executable(times_main times_main.cpp)
 
 target_link_libraries(main INTERFACE genetic INTERFACE net PUBLIC osm_net)
 target_link_libraries(main_x INTERFACE genetic INTERFACE net PUBLIC osm_net)
@@ -49,7 +50,11 @@ target_link_libraries(compare_frequencies_main INTERFACE genetic
 								               PUBLIC osm_net 
 								               PUBLIC urban
 								               PUBLIC transit_problem)
-
+target_link_libraries(times_main INTERFACE genetic 
+					             INTERFACE net 
+					             PUBLIC osm_net 
+					             PUBLIC urban
+					             PUBLIC transit_problem)
 
 install(TARGETS main DESTINATION ${GENETIC_INSTALL_BIN_DIR})
 install(TARGETS main_x DESTINATION ${GENETIC_INSTALL_BIN_DIR})
@@ -60,3 +65,4 @@ install(TARGETS tnfsp_main DESTINATION ${GENETIC_INSTALL_BIN_DIR})
 install(TARGETS compare_main DESTINATION ${GENETIC_INSTALL_BIN_DIR})
 install(TARGETS route_length_main DESTINATION ${GENETIC_INSTALL_BIN_DIR})
 install(TARGETS compare_frequencies_main DESTINATION ${GENETIC_INSTALL_BIN_DIR})
+install(TARGETS times_main DESTINATION ${GENETIC_INSTALL_BIN_DIR})

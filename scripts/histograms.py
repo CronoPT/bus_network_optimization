@@ -30,11 +30,11 @@ def do_transfers(json):
 
 	plt.figure(figsize=(6, 6))
 	plt.bar(transfers.keys(), transfers.values(), color=colors, width=0.95)
-	plt.ylabel('Passenger Count')
+	plt.title('Passenger Count')
 	plt.xlabel('Transfer difference from the original network')
 	plt.xticks([n for n in transfers.keys() if n%1 == 0])
 	plt.grid(axis='y')
-	plt.savefig(f'../data/images/network-uniform-{INDEX}-transfers.png', bbox_inches='tight', dpi=400)
+	plt.savefig(f'../data/images/network-weighted-{INDEX}-transfers.png', bbox_inches='tight', dpi=400)
 	if SHOW:
 		plt.show()
 			
@@ -145,17 +145,17 @@ def do_travel_time(json):
 
 	print(bin_edges)
 
-	plt.figure(figsize=(16, 6))
+	plt.figure(figsize=(11, 5))
 	# plt.bar(times.keys(), times.values(), color=colors, width=5, align='center', edgecolor='black')
 	plt.hist(x_pos, weights=w_pos, bins=bin_edges, color='red', edgecolor='darkred')
 	plt.hist(x_neg, weights=w_neg, bins=bin_edges, color='green', edgecolor='darkgreen')
 	# plt.hist(x_zero, weights=w_zero, bins=bin_edges, color='grey', edgecolor='black')
 	# plt.yscale('log', base=10)
-	plt.ylabel('Passenger Count')
+	plt.title('Passenger Count')
 	plt.xlabel('Travel time difference from the original network (mins)')
 	plt.xticks(bin_edges)
 	plt.grid(axis='y')
-	plt.savefig(f'../data/images/network-uniform-{INDEX}-time.png', bbox_inches='tight', dpi=400)
+	plt.savefig(f'../data/images/network-weighted-{INDEX}-time.png', bbox_inches='tight', dpi=400)
 	if SHOW:
 		plt.show()
 
@@ -164,8 +164,8 @@ if __name__ == '__main__':
 	INDEX = int(sys.argv[1])
 	SHOW  = False 
 
-	json = utils.json_utils.read_json_object(f'../data/json/comparisons/comparison_single_uniform-{INDEX}.json')
-	plt.rcParams['font.size'] = '12'
+	json = utils.json_utils.read_json_object(f'../data/json/comparisons/comparison_single_weighted-{INDEX}.json')
+	plt.rcParams['font.size'] = '14'
 
 	tots = 0
 	for obj in json:

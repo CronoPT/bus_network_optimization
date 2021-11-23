@@ -1,5 +1,5 @@
-#ifndef __TNDP_CONFIGS_CPP__
-#define __TNDP_CONFIGS_CPP__
+#ifndef __TNFSP_CONFIGS_CPP__
+#define __TNFSP_CONFIGS_CPP__
 
 #include "tnfsp_configs.hpp"
 

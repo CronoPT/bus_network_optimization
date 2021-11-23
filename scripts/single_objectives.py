@@ -7,12 +7,12 @@ def plot_collective():
 	mypath = '../data/json/runs/'
 	files  = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-	no_nos = ['tndp_single.json', 'tndp_single_300.json']
-	labels = {'tndp_single.json':'Uniform SO', 'tndp_single_300.json':'Weighted SO'}
-	# no_nos = ['tndp_single_300.json']
+	# no_nos = ['tndp_single.json', 'tndp_single_300.json']
+	labels = {'tndp_single.json':'Uniform SO Optimization', 'tndp_single_300.json':'Weighted SO Optmization'}
+	no_nos = ['tndp_single_300.json', 'tndp_single.json']
 
 	for file in files:
-		if 'single' in file and file not in no_nos:
+		if 'single' in file and file in no_nos:
 			json = utils.json_utils.read_json_object(f'{mypath}{file}')
 
 			x = []
@@ -27,7 +27,7 @@ def plot_collective():
 
 			plt.plot(
 				x, 
-				label=f'crossover {json["crossover_probability"]}' #label=labels[file] 
+				label=labels[file]# label=f'crossover {json["crossover_probability"]}' 
 			)
 
 	original_values = [
@@ -42,7 +42,7 @@ def plot_collective():
 		4.9452372088467484
 	]
 		
-	# plt.hlines(original_values, 0, 300, colors='thistle', label='MO Function Values')
+	plt.hlines(original_values, 0, 300, colors='thistle', label='MO Function Values')
 	plt.grid(b=True)
 	plt.legend()
 	plt.ylabel('Weighted Objetive Function Value')

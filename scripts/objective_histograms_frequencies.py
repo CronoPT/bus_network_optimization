@@ -173,7 +173,8 @@ if __name__ == '__main__':
 	# total_km   = 0
 	# total_wait = 1
 
-	fig, axs = plt.subplots(1, 2)
+	# fig, axs = plt.subplots(2, 1, figsize=(8, 12))
+	fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
 	for t, time in enumerate(times):
 		if t == 0:
@@ -190,9 +191,9 @@ if __name__ == '__main__':
 				if i==0:
 					y = [n*60 for n in y]
 				axs[i].bar(x, y, color=colors)
-				axs[i].set_ylabel(labels[i])
+				axs[i].set_title(labels[i])
 				axs[i].grid(axis='y')
-	plt.show()
+	plt.savefig(f'../data/images/network-frequencies-multi.png', bbox_inches='tight', dpi=400)
 
 	for key, value in times.items():
 		sets = []
